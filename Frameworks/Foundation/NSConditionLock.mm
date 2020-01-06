@@ -148,11 +148,50 @@
 }
 
 /**
-@Status Stub
+ @Status Interoperable
 */
 - (BOOL)lockWhenCondition:(NSInteger)condition beforeDate:(NSDate*)date {
-    UNIMPLEMENTED();
-    return NO;
+    int rc;
+    struct timespec t = { 0 };
+    struct EbrTimeval tv;
+    NSTimeInterval d = [date timeIntervalSinceNow];
+
+    EbrGetTimeOfDay(&tv);
+
+    t.tv_sec = tv.tv_sec;
+    t.tv_nsec = tv.tv_usec * 1000;
+
+    t.tv_sec += (unsigned int)d;
+    t.tv_nsec = (long)((double)t.tv_nsec + fmod(d, 1.0) * 1000000000.0);
+
+    t.tv_sec += t.tv_nsec / 1000000000;
+    t.tv_nsec %= 1000000000;
+
+    if ((rc = pthread_mutex_lock(&_mutex)) != 0) {
+        [NSException raise:NSInvalidArgumentException format:@"failed to lock %@ (errno: %d)", self, rc];
+    }
+
+    while (_value != condition) {
+        switch ((rc = pthread_cond_timedwait(&_cond, &_mutex, &t))) {
+            case 0:
+                break;
+
+            case ETIMEDOUT:
+                if ((rc = pthread_mutex_unlock(&_mutex)) != 0) {
+                    [NSException raise:NSInvalidArgumentException format:@"failed to unlock %@ before date %@ (errno: %d)", self, date, rc];
+                }
+                return NO;
+
+            default:
+                if ((rc = pthread_mutex_unlock(&_mutex)) != 0) {
+                    [NSException raise:NSInvalidArgumentException format:@"failed to unlock %@ before date %@ (errno: %d)", self, date, rc];
+                }
+                [NSException raise:NSInvalidArgumentException format:@"failed to lock %@ before date %@ (errno: %d)", self, date, rc];
+                return NO;
+        }
+    }
+    
+    return YES;
 }
 
 /**
