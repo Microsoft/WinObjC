@@ -33,30 +33,14 @@ static void WriteLayoutWidth(struct _PropertyMapper* prop, NIBWriter* writer, XI
 }
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIHighlightedColor",
-    "UIHighlightedColor",
-    NULL,
-    "IBUIShadowColor",
-    "UIShadowColor",
-    NULL,
-    "IBUIBaselineAdjustment",
-    "UIBaselineAdjustment",
-    NULL,
-    "IBUIMinimumFontSize",
-    "UIMinimumFontSize",
-    WriteMinimumFontSize,
-    "IBUINumberOfLines",
-    "UINumberOfLines",
-    NULL,
-    "IBUITextAlignment",
-    "UITextAlignment",
-    NULL,
-    "IBUILineBreakMode",
-    "UILineBreakMode",
-    NULL,
-    "preferredMaxLayoutWidth",
-    "UIPreferredMaxLayoutWidth",
-    WriteLayoutWidth,
+    {"IBUIHighlightedColor", "UIHighlightedColor", NULL},
+    {"IBUIShadowColor", "UIShadowColor", NULL},
+    {"IBUIBaselineAdjustment", "UIBaselineAdjustment", NULL},
+    {"IBUIMinimumFontSize", "UIMinimumFontSize", WriteMinimumFontSize},
+    {"IBUINumberOfLines", "UINumberOfLines", NULL},
+    {"IBUITextAlignment", "UITextAlignment", NULL},
+    {"IBUILineBreakMode", "UILineBreakMode", NULL},
+    {"preferredMaxLayoutWidth", "UIPreferredMaxLayoutWidth", WriteLayoutWidth},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 
@@ -99,7 +83,7 @@ void UITextView::InitFromStory(XIBObject* obj) {
     //  InitFromStory is called on it
     XIBObject* textNode = (XIBObject*)obj->FindMemberAndHandle("text");
     if (textNode) {
-        _text = _strdup(textNode->_node.text().as_string());
+        _text = strdup(textNode->_node.text().as_string());
     }
     _font = (UIFont*)obj->FindMemberAndHandle("fontDescription");
 

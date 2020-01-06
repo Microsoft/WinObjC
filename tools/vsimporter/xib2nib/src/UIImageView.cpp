@@ -18,7 +18,7 @@
 #include "UICustomResource.h"
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIImage", "UIImage", NULL,
+    {"IBUIImage", "UIImage", NULL}
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 

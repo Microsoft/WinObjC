@@ -17,15 +17,18 @@
 #pragma once
 #include "UIView.h"
 
-class UIColor;
 
 class UISegment : public UIView {
 public:
-    XIBObject* _info;
-    int _style;
+    const char* _title;
+    const char* _image;
+    CGSize _contentOffset;
+    bool _enabled;
+    
+    // is not parsed but to be set externaly
     int _position;
-    UIColor* _tintColor;
-    UISegment(XIBObject* info, int style, int position, UIColor* tintColor);
+
+    UISegment();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);

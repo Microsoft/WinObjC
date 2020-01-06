@@ -21,6 +21,7 @@
 #include <pugixml.hpp>
 #include <string.h>
 #include <unordered_set>
+#include <math.h>
 
 class XIBObject;
 
@@ -46,14 +47,64 @@ class XIBArray;
 
 #include "NIBWriter.h"
 
-typedef struct { float width, height; } CGSize;
+typedef struct CGSize{
+    double width, height;
+    
+    CGSize() : width(INFINITY), height(INFINITY) {
+    }
 
-typedef struct {
-    float x, y;
-    float width, height;
+    CGSize(double width, double height) : width(width), height(height) {
+    }
+
+    bool IsValid() {
+        return width != INFINITY && height != INFINITY;
+    }
+} CGSize;
+
+typedef struct UIRect {
+    double x, y;
+    double width, height;
+
+    UIRect() : x(INFINITY), y(INFINITY), width(INFINITY), height(INFINITY) {
+    }
+
+    UIRect(double x, double y, double width, double height) : x(x), y(y), width(width), height(height) {
+    }
+
+    bool IsValid() {
+        return x != INFINITY && y != INFINITY && width != INFINITY && height != INFINITY;
+    }
 } UIRect;
 
-typedef struct { float x, y; } UIPoint;
+typedef struct UIPoint{
+    double x, y;
+
+    UIPoint() : x(INFINITY), y(INFINITY) {
+    }
+    
+    UIPoint(double x, double y) : x(x), y(y) {
+    }
+
+    bool IsValid() {
+        return x != INFINITY && y != INFINITY;
+    }
+} UIPoint;
+
+typedef struct { long long location, length; } NSRange;
+
+typedef struct UIEdgeInsets {
+    double top;
+    double left;
+    double bottom;
+    double right;
+    
+    UIEdgeInsets() : top(INFINITY), left(INFINITY), bottom(INFINITY), right(INFINITY) {
+    }
+    
+    bool IsValid() {
+        return top != INFINITY && left != INFINITY && bottom != INFINITY && right != INFINITY;
+    }
+} UIEdgeInsets;
 
 const char* getNodeAttrib(pugi::xml_node node, const char* name);
 
@@ -123,13 +174,17 @@ public:
     const char* GetString(char* pPropName, char* defaultValue);
     int GetInt(char* pPropName, int defaultValue);
     bool GetBool(char* pPropName, bool defaultValue);
+    
+    void PopulateInsetsFromStoryboard(const char* insetType, UIEdgeInsets& insets);
+    void PopulateRectFromStoryboard(const char* rectType, UIRect& rect);
+    void PopulateSizeFromStoryboard(const char* sizeType, CGSize& size);
 
     template <typename TData>
     void AddData(NIBWriter* writer, char* pPropName, const TData& data) {
         char* dataOut = (char*)malloc(sizeof(TData) + 1);
-        dataOut[0] = 6;
+        dataOut[0] = 7; // NIBOBJ_DOUBLE TODO: works only with DOUBLE entries
         memcpy(&dataOut[1], &data, sizeof(TData));
-        AddOutputMember(writer, strdup(pPropName), new XIBObjectDataWriter(dataOut, sizeof(TData) + 1));
+        AddOutputMember(writer, strdup(pPropName), createDataWriter(dataOut, sizeof(TData) + 1));
     }
 
     void AddSize(NIBWriter* writer, char* pPropName, CGSize size);
@@ -151,5 +206,7 @@ public:
 
     const char* getAttrAndHandle(const char* name);
     XIBObject* FindMemberAndHandle(char* keyName);
+private:
+    XIBObject* createDataWriter(char *dataOut, int size);
 };
 #endif

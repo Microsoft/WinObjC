@@ -15,27 +15,14 @@
 //******************************************************************************
 
 #pragma once
-#include "UIControl.h"
-#include <cmath>
-
-
-class UIFont;
-class UIButton : public UIControl {
+#include "ObjectConverter.h"
+class UILayoutGuide : public ObjectConverter {
 public:
-    int _buttonType;
-    UIFont* _font;
-    UIColor* _tintColor;
-    XIBObject* _statefulContent;
-    bool _adjustsImageWhenHighlighted;
-    bool _adjustsImageWhenDisabled;
-    UIEdgeInsets _imageEdgeInsets;
-    UIEdgeInsets _contentEdgeInsets;
-    UIEdgeInsets _titleEdgeInsets;
-    int _lineBreakMode;
+    XIBObject* _owningView;
+    XIBArray* _systemConstraints;
 
-    UIButton();
+    UILayoutGuide();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);
-    void WriteStatefulContent(NIBWriter* writer, XIBObject* obj);
 };

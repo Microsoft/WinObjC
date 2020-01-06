@@ -21,6 +21,7 @@
 #include "UIColor.h"
 #include "UIButton.h"
 #include "UIFont.h"
+#include "UITextInputTraits.h"
 #include "UIRuntimeEventConnection.h"
 #include "UIRuntimeOutletConnection.h"
 #include "UIRuntimeOutletCollectionConnection.h"
@@ -53,25 +54,30 @@
 #include "UIPageControl.h"
 #include "UISwitch.h"
 #include "UISegmentedControl.h"
+#include "UISegment.h"
 #include "UIDatePicker.h"
 #include "MKMapView.h"
 #include "UISlider.h"
 #include "NSLayoutConstraint.h"
 #include "UICollectionViewCell.h"
 #include "UICollectionView.h"
+#include "UICollectionViewFlowLayout.h"
 #include "UICollectionViewController.h"
 #include "UIStepper.h"
 #include "_UILayoutGuide.h"
+#include "UILayoutGuide.h"
 #include "UIPanGestureRecognizer.h"
 #include "UISwipeGestureRecognizer.h"
 #include "UITapGestureRecognizer.h"
 #include "UIStackView.h"
 #include "UIProgressView.h"
 #include "UIPongPressGestureRecognizer.h"
+#include "UINibKeyValuePair.h"
 
+#include <map>
 #include <assert.h>
 
-#include "..\WBITelemetry\WBITelemetry.h"
+#include "../WBITelemetry/WBITelemetry.h"
 
 #define IS_CONVERTER(newinst, classnamevar, name, type) \
     if (strcmp(classnamevar, name) == 0) {              \
@@ -148,6 +154,7 @@ XIBObject* ObjectConverter::ConverterForStoryObject(const char* className, pugi:
     IS_CONVERTER(ret, className, "variation", XIBVariation)
     IS_CONVERTER(ret, className, "items", XIBArray)
     IS_CONVERTER(ret, className, "connections", XIBArray)
+    IS_CONVERTER(ret, className, "segments", XIBArray)
     IS_CONVERTER(ret, className, "string", XIBObjectString)
     IS_CONVERTER(ret, className, "viewController", UIViewController)
     IS_CONVERTER(ret, className, "splitViewController", UIViewController)
@@ -168,6 +175,7 @@ XIBObject* ObjectConverter::ConverterForStoryObject(const char* className, pugi:
     IS_CONVERTER(ret, className, "outletCollection", UIRuntimeOutletCollectionConnection)
     IS_CONVERTER(ret, className, "segue", UIStoryboardSegue)
     IS_CONVERTER(ret, className, "fontDescription", UIFont)
+    IS_CONVERTER(ret, className, "textInputTraits", UITextInputTraits)
     IS_CONVERTER(ret, className, "tableViewController", UITableViewController)
     IS_CONVERTER(ret, className, "tableView", UITableView)
     IS_CONVERTER(ret, className, "tableViewCell", UITableViewCell)
@@ -185,19 +193,25 @@ XIBObject* ObjectConverter::ConverterForStoryObject(const char* className, pugi:
     IS_CONVERTER(ret, className, "constraint", NSLayoutConstraint)
     IS_CONVERTER(ret, className, "layoutGuides", XIBVariation)
     IS_CONVERTER(ret, className, "viewControllerLayoutGuide", _UILayoutGuide)
+    IS_CONVERTER(ret, className, "viewLayoutGuide", UILayoutGuide)
     IS_CONVERTER(ret, className, "datePicker", UIDatePicker)
     IS_CONVERTER(ret, className, "slider", UISlider)
     IS_CONVERTER(ret, className, "collectionReusableView", UICollectionReusableView)
     IS_CONVERTER(ret, className, "collectionViewCell", UICollectionViewCell)
     IS_CONVERTER(ret, className, "collectionView", UICollectionView)
+    IS_CONVERTER(ret, className, "collectionViewFlowLayout", UICollectionViewFlowLayout)
     IS_CONVERTER(ret, className, "collectionViewController", UICollectionViewController)
     IS_CONVERTER(ret, className, "pickerView", UIPickerView)
     IS_CONVERTER(ret, className, "segmentedControl", UISegmentedControl)
+    IS_CONVERTER(ret, className, "segment", UISegment);
     IS_CONVERTER(ret, className, "stepper", UIStepper)
     IS_CONVERTER(ret, className, "panGestureRecognizer", UIPanGestureRecognizer)
     IS_CONVERTER(ret, className, "swipeGestureRecognizer", UISwipeGestureRecognizer)
     IS_CONVERTER(ret, className, "tapGestureRecognizer", UITapGestureRecognizer)
     IS_CONVERTER(ret, className, "window", UIWindow)
+    // support for user defined attributes (and IBInspectable)
+    IS_CONVERTER(ret, className, "userDefinedRuntimeAttribute", UINibKeyValuePair)
+    IS_CONVERTER(ret, className, "userDefinedRuntimeAttributes", XIBArray)
 
     // Stubbed mapping - full functionality is not provided but these stubs will unblock the import process
     IS_CONVERTER(ret, className, "pageControl", UIPageControl)
@@ -207,6 +221,7 @@ XIBObject* ObjectConverter::ConverterForStoryObject(const char* className, pugi:
     IS_CONVERTER(ret, className, "pongPressGestureRecognizer", UIPongPressGestureRecognizer)
 
     IS_CONVERTER(ret, className, "customObject", ObjectConverterSwapper)
+    IS_CONVERTER(ret, className, "nil", XIBObjectNil)
 
     if (ret == NULL) {
         TELEMETRY_EVENT_DATA(L"UnRecognizedTag", className);
@@ -242,13 +257,82 @@ void ConvertOffset(struct _PropertyMapper* prop, NIBWriter* writer, XIBObject* p
 
 void ObjectConverter::InitFromXIB(XIBObject* obj) {
     _connections = NULL;
+    _userDefinedAttributes = NULL;
     _connectedObjects = NULL;
 }
 void ObjectConverter::InitFromStory(XIBObject* obj) {
     setSelfHandled();
     _connections = (XIBArray*)FindMemberClass("connections");
+    _userDefinedAttributes = (XIBArray*)FindMemberClass("userDefinedRuntimeAttributes");
 }
 void ObjectConverter::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
+    if (_connections) {
+        std::map<std::string, UIRuntimeOutletCollectionConnection*> outletCollectionMap;
+
+        for (int i = 0; i < _connections->count(); i++) {
+            XIBObject* curObj = _connections->objectAtIndex(i);
+            if (strcmp(curObj->_className, "segue") == 0) {
+                UIStoryboardSegue* segue = (UIStoryboardSegue*)curObj;
+
+                UIRuntimeEventConnection* newEvent = new UIRuntimeEventConnection();
+                newEvent->_label = "perform:";
+                newEvent->_source = this;
+                newEvent->_destination = segue;
+                newEvent->_eventMask = 0x40;
+                writer->_connections->AddMember(NULL, newEvent);
+                writer->AddOutputObject(newEvent);
+            } else if (strcmp(curObj->_outputClassName, "UIRuntimeOutletConnection") == 0) {
+                UIRuntimeOutletConnection* cur = (UIRuntimeOutletConnection*)curObj;
+
+                UIRuntimeOutletConnection* newOutlet = new UIRuntimeOutletConnection();
+                newOutlet->_label = cur->_label;
+                newOutlet->_source = cur->_source;
+                newOutlet->_destination = cur->_destination;
+                writer->_connections->AddMember(NULL, newOutlet);
+                writer->AddOutputObject(newOutlet);
+            } else if (strcmp(curObj->_outputClassName, "UIRuntimeEventConnection") == 0) {
+                UIRuntimeEventConnection* cur = (UIRuntimeEventConnection*)curObj;
+
+                UIRuntimeEventConnection* newOutlet = new UIRuntimeEventConnection();
+                newOutlet->_label = cur->_label;
+                newOutlet->_source = cur->_source;
+                newOutlet->_destination = cur->_destination;
+                newOutlet->_eventMask = cur->_eventMask;
+                writer->_connections->AddMember(NULL, newOutlet);
+                writer->AddOutputObject(newOutlet);
+            } else if (strcmp(curObj->_outputClassName, "UIRuntimeOutletCollectionConnection") == 0) {
+                UIRuntimeOutletCollectionConnection* cur = (UIRuntimeOutletCollectionConnection*)curObj;
+
+                UIRuntimeOutletCollectionConnection* collection = outletCollectionMap[cur->_label];
+                if (!collection) {
+                    collection = new UIRuntimeOutletCollectionConnection();
+                    collection->_label = cur->_label;
+                    collection->_source = cur->_source;
+                    collection->addDestinations(cur->_destinations);
+                    collection->_collectionClassName = cur->_collectionClassName;
+                    outletCollectionMap[cur->_label] = collection;
+                } else {
+                    collection->addDestinations(cur->_destinations);
+                }
+            } else {
+                assert(0);
+            }
+        }
+
+        // drop collections if any
+        for( const auto& entry : outletCollectionMap ) {
+            writer->_connections->AddMember(NULL, entry.second);
+            writer->AddOutputObject(entry.second);
+        }
+    }
+
+    if (_userDefinedAttributes) {
+        for (int i = 0; i < _userDefinedAttributes->count(); i++) {
+            XIBObject *curObj = _userDefinedAttributes->objectAtIndex(i);
+            writer->_keyValuePairs->AddMember(NULL, curObj);
+            writer->AddOutputObject(curObj);
+        }
+    }
 }
 ObjectConverter* ObjectConverter::Clone() {
     return this;
@@ -281,6 +365,15 @@ void ObjectConverterSwapper::InitFromStory(XIBObject* obj) {
 
     if (getAttrib("customClass")) {
         _swappedClassName = getAttrAndHandle("customClass");
+        const char* module = NULL;
+        if (getAttrib("customModule"))
+            module = getAttrAndHandle("customModule");
+        if (module) {
+            // its swift, mange class name with module
+            char buf[128]; // should be big enough
+            snprintf(buf, 128, "_TtC%zu%s%zu%s", strlen(module), module, strlen(_swappedClassName), _swappedClassName);
+            _swappedClassName = strdup(buf);
+        }
     }
 }
 
@@ -293,43 +386,5 @@ void ObjectConverterSwapper::ConvertStaticMappings(NIBWriter* writer, XIBObject*
         obj->AddOutputMember(writer, "UIOriginalClassName", new XIBObjectString(obj->_outputClassName));
         obj->AddOutputMember(writer, "UIClassName", new XIBObjectString(obj->_swappedClassName));
         obj->_outputClassName = "UIClassSwapper";
-    }
-
-    //  Add outlets
-    if (_connectedObjects) {
-        for (int i = 0; i < _connectedObjects->count(); i++) {
-            XIBObject* curObj = (UIRuntimeOutletConnection*)_connectedObjects->objectAtIndex(i);
-            if (strcmp(curObj->_outputClassName, "UIRuntimeOutletConnection") == 0) {
-                UIRuntimeOutletConnection* cur = (UIRuntimeOutletConnection*)curObj;
-
-                UIRuntimeOutletConnection* newOutlet = new UIRuntimeOutletConnection();
-                newOutlet->_label = cur->_label;
-                newOutlet->_source = cur->_source;
-                newOutlet->_destination = cur->_destination;
-                writer->_connections->AddMember(NULL, newOutlet);
-                writer->AddOutputObject(newOutlet);
-            } else if (strcmp(curObj->_outputClassName, "UIRuntimeEventConnection") == 0) {
-                UIRuntimeEventConnection* cur = (UIRuntimeEventConnection*)curObj;
-
-                UIRuntimeEventConnection* newOutlet = new UIRuntimeEventConnection();
-                newOutlet->_label = cur->_label;
-                newOutlet->_source = cur->_source;
-                newOutlet->_destination = cur->_destination;
-                newOutlet->_eventMask = cur->_eventMask;
-                writer->_connections->AddMember(NULL, newOutlet);
-                writer->AddOutputObject(newOutlet);
-            } else if (strcmp(curObj->_outputClassName, "UIRuntimeOutletCollectionConnection") == 0) {
-                UIRuntimeOutletCollectionConnection* cur = (UIRuntimeOutletCollectionConnection*)curObj;
-
-                UIRuntimeOutletCollectionConnection* newOutlet = new UIRuntimeOutletCollectionConnection();
-                newOutlet->_label = cur->_label;
-                newOutlet->_source = cur->_source;
-                newOutlet->_destination = cur->_destination;
-                writer->_connections->AddMember(NULL, newOutlet);
-                writer->AddOutputObject(newOutlet);
-            } else {
-                assert(0);
-            }
-        }
     }
 }

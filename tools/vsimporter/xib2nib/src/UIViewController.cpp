@@ -21,7 +21,9 @@
 #include <assert.h>
 
 static PropertyMapper propertyMappings[] = {
-    "IBUINibName", "UINibName", NULL, "IBUIResizesToFullScreen", "UIResizesToFullScreen", NULL, "IBUITitle", "UITitle", NULL,
+    {"IBUINibName", "UINibName", NULL},
+    {"IBUIResizesToFullScreen", "UIResizesToFullScreen", NULL},
+    {"IBUITitle", "UITitle", NULL},
 };
 
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
@@ -102,7 +104,7 @@ void ScanForSegues(XIBArray* out, XIBObject* obj) {
         if (curMember->_obj->_className && strcmp(curMember->_obj->_className, "segue") == 0) {
             UIStoryboardSegue* curSegue = (UIStoryboardSegue*)curMember->_obj;
 
-            if (curSegue->_type == segueModal || curSegue->_type == seguePush) {
+            if (curSegue->_type != segueUnsupported) {
                 curSegue->_parent = out;
                 out->AddMember(NULL, curMember->_obj);
             }
@@ -117,6 +119,8 @@ void UIViewController::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) 
 
     XIBArray* segueTemplates = new XIBArray();
 
+    if (_storyboardIdentifier)
+        AddString(writer, "UIStoryboardIdentifier", _storyboardIdentifier);
     if (_tabBarItem)
         AddOutputMember(writer, "UITabBarItem", _tabBarItem);
     if (_navigationItem)
@@ -148,9 +152,7 @@ void UIViewController::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) 
                 viewWriter->ExportObject(_view);
 
                 XIBObject* ownerProxy = viewWriter->AddProxy("IBFilesOwner");
-                viewWriter->_topObjects->AddMember(NULL, ownerProxy);
                 XIBObject* firstResponderProxy = viewWriter->AddProxy("IBFirstResponder");
-                viewWriter->_topObjects->AddMember(NULL, firstResponderProxy);
 
                 //  Add view connection
                 viewWriter->AddOutletConnection(ownerProxy, _view, "view");
@@ -171,18 +173,14 @@ void UIViewController::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) 
         XIBObject* storyboard = writer->AddProxy("UIStoryboardPlaceholder");
         writer->AddOutletConnection(this, storyboard, "storyboard");
 
-        for (int i = 0; i < segueTemplates->count(); i++) {
-            UIStoryboardSegue* curSegue = (UIStoryboardSegue*)segueTemplates->objectAtIndex(i);
-
-            writer->AddOutletConnection(curSegue, this, "viewController");
-        }
         if (segueTemplates->count() > 0) {
             AddOutputMember(writer, "UIStoryboardSegueTemplates", segueTemplates);
 
             for (int i = 0; i < segueTemplates->count(); i++) {
                 UIStoryboardSegue* curSegue = (UIStoryboardSegue*)segueTemplates->objectAtIndex(i);
 
-                NIBWriter::ExportController(curSegue->getAttrib("destination"));
+                writer->AddOutletConnection(curSegue, this, "viewController");
+                writer->_allUIObjects->AddMember(NULL, curSegue);
             }
         }
     }

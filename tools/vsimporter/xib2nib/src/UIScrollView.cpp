@@ -25,24 +25,12 @@ static void InvertBool(struct _PropertyMapper* prop, NIBWriter* writer, XIBObjec
 }
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIScrollEnabled",
-    "UIScrollDisabled",
-    InvertBool,
-    "IBUIDelaysContentTouches",
-    "UIDelaysContentTouches",
-    NULL,
-    "IBUIDelaysContentTouches",
-    "UIDelaysContentTouches",
-    NULL,
-    "IBUIPagingEnabled",
-    "UIPagingEnabled",
-    NULL,
-    "IBUIShowsHorizontalScrollIndicator",
-    "UIShowsHorizontalScrollIndicator",
-    NULL,
-    "IBUIShowsVerticalScrollIndicator",
-    "UIShowsVerticalScrollIndicator",
-    NULL,
+    {"IBUIScrollEnabled", "UIScrollDisabled", InvertBool},
+    {"IBUIDelaysContentTouches", "UIDelaysContentTouches", NULL},
+    {"IBUIDelaysContentTouches", "UIDelaysContentTouches", NULL},
+    {"IBUIPagingEnabled", "UIPagingEnabled", NULL},
+    {"IBUIShowsHorizontalScrollIndicator", "UIShowsHorizontalScrollIndicator", NULL},
+    {"IBUIShowsVerticalScrollIndicator", "UIShowsVerticalScrollIndicator", NULL},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 

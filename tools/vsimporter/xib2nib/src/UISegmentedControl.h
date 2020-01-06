@@ -21,9 +21,11 @@ class UISegmentedControl : public UIControl {
 public:
     XIBArray* _segments;
     bool _momentary;
+    bool _springLoaded;
+    
     UIColor* _tintColor;
-    int _style;
-    int _selected;
+    int _segmentControlStyle;
+    int _selectedSegmentIndex;
 
     UISegmentedControl();
     virtual void InitFromXIB(XIBObject* obj);

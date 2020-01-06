@@ -17,13 +17,25 @@
 #pragma once
 #include "ObjectConverter.h"
 
-typedef enum { segueRelationship, segueModal, seguePush } SegueType;
+typedef enum {
+    segueRelationship,
+    segueModal, // deprecated
+    seguePush, // deprecated
+    segueShow,
+    segueShowDetails,
+    seguePresentModally,
+    seguePresentAsPopover,
+    segueCustom,
+
+    segueUnsupported,
+} SegueType;
 
 class UIStoryboardSegue : public ObjectConverter {
 public:
     const char* _destination;
     SegueType _type;
     const char* _identifier;
+    const char* _actionName;
 
     UIStoryboardSegue();
     virtual void InitFromXIB(XIBObject* obj);

@@ -21,8 +21,7 @@
 #include "UIProxyObject.h"
 #include <assert.h>
 #include <map>
-#include "UIViewController.h"
-#include "..\WBITelemetry\WBITelemetry.h"
+#include "../WBITelemetry/WBITelemetry.h"
 
 int curPlaceholder = 1;
 
@@ -79,7 +78,8 @@ XIBObject* NIBWriter::AddOutputObject(XIBObject* pObj) {
 }
 
 typedef struct {
-    int _a, _b;
+    int _numHeaders;
+    int _sizeDw;
     int _numObjects; //  2
     int _objectsOffset; //  3
     int _numKeyNames; //  4
@@ -129,6 +129,8 @@ NIBWriter::NIBWriter(FILE* out) {
     _baseObject = NULL;
     _connections = NULL;
     _visibleWindows = NULL;
+    _minimumDeploymentTarget = DEPLOYMENT_TARGET_RECENT;
+    _wasLimitedByDeplymentTarget = false;
     fpOut = out;
 }
 
@@ -138,6 +140,8 @@ NIBWriter::NIBWriter(FILE* out, XIBDictionary* externalReferences, XIBObject* ba
     _baseObject = NULL;
     _connections = NULL;
     _visibleWindows = NULL;
+    _minimumDeploymentTarget = DEPLOYMENT_TARGET_RECENT;
+    _wasLimitedByDeplymentTarget = false;
     fpOut = out;
 
     curPlaceholder = 1;
@@ -147,6 +151,7 @@ NIBWriter::NIBWriter(FILE* out, XIBDictionary* externalReferences, XIBObject* ba
     _connections = new XIBArray();
     _topObjects = new XIBArray();
     _visibleWindows = new XIBArray();
+    _keyValuePairs = new XIBArray();
     _accessibilityObjects = new XIBAccessibilityArray();
 }
 
@@ -165,7 +170,7 @@ void NIBWriter::WriteObjects() {
     nibRoot->AddMember("UINibConnectionsKey", _connections);
     nibRoot->AddMember("UINibVisibleWindowsKey", _visibleWindows);
     nibRoot->AddMember("UINibAccessibilityConfigurationsKey", _accessibilityObjects);
-    nibRoot->AddMember("UINibKeyValuePairsKey", new XIBArray());
+    nibRoot->AddMember("UINibKeyValuePairsKey", _keyValuePairs);
 
     AddOutputObject(nibRoot);
     //  Sort connection records alphabetically using stable, uh, bubble sort
@@ -233,6 +238,10 @@ void NIBWriter::AddOutletConnection(XIBObject* src, XIBObject* dst, char* propNa
 }
 
 XIBObject* NIBWriter::AddProxy(char* propName) {
+    XIBObject* existingProxy = NIBWriter::FindProxy(propName);
+    if (existingProxy)
+        return existingProxy;
+
     UIProxyObject* newProxy = new UIProxyObject();
     newProxy->_identifier = strdup(propName);
     _allUIObjects->AddMember(NULL, newProxy);
@@ -290,67 +299,6 @@ XIBObject* NIBWriter::GetProxyFor(XIBObject* obj) {
     return newProxy;
 }
 
-std::map<std::string, std::string> _g_exportedControllers;
-
-void NIBWriter::ExportAllControllers() {
-    for (const char* cur : UIViewController::_viewControllerNames) {
-        ExportController(cur);
-    }
-}
-
-void NIBWriter::ExportController(const char* controllerId) {
-    char szFilename[255];
-
-    XIBObject* controller = XIBObject::findReference(controllerId);
-    UIViewController* uiViewController = dynamic_cast<UIViewController*>(controller);
-    if (!uiViewController) {
-        // object isn't really a controller
-        printf("Object %s is not a controller\n", controller->stringValue());
-        return;
-    }
-
-    const char* controllerIdentifier = uiViewController->_storyboardIdentifier;
-    if (controllerIdentifier == NULL) {
-        // not all viewcontrollers will have a storyboard identifier. If they don't use the controller Id for the key.
-        controllerIdentifier = controllerId;
-    }
-
-    //  Check if we've already written out the controller
-    if (_g_exportedControllers.find(controllerId) != _g_exportedControllers.end()) {
-        return;
-    }
-
-    sprintf(szFilename, "%s.nib", controllerIdentifier);
-
-    _g_exportedControllers[controllerIdentifier] = controllerIdentifier;
-
-    XIBArray* objects = (XIBArray*)controller->_parent;
-
-    printf("Writing %s\n", GetOutputFilename(szFilename).c_str());
-    FILE* fpOut = fopen(GetOutputFilename(szFilename).c_str(), "wb");
-
-    NIBWriter* writer = new NIBWriter(fpOut, NULL, NULL);
-
-    XIBObject* firstResponderProxy = writer->AddProxy("IBFirstResponder");
-    XIBObject* ownerProxy = writer->AddProxy("IBFilesOwner");
-    XIBObject* storyboard = writer->AddProxy("UIStoryboardPlaceholder");
-
-    XIBArray* arr = (XIBArray*)objects;
-    for (int i = 0; i < arr->count(); i++) {
-        XIBObject* curObj = arr->objectAtIndex(i);
-
-        writer->ExportObject(curObj);
-        if (curObj->getAttrib("sceneMemberID")) {
-            if (strcmp(curObj->getAttrib("sceneMemberID"), "viewController") == 0) {
-                writer->AddOutletConnection(ownerProxy, curObj, "sceneViewController");
-            }
-        }
-    }
-
-    writer->WriteObjects();
-
-    fclose(fpOut);
-}
 
 void NIBWriter::WriteData() {
     fwrite("NIBArchive", 10, 1, fpOut);
@@ -379,11 +327,9 @@ void NIBWriter::WriteData() {
     for (int i = 0; i < classNames._numStrings; i++) {
         char* pName = classNames._stringTable[i];
         int len = strlen(pName) + 1;
-        WriteInt(len, 2);
-        if (len == 0x1b) {
-            int filler = 6;
-            fwrite(&filler, 1, 4, fpOut);
-        }
+        WriteInt(len, 1);
+        int tp = 0x80;
+        fwrite(&tp, 1, 1, fpOut);
         fwrite(pName, 1, len, fpOut);
 
         header._numClassNames++;
@@ -402,7 +348,7 @@ void NIBWriter::WriteData() {
 
     for (int i = 0; i < keyNames._numStrings; i++) {
         char* pName = keyNames._stringTable[i];
-        int len = strlen(pName) + 1;
+        int len = strlen(pName);
         WriteInt(len, 1);
         fwrite(pName, 1, len, fpOut);
 
@@ -450,6 +396,9 @@ void NIBWriter::WriteData() {
 
         header._numObjects++;
     }
+
+    header._numHeaders = 1;
+    header._sizeDw = 9;
 
     fseek(fpOut, headerPos, SEEK_SET);
     fwrite(&header, sizeof(header), 1, fpOut);

@@ -16,8 +16,10 @@
 
 #include "NSLayoutConstraint.h"
 #include "UIView.h"
+#include "UILayoutGuide.h"
 
 #include <assert.h>
+#include <string>
 #include <map>
 
 std::map<std::string, NSLayoutAttribute> storyToLayout = { { "left", NSLayoutAttributeLeft },
@@ -41,17 +43,24 @@ std::map<std::string, NSLayoutAttribute> storyToLayout = { { "left", NSLayoutAtt
                                                            { "centerXWithinMargins", NSLayoutAttributeCenterXWithinMargins },
                                                            { "centerYWithinMargins", NSLayoutAttributeCenterYWithinMargins } };
 
+static std::map<std::string, NSLayoutRelation> storyToRelation = {
+    { "greaterThanOrEqual", NSLayoutRelationGreaterThanOrEqual },
+    { "lessThanOrEqual", NSLayoutRelationLessThanOrEqual }};
+
 NSLayoutConstraint::NSLayoutConstraint() {
     _firstItem = NULL;
     _secondItem = NULL;
     _firstAttribute = NSLayoutAttributeNotAnAttribute;
     _secondAttribute = NSLayoutAttributeNotAnAttribute;
     _relation = NSLayoutRelationEqual;
-    _multiplier = 1.0f;
+    _multiplier = 1.0;
     _priority = NSLayoutPriorityRequired;
-    _constant = 0.0f;
-    _symbolicConstant = 0.0f;
+    _constant = 0.0;
+    _symbolicConstant = 0.0;
     _hasSymbolicConstant = false;
+    _layoutIdentifier = NULL;
+    _placeholder = false;
+    _exportDefaultValues = false;
 }
 
 void NSLayoutConstraint::InitFromXIB(XIBObject* obj) {
@@ -69,10 +78,10 @@ void NSLayoutConstraint::InitFromXIB(XIBObject* obj) {
         _multiplier = obj->FindMember("multiplier")->floatValue();
     }
     if (obj->FindMember("priority")) {
-        _priority = obj->FindMember("priority")->floatValue();
+        _priority = obj->FindMember("priority")->intValue();
     }
     if (obj->FindMember("constant") && obj->FindMember("constant")->FindMember("value")) {
-        if (obj->FindMember("constant")->ClassName() == "IBLayoutConstant") {
+        if (strcmp(obj->FindMember("constant")->ClassName(), "IBLayoutConstant") == 0) {
             _constant = obj->FindMember("constant")->FindMember("value")->floatValue();
         } else {
             _hasSymbolicConstant = true;
@@ -92,18 +101,18 @@ void NSLayoutConstraint::InitFromStory(XIBObject* obj) {
     ObjectConverterSwapper::InitFromStory(obj);
 
     const char* attr;
-    if (attr = obj->getAttrAndHandle("firstAttribute")) {
+    if ((attr = obj->getAttrAndHandle("firstAttribute"))) {
         if (storyToLayout.find(attr) != storyToLayout.end()) {
             _firstAttribute = storyToLayout[attr];
         }
     }
-    if (attr = obj->getAttrAndHandle("secondAttribute")) {
+    if ((attr = obj->getAttrAndHandle("secondAttribute"))) {
         if (storyToLayout.find(attr) != storyToLayout.end()) {
             _secondAttribute = storyToLayout[attr];
         }
     }
 
-    if (attr = obj->getAttrAndHandle("constant")) {
+    if ((attr = obj->getAttrAndHandle("constant"))) {
         if (obj->getAttrAndHandle("symbolic") && strcmp(obj->getAttrAndHandle("symbolic"), "YES") == 0) {
             _hasSymbolicConstant = true;
             _symbolicConstant = strtod(attr, NULL);
@@ -111,21 +120,38 @@ void NSLayoutConstraint::InitFromStory(XIBObject* obj) {
             _constant = strtod(attr, NULL);
         }
     }
-    if (attr = obj->getAttrAndHandle("priority")) {
-        _priority = strtod(attr, NULL);
+    if ((attr = obj->getAttrAndHandle("priority"))) {
+        _priority = std::stoi(attr, NULL);
     }
 
-    if (attr = obj->getAttrAndHandle("multiplier")) {
-        _priority = strtod(attr, NULL);
+    if ((attr = obj->getAttrAndHandle("multiplier"))) {
+        char *separator;
+        _multiplier = strtod(attr, &separator);
+        if (*separator == ':') {
+            // it is multiplier in form of "100:200"
+            double div = strtod(separator + 1, NULL);
+            _multiplier /= div;
+        }
     }
 
-    if (attr = getAttrAndHandle("secondItem")) {
+    if ((attr = getAttrAndHandle("secondItem"))) {
         _secondItem = findReference(attr);
         assert(_secondItem);
     }
-    if (attr = getAttrAndHandle("firstItem")) {
+
+    if ((attr = getAttrAndHandle("firstItem"))) {
         _firstItem = findReference(attr);
         assert(_firstItem);
+    }
+
+    if ((attr = obj->getAttrAndHandle("relation"))) {
+        if (storyToRelation.find(attr) != storyToRelation.end()) {
+            _relation = storyToRelation[attr];
+        }
+    }
+
+    if ((attr = obj->getAttrAndHandle("placeholder"))) {
+        _placeholder = strcmp(attr, "YES") == 0;
     }
 
     _outputClassName = "NSLayoutConstraint";
@@ -134,35 +160,50 @@ void NSLayoutConstraint::InitFromStory(XIBObject* obj) {
 void NSLayoutConstraint::Awaken() {
     if (!_firstItem) {
         // Alludes to superview.
-        if (_secondItem && _secondItem->_parent) {
-            _firstItem = dynamic_cast<UIView*>(_secondItem->_parent->_parent);
-            assert(_firstItem);
-        } else {
-            _firstItem = dynamic_cast<UIView*>(_parent->_parent);
-            assert(_firstItem);
-        }
+        _firstItem = dynamic_cast<UIView*>(_parent->_parent);
+        assert(_firstItem);
     }
 }
 
 void NSLayoutConstraint::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     AddInt(writer, "NSFirstAttribute", _firstAttribute);
-    AddInt(writer, "NSSecondAttribute", _secondAttribute);
+    if (_secondAttribute)
+        AddInt(writer, "NSSecondAttribute", _secondAttribute);
 
-    AddInt(writer, "NSRelation", _relation);
+    if (_exportDefaultValues || _relation != NSLayoutRelationEqual)
+        AddInt(writer, "NSRelation", _relation);
 
     if (_firstItem)
-        AddOutputMember(writer, "NSFirstItem", _firstItem);
+        AddOutputMember(writer, "NSFirstItem", substituteItemUnsupported(writer, _firstItem));
     if (_secondItem)
-        AddOutputMember(writer, "NSSecondItem", _secondItem);
+        AddOutputMember(writer, "NSSecondItem", substituteItemUnsupported(writer, _secondItem));
 
-    AddOutputMember(writer, "NSMultiplier", new XIBObjectFloat(_multiplier));
-    AddInt(writer, "NSPriority", _priority);
+    if (_exportDefaultValues || _multiplier != 1.0f)
+        AddOutputMember(writer, "NSMultiplier", new XIBObjectDouble(_multiplier));
+    if (_exportDefaultValues || _priority != NSLayoutPriorityRequired)
+        AddInt(writer, "NSPriority", _priority);
 
     if (_hasSymbolicConstant) {
-        AddOutputMember(writer, "NSSymbolicConstant", new XIBObjectFloat(_symbolicConstant));
+        AddOutputMember(writer, "NSSymbolicConstant", new XIBObjectDouble(_symbolicConstant));
     } else {
-        AddOutputMember(writer, "NSConstant", new XIBObjectFloat(_constant));
+        if (_exportDefaultValues || _constant != 0)
+            AddOutputMember(writer, "NSConstant", new XIBObjectDouble(_constant));
     }
 
+    if (_layoutIdentifier)
+        AddString(writer, "NSLayoutIdentifier", _layoutIdentifier);
+
     ObjectConverterSwapper::ConvertStaticMappings(writer, obj);
+}
+
+XIBObject* NSLayoutConstraint::substituteItemUnsupported(NIBWriter* writer, XIBObject* item){
+    if (writer->_minimumDeploymentTarget < DEPLOYMENT_TARGET_IOS11 && (strcmp(item->_outputClassName, "UILayoutGuide") == 0)) {
+        writer->_wasLimitedByDeplymentTarget = true;
+        // constraint to layout guide that is not supported, replace them to view
+        UILayoutGuide *guide = (UILayoutGuide*)item;
+        if (guide->_owningView)
+            return guide->_owningView;
+    }
+    
+    return item;
 }

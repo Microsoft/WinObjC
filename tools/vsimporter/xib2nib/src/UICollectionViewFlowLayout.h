@@ -15,27 +15,26 @@
 //******************************************************************************
 
 #pragma once
-#include "UIControl.h"
-#include <cmath>
+#include "ObjectConverter.h"
 
 
-class UIFont;
-class UIButton : public UIControl {
+class UICollectionViewFlowLayout : public ObjectConverter {
 public:
-    int _buttonType;
-    UIFont* _font;
-    UIColor* _tintColor;
-    XIBObject* _statefulContent;
-    bool _adjustsImageWhenHighlighted;
-    bool _adjustsImageWhenDisabled;
-    UIEdgeInsets _imageEdgeInsets;
-    UIEdgeInsets _contentEdgeInsets;
-    UIEdgeInsets _titleEdgeInsets;
-    int _lineBreakMode;
-
-    UIButton();
+    int _scrollDirection;
+    float _minimumLineSpacing;
+    float _minimumInteritemSpacing;
+    
+    const char *_customClass;
+    const char *_customModule;
+    
+    int _sectionInsetReference;
+    CGSize _itemSize;
+    CGSize _headerReferenceSize;
+    CGSize _footerReferenceSize;
+    UIEdgeInsets _sectionInset;
+    
+    UICollectionViewFlowLayout();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);
-    void WriteStatefulContent(NIBWriter* writer, XIBObject* obj);
 };

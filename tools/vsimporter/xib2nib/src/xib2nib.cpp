@@ -18,21 +18,24 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 #include <vector>
-#include <direct.h>
+//#include <direct.h>
 #include <assert.h>
 #include <map>
-#include <filesystem>
+//#include <filesystem>
+#include <sys/stat.h>
 
 #include "XIBObject.h"
 #include "XIBObjectTypes.h"
 #include "XIBDocument.h"
 #include "NIBWriter.h"
+#include "UIViewController.h"
 #include "Plist.hpp"
 #include "miscutils.h"
 #include "versionutils.h"
 
-#include "..\WBITelemetry\WBITelemetry.h"
+#include "../WBITelemetry/WBITelemetry.h"
 
 // These globals should only be employed when dealing with storyboard files (.storyboard)
 // They are only set once when we determine that the input format is a storyboard
@@ -49,9 +52,133 @@ std::string GetOutputFilename(const char* filename) {
     return ret;
 }
 
-extern std::map<std::string, std::string> _g_exportedControllers;
+// convert string presentation of version to hex enctoded integer "a.b.c" > 0xaaaabbcc
+static int stringToVersion(const char *str){
+    int v = -1;
+    std::stringstream ss(str);
+    std::string s;
+    std::vector<int> items;
+    while (getline(ss, s, '.')) {
+        items.push_back(std::stoi(s));
+    }
+    
+    // small sanity for range checking
+    if (items.size() && items[0] >= 0 && items[0] <= 0xFFFF) {
+        v = items[0] << 16;
+        if (items.size() > 1)
+            v = (items[1] >= 0 && items[1] <= 0xFF) ? (v | items[1] << 8) : -1;
+        if (v >= 0 && items.size() > 2)
+            v = (items[2] >= 0 && items[2] <= 0xFF) ? (v | items[2] << 8) : -1;
+    }
+    
+    return v;
+}
 
-void ConvertStoryboard(pugi::xml_document& doc) {
+
+
+
+static NIBWriter* WriteStoryNibToFile(const char *szFilename, XIBArray* arr, const int minDeploymentVersion) {
+    FILE* fpOut = fopen(GetOutputFilename(szFilename).c_str(), "wb");
+    NIBWriter* writer = new NIBWriter(fpOut, NULL, NULL);
+    writer->_minimumDeploymentTarget = minDeploymentVersion;
+
+    XIBObject* ownerProxy = writer->FindProxy("IBFilesOwner");
+    if (!ownerProxy)
+        ownerProxy = writer->AddProxy("IBFilesOwner");
+    
+    for (int i = 0; i < arr->count(); i++) {
+        XIBObject* curObj = arr->objectAtIndex(i);
+        
+        writer->ExportObject(curObj);
+        if (curObj->getAttrib("sceneMemberID")) {
+            if (strcmp(curObj->getAttrib("sceneMemberID"), "viewController") == 0) {
+                writer->AddOutletConnection(ownerProxy, curObj, "sceneViewController");
+            }
+        }
+    }
+    
+    writer->WriteObjects();
+    fclose(fpOut);
+    
+    return writer;
+}
+
+void ExportStoryBoardController(std::map<std::string, std::string> exportedControllers, const char* controllerId,
+                                const int minDeploymentVersion) {
+    char szFilename[255];
+    
+    XIBObject* controller = XIBObject::findReference(controllerId);
+    UIViewController* uiViewController = dynamic_cast<UIViewController*>(controller);
+    if (!uiViewController) {
+        // object isn't really a controller
+        printf("Object %s is not a controller\n", controller->stringValue());
+        return;
+    }
+    
+    const char* controllerIdentifier = uiViewController->_storyboardIdentifier;
+    if (controllerIdentifier == NULL) {
+        // not all viewcontrollers will have a storyboard identifier. If they don't use the controller Id for the key.
+        controllerIdentifier = controllerId;
+    }
+    
+    //  Check if we've already written out the controller
+    if (exportedControllers.find(controllerIdentifier) != exportedControllers.end()) {
+        return;
+    }
+    
+    sprintf(szFilename, "%s.nib", controllerIdentifier);
+    exportedControllers[controllerIdentifier] = controllerIdentifier;
+    
+    XIBArray* viewObjects = (XIBArray*)controller->_parent;
+    
+    const char *outFile = GetOutputFilename(szFilename).c_str();
+    printf("Writing %s\n", outFile);
+    
+    if (minDeploymentVersion < 0) {
+        // version is not limited compile to recent one
+        NIBWriter* writer = WriteStoryNibToFile(outFile, (XIBArray*)viewObjects, DEPLOYMENT_TARGET_RECENT);
+        assert(!writer->_wasLimitedByDeplymentTarget);
+    } else {
+        // there is limitation applied
+        // compile to test file to check if there will be limitation during the run
+        std::string tmp = std::string(outFile) + ".tmp";
+        NIBWriter* writer = WriteStoryNibToFile(tmp.c_str(), (XIBArray*)viewObjects, minDeploymentVersion);
+        if (writer->_wasLimitedByDeplymentTarget) {
+            // limitation has applied, so begin plan b:
+            // create dir with outFile name
+            struct stat st = { 0 };
+            stat(outFile, &st);
+            if (!(((st.st_mode) & S_IFMT) == S_IFDIR) && _mkdir(outFile) != 0) {
+                printf("Unable to create directory %s err=%d\n", outFile, errno);
+                exit(-1);
+                return;
+            }
+            
+            // move tmp file to
+            std::string dest = std::string(outFile) + "/runtime.nib";
+            if (rename(tmp.c_str(), dest.c_str()) != 0) {
+                printf("Failed to move nib to  %s/runtime.nib err=%d\n", outFile, errno);
+                exit(-1);
+                return;
+            }
+            
+            // and now generate unlimited version
+            dest = std::string(outFile) + "/objects-11.0+.nib";
+            NIBWriter* writer = WriteStoryNibToFile(dest.c_str(), (XIBArray*)viewObjects, DEPLOYMENT_TARGET_RECENT);
+            assert(!writer->_wasLimitedByDeplymentTarget);
+        } else {
+            // no limitations, just rename file to target
+            if (rename(tmp.c_str(), outFile) != 0) {
+                printf("Failed to rename nib to %s err=%d\n", outFile, errno);
+                exit(-1);
+                return;
+            }
+        }
+    }
+}
+
+
+void ConvertStoryboard(pugi::xml_document& doc, const int minDeploymentVersion) {
     pugi::xml_node curNode = doc.first_child();
 
     //  Storyboard XIB file - get topmost controller, then export it
@@ -69,14 +196,17 @@ void ConvertStoryboard(pugi::xml_document& doc) {
     // Print which XML nodes we did not handle during the parse for diagnostic purpose.
     XIBObject::getDocumentCoverage(doc);
 
-    NIBWriter::ExportAllControllers();
+    std::map<std::string, std::string> exportedControllers;
+    for (const char* cur : UIViewController::_viewControllerNames) {
+        ExportStoryBoardController(exportedControllers, cur, minDeploymentVersion);
+    }
 
     Plist::dictionary_type viewControllerInfo;
     viewControllerInfo[std::string("UIStoryboardDesignatedEntryPointIdentifier")] = std::string(initialController);
     viewControllerInfo[std::string("UIStoryboardVersion")] = (int)1;
 
     Plist::dictionary_type viewControllerMappings;
-    for (auto curController : _g_exportedControllers) {
+    for (auto curController : exportedControllers) {
         viewControllerMappings[curController.first] = curController.second;
     }
     viewControllerInfo[std::string("UIViewControllerIdentifiersToNibNames")] = viewControllerMappings;
@@ -85,7 +215,29 @@ void ConvertStoryboard(pugi::xml_document& doc) {
     Plist::writePlistBinary(GetOutputFilename("Info.plist").c_str(), viewControllerInfo);
 }
 
-void ConvertXIB3ToNib(FILE* fpOut, pugi::xml_document& doc) {
+NIBWriter* WriteNibToFile(const char *outFile, XIBArray* arr, const int minDeploymentVersion) {
+    FILE* fpOut = fopen(outFile, "wb");
+    if (!fpOut) {
+        printf("Error opening %s\n", outFile);
+        exit(-1);
+        return NULL;
+    }
+    
+    NIBWriter* writer = new NIBWriter(fpOut, NULL, NULL);
+    writer->_minimumDeploymentTarget = minDeploymentVersion;
+    for (int i = 0; i < arr->count(); i++) {
+        XIBObject* curObj = arr->objectAtIndex(i);
+        
+        writer->ExportObject(curObj);
+    }
+    
+    writer->WriteObjects();
+    fclose(fpOut);
+    
+    return writer;
+}
+
+void ConvertXIB3ToNib(const char *outFile, pugi::xml_document& doc, const int minDeploymentVersion) {
     pugi::xml_node curNode = doc.first_child();
 
     //  XIB3 file
@@ -95,19 +247,50 @@ void ConvertXIB3ToNib(FILE* fpOut, pugi::xml_document& doc) {
 
     XIBArray* viewObjects = rootDocument->Objects();
     if (viewObjects) {
-        NIBWriter* writer = new NIBWriter(fpOut, NULL, NULL);
+        if (minDeploymentVersion < 0) {
+            // version is not limited compile to recent one
+            NIBWriter* writer = WriteNibToFile(outFile, (XIBArray*)viewObjects, DEPLOYMENT_TARGET_RECENT);
+            assert(!writer->_wasLimitedByDeplymentTarget);
+        } else {
+            // there is limitation applied
+            // compile to test file to check if there will be limitation during the run
+            std::string tmp = std::string(outFile) + ".tmp";
+            NIBWriter* writer = WriteNibToFile(tmp.c_str(), (XIBArray*)viewObjects, minDeploymentVersion);
+            if (writer->_wasLimitedByDeplymentTarget) {
+                // limitation has applied, so begin plan b:
+                // create dir with outFile name
+                struct stat st = { 0 };
+                stat(outFile, &st);
+                if (!(((st.st_mode) & S_IFMT) == S_IFDIR) && _mkdir(outFile) != 0) {
+                    printf("Unable to create directory %s err=%d\n", outFile, errno);
+                    exit(-1);
+                    return;
+                }
+                
+                // move tmp file to
+                std::string dest = std::string(outFile) + "/runtime.nib";
+                if (rename(tmp.c_str(), dest.c_str()) != 0) {
+                    printf("Failed to move nib to  %s/runtime.nib err=%d\n", outFile, errno);
+                    exit(-1);
+                    return;
+                }
 
-        XIBArray* arr = (XIBArray*)viewObjects;
-        for (int i = 0; i < arr->count(); i++) {
-            XIBObject* curObj = arr->objectAtIndex(i);
-
-            writer->ExportObject(curObj);
+                // and now generate unlimited version
+                dest = std::string(outFile) + "/objects-11.0+.nib";
+                NIBWriter* writer = WriteNibToFile(dest.c_str(), (XIBArray*)viewObjects, DEPLOYMENT_TARGET_RECENT);
+                assert(!writer->_wasLimitedByDeplymentTarget);
+            } else {
+                // no limitations, just rename file to target
+                if (rename(tmp.c_str(), outFile) != 0) {
+                    printf("Failed to rename nib to %s err=%d\n", outFile, errno);
+                    exit(-1);
+                    return;
+                }
+            }
         }
-
-        writer->WriteObjects();
     }
 }
-void ConvertXIBToNib(FILE* fpOut, pugi::xml_document& doc) {
+void ConvertXIBToNib(const char *outFile, pugi::xml_document& doc) {
     pugi::xml_node dataNode = doc.first_element_by_path("/archive/data");
 
     XIBObject* root = new XIBObject();
@@ -138,7 +321,6 @@ void ConvertXIBToNib(FILE* fpOut, pugi::xml_document& doc) {
                 //  Attempt to find any associated custom class name
                 char szPropName[255];
                 sprintf(szPropName, "%d.CustomClassName", objId);
-                const char* pClassName = obj->ClassName();
 
                 XIBObject* customName = properties->ObjectForKey(szPropName);
                 if (customName) {
@@ -231,11 +413,28 @@ void ConvertXIBToNib(FILE* fpOut, pugi::xml_document& doc) {
     nibRoot->AddMember("UINibAccessibilityConfigurationsKey", accessibilityObjects);
     nibRoot->AddMember("UINibKeyValuePairsKey", new XIBArray());
 
+    FILE* fpOut = fopen(outFile, "wb");
+    if (!fpOut) {
+        printf("Error opening %s\n", outFile);
+        exit(-1);
+        return;
+    }
+
     NIBWriter* writer = new NIBWriter(fpOut);
     writer->_allUIObjects = allObjects;
     writer->_visibleWindows = visibleWindows;
     writer->AddOutputObject(nibRoot);
     writer->WriteData();
+
+    fclose(fpOut);
+}
+
+void printUsageAndExit(int code) {
+    printf("Usage:\n");
+    printf("xib2nib [--minimum-deployment-target  version] --compile <out> <in>\n");
+
+    TELEMETRY_FLUSH();
+    exit(code);
 }
 
 int main(int argc, char* argv[]) {
@@ -248,19 +447,66 @@ int main(int argc, char* argv[]) {
     }
 
     TELEMETRY_SET_INTERNAL(isMSFTInternalMachine());
-    string machineID = getMachineID();
+    std::string machineID = getMachineID();
     if (!machineID.empty()) {
         TELEMETRY_SET_MACHINEID(machineID.c_str());
     }
 
     TELEMETRY_EVENT_DATA(L"Xib2NibStart", getProductVersion().c_str());
+    
+    // parsing arguments
+    const char *inFile = NULL;
+    const char *outFile = NULL;
+    int minVersion = -1;
+    
+    int idx = 1;
+    while (idx < argc) {
+        if (*argv[idx] == '-') {
+            // parse argument
+            if (strcmp("--compile", argv[idx]) == 0) {
+                if (idx + 1 < argc) {
+                    outFile = argv[idx + 1];
+                    idx += 2;
+                } else {
+                    printf("Error missing argument after --compile\n");
+                    printUsageAndExit(-1);
+                    return -1;
+                }
+            } else if (strcmp("--minimum-deployment-target", argv[idx]) == 0) {
+                if (idx + 1 < argc) {
+                    minVersion = stringToVersion(argv[idx + 1]);
+                    if (minVersion < 0) {
+                        printf("Error invalid version argument %s\n", argv[idx + 1]);
+                        printUsageAndExit(-1);
+                        return -1;
+                    }
+                    idx += 2;
+                } else {
+                    printf("Error missing argument after --compile\n");
+                    printUsageAndExit(-1);
+                    return -1;
+                }
+            } else {
+                printf("Error unknown parameter %s\n", argv[idx]);
+                printUsageAndExit(-1);
+                return -1;
+            }
+        } else {
+            inFile = argv[idx];
+            idx += 1;
+        }
+    }
+    
+    if (!inFile || !outFile) {
+        printf("Error missing required parameters");
+        printUsageAndExit(-1);
+        return -1;
+    }
 
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(argv[1]);
+    pugi::xml_parse_result result = doc.load_file(inFile);
     if (!result) {
-        printf("Error opening %s\n", argv[1]);
-        TELEMETRY_FLUSH();
-        exit(2);
+        printf("Error opening %s\n", inFile);
         return -1;
     }
 
@@ -268,54 +514,28 @@ int main(int argc, char* argv[]) {
     const char* type = getNodeAttrib(rootNode, "type");
     if (!type) {
         printf("Unable to find input type\n");
-        TELEMETRY_FLUSH();
-        exit(3);
         return -1;
     }
     if (strcmp(rootNode.name(), "document") == 0 && strcmp(type, "com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB") == 0) {
-        if (argc < 3) {
-            printf("Usage: xib2nib input.storyboard <outputdir>\n");
-            TELEMETRY_FLUSH();
-            exit(1);
-            return -1;
-        }
-
         struct stat st = { 0 };
-        stat(argv[2], &st);
-        if (!(((st.st_mode) & S_IFMT) == S_IFDIR) && _mkdir(argv[2]) != 0) {
-            printf("Unable to create directory %s err=%d\n", argv[2], errno);
+        stat(outFile, &st);
+        if (!(((st.st_mode) & S_IFMT) == S_IFDIR) && _mkdir(outFile) != 0) {
+            printf("Unable to create directory %s err=%d\n", outFile, errno);
             return -1;
         }
 
         g_isStoryboard = true;
-        strcpy_s(g_outputDirectory, arraySize(g_outputDirectory), argv[2]);
-        ConvertStoryboard(doc);
+        strcpy_s(g_outputDirectory, arraySize(g_outputDirectory), outFile);
+        ConvertStoryboard(doc, minVersion);
     } else if (strstr(type, ".XIB") != NULL) {
-        if (argc < 3) {
-            printf("Usage: xib2nib input.xib output.nib\n");
-            TELEMETRY_FLUSH();
-            exit(1);
-            return -1;
-        }
-
-        FILE* fpOut = fopen(argv[2], "wb");
-        if (!fpOut) {
-            printf("Error opening %s\n", argv[2]);
-            TELEMETRY_FLUSH();
-            exit(3);
-            return -1;
-        }
-
         if (strcmp(rootNode.name(), "document") == 0) {
-            ConvertXIB3ToNib(fpOut, doc);
+            ConvertXIB3ToNib(outFile, doc, minVersion);
         } else {
-            ConvertXIBToNib(fpOut, doc);
+            ConvertXIBToNib(outFile, doc);
         }
-        fclose(fpOut);
     } else {
         printf("Unable to determine input type type=\"%s\"\n", type);
         TELEMETRY_FLUSH();
-        exit(4);
         return -1;
     }
 

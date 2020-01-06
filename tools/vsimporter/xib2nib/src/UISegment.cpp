@@ -15,16 +15,15 @@
 //******************************************************************************
 
 #include "UISegment.h"
-#include "UIColor.h"
+#include "UICustomResource.h"
+#include <string>
 
-UISegment::UISegment(XIBObject* info, int style, int position, UIColor* tintColor) {
-    _info = info;
-    _style = style;
-    _position = position;
-    _tintColor = tintColor;
+UISegment::UISegment() {
     _outputClassName = "UISegment";
-    _connectedObjects = nullptr;
-    _connections = nullptr;
+    _title = NULL;
+    _image = NULL;
+    _enabled = true;
+    _position = 0;
 }
 
 void UISegment::InitFromXIB(XIBObject* obj) {
@@ -36,17 +35,36 @@ void UISegment::InitFromXIB(XIBObject* obj) {
 void UISegment::InitFromStory(XIBObject* obj) {
     UIView::InitFromStory(obj);
 
+    _title = obj->getAttrAndHandle("title");
+    _image = obj->getAttrAndHandle("image");
+    const char* attr;
+    if ((attr = obj->getAttrAndHandle("enabled"))) {
+        if (strcmp(attr, "NO") == 0)
+            _enabled = false;
+    }
+
+    PopulateSizeFromStoryboard("contentOffset", _contentOffset);
+    
     obj->_outputClassName = "UISegment";
 }
 
 void UISegment::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     UIView::ConvertStaticMappings(writer, obj);
-    if (_info)
-        AddOutputMember(writer, "UISegmentInfo", _info);
-    if (_style)
-        AddInt(writer, "UISegmentStyle", _style);
+    if (_image) {
+        // add placeholder
+        UICustomResource *placeholder = new UICustomResource();
+        placeholder->_imageName = strdup(_image);
+        AddOutputMember(writer, "UISegmentInfo", placeholder);
+    } else if (_title) {
+        AddString(writer, "UISegmentInfo", _title);
+    }
+    
+    if (!_enabled)
+        AddBool(writer, "UIUserInteractionDisabled", _enabled);
+    
     if (_position)
         AddInt(writer, "UISegmentPosition", _position);
-    if (_tintColor)
-        AddOutputMember(writer, "UISegmentTintColor", _tintColor);
+
+    if (_contentOffset.IsValid())
+        AddSize(writer, "UISegmentContentOffset", _contentOffset);
 }

@@ -27,6 +27,7 @@ enum {
     NSLayoutPriorityDefaultLow = 250,
     NSLayoutPriorityFittingSizeCompression = 50,
 };
+
 typedef float NSLayoutPriority;
 
 typedef enum {
@@ -70,11 +71,14 @@ public:
     int _firstAttribute;
     int _secondAttribute;
     int _relation;
-    float _multiplier;
-    float _priority;
-    float _constant;
-    float _symbolicConstant;
+    double _multiplier;
+    int _priority;
+    double _constant;
+    double _symbolicConstant;
     bool _hasSymbolicConstant;
+    const char* _layoutIdentifier;
+    bool _placeholder;
+    bool _exportDefaultValues;
 
 public:
     NSLayoutConstraint();
@@ -83,4 +87,6 @@ public:
     virtual void InitFromStory(XIBObject* obj);
     virtual void Awaken();
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);
+private:
+    XIBObject* substituteItemUnsupported(NIBWriter* writer, XIBObject* item);
 };

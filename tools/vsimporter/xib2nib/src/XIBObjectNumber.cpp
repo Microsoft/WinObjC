@@ -14,38 +14,38 @@
 //
 //******************************************************************************
 
+#include "XIBObjectNumber.h"
 #include "XIBObjectInt.h"
-#include <climits>
+#include "XIBObjectDouble.h"
 
-XIBObjectInt::XIBObjectInt(long long val) {
-    _val = val;
+XIBObjectNumber::XIBObjectNumber(int num) {
+    _className = "NSNumber";
+    _keyName = "NS.intval";
+    _val = new XIBObjectInt(num);
 }
 
-int XIBObjectInt::intValue() {
-    return _val;
+XIBObjectNumber::XIBObjectNumber(long long num) {
+    _className = "NSNumber";
+    _keyName = "NS.intval";
+    _val = new XIBObjectInt(num);
 }
 
-long long XIBObjectInt::longValue() {
-    return _val;
+XIBObjectNumber::XIBObjectNumber(bool val) {
+    _className = "NSNumber";
+    _keyName = "NS.intval";
+    _val = new XIBObjectInt(val ? 1 : 0);
 }
 
-bool XIBObjectInt::NeedsSerialization() {
-    return false;
+XIBObjectNumber::XIBObjectNumber(double val) {
+    _className = "NSNumber";
+    _keyName = "NS.dblval";
+    _val = new XIBObjectDouble(val);
 }
 
-void XIBObjectInt::WriteData(NIBWriter* writer) {
-    if (_val >= SCHAR_MIN && _val <= SCHAR_MAX) {
-        writer->WriteByte(NIBOBJ_INT8);
-        writer->WriteBytes(&_val, 1);
-    } else if (_val >= SHRT_MIN && _val <= SHRT_MAX) {
-        writer->WriteByte(NIBOBJ_INT16);
-        writer->WriteBytes(&_val, 2);
-    } else if (_val >= INT_MIN && _val <= INT_MAX) {
-        writer->WriteByte(NIBOBJ_INT32);
-        writer->WriteBytes(&_val, 4);
-    } else {
-        writer->WriteByte(NIBOBJ_INT64);
-        writer->WriteBytes(&_val, 8);
-    }
+void XIBObjectNumber::EmitObject(NIBWriter* writer) {
+    _outputClassName = "NSNumber";
+
+    AddOutputMember(writer, _keyName, _val);
 }
+
 

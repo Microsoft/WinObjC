@@ -15,25 +15,32 @@
 //******************************************************************************
 
 #include "UICollectionView.h"
+#include "UICollectionViewFlowLayout.h"
 
 UICollectionView::UICollectionView() {
+    _collectionViewLayout = NULL;
 }
 
 void UICollectionView::InitFromXIB(XIBObject* obj) {
-    UIView::InitFromXIB(obj);
+    UIScrollView::InitFromXIB(obj);
 
     obj->_outputClassName = "UICollectionView";
 }
 
 void UICollectionView::InitFromStory(XIBObject* obj) {
-    UIView::InitFromStory(obj);
+    UIScrollView::InitFromStory(obj);
 
+    _collectionViewLayout = (UICollectionViewFlowLayout*)obj->FindMember("collectionViewLayout");
     obj->_outputClassName = "UICollectionView";
 }
 
 void UICollectionView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     writer->_allUIObjects->AddMember(NULL, this);
-    UIView::ConvertStaticMappings(writer, obj);
+    
+    if (_collectionViewLayout)
+        AddOutputMember(writer , "UICollectionLayout", _collectionViewLayout);
+        
+    UIScrollView::ConvertStaticMappings(writer, obj);
 }
 
 ObjectConverter* UICollectionView::Clone() {

@@ -59,6 +59,9 @@ typedef enum {
 class UIControl : public UIView {
 public:
     int _contentVerticalAlignment, _contentHorizontalAlignment;
+    bool _enabled;
+    bool _selected;
+    bool _highlighted;
 
     UIControl();
     virtual void InitFromXIB(XIBObject* obj);

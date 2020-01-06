@@ -1,8 +1,13 @@
 #pragma once
-#include "UIView.h"
-class UICollectionView : public UIView {
+#include "UIScrollView.h"
+
+class UICollectionViewFlowLayout;
+
+class UICollectionView : public UIScrollView {
 private:
 public:
+    UICollectionViewFlowLayout *_collectionViewLayout;
+    
     UICollectionView();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);

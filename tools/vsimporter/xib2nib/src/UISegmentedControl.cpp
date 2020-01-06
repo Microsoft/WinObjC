@@ -21,52 +21,46 @@
 UISegmentedControl::UISegmentedControl() {
     _segments = NULL;
     _momentary = false;
+    _springLoaded = false;
     _tintColor = NULL;
-    _style = 0;
-    _selected = -1;
+    _segmentControlStyle = 0;
+    _selectedSegmentIndex = -1;
 }
 
 void UISegmentedControl::InitFromXIB(XIBObject* obj) {
     UIControl::InitFromXIB(obj);
-
-    _momentary = obj->GetBool("IBMomentary", false);
-
-    XIBArray* titles = (XIBArray*)obj->FindMember("IBSegmentTitles");
-    XIBArray* widths = (XIBArray*)obj->FindMember("IBSegmentWidths");
-    XIBArray* enabled = (XIBArray*)obj->FindMember("IBSegmentEnabledStates");
-    XIBArray* images = (XIBArray*)obj->FindMember("IBSegmentImages");
-    _tintColor = (UIColor*)obj->FindMember("IBTintColor");
-    _style = obj->GetInt("IBSegmentControlStyle", 0);
-    _selected = obj->GetInt("IBSelectedSegmentIndex", -1);
-
-    if (enabled) {
-        _segments = new XIBArray();
-        UIRect curFrame = getFrame();
-        float curX = 0.0f;
-        float frameWidth = curFrame.width - 5.0f;
-        float segWidth = frameWidth / (float)enabled->count();
-
-        for (int i = 0; i < enabled->count(); i++) {
-            bool segEnabled = enabled->objectAtIndex(i)->intValue();
-
-            XIBObject* title = titles->objectAtIndex(i);
-            UISegment* newSeg = new UISegment(title, _style, i == 0 ? 0 : i == enabled->count() - 1 ? 2 : 1, _tintColor);
-            newSeg->_ignoreUIObject = true;
-
-            UIRect segFrame = curFrame;
-            segFrame.x = (float)i * segWidth;
-            // segFrame.width =
-
-            _segments->AddMember(NULL, newSeg);
-            _subviews->AddMember(NULL, newSeg);
-        }
-    }
-
-    obj->_outputClassName = "UISegmentedControl";
+    // removed outdated code
 }
 
 void UISegmentedControl::InitFromStory(XIBObject* obj) {
     UIControl::InitFromStory(obj);
+
+    _tintColor = (UIColor*)FindMemberAndHandle("tintColor");
+    _segments = (XIBArray*)obj->FindMemberClass("segments");
+    if (_segments) {
+        // add them to subviews also set proper index
+        for (int idx = 0; idx < _segments->count(); idx++) {
+            UISegment *segment = (UISegment*)_segments->objectAtIndex(idx);
+            segment->_position = idx;
+            
+            _subviews->AddMember(NULL, segment);
+        }
+    }
+
+    const char* attr;
+    if ((attr = obj->getAttrAndHandle("momentary"))) {
+        if (strcmp(attr, "YES") == 0)
+            _momentary = true;
+    }
+
+    if ((attr = obj->getAttrAndHandle("springLoaded"))) {
+        if (strcmp(attr, "YES") == 0)
+            _springLoaded = true;
+    }
+    
+    if ((attr = obj->getAttrAndHandle("selectedSegmentIndex"))) {
+        _selectedSegmentIndex = std::stoi(attr, NULL);
+    }
 
     obj->_outputClassName = "UISegmentedControl";
 }
@@ -77,10 +71,10 @@ void UISegmentedControl::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj
         AddOutputMember(writer, "UISegments", _segments);
     if (_momentary)
         AddBool(writer, "UIMomentary", _momentary);
-    if (_style)
-        AddInt(writer, "UISegmentedControlStyle", _style);
-    if (_selected != -1)
-        AddInt(writer, "UISelectedSegmentIndex", _selected);
+    if (_springLoaded)
+        AddBool(writer, "UISpringLoaded", _springLoaded);
     if (_tintColor)
         AddOutputMember(writer, "UISegmentedControlTintColor", _tintColor);
+    if (_selectedSegmentIndex != -1)
+        AddInt(writer, "UISelectedSegmentIndex", _selectedSegmentIndex);
 }

@@ -100,23 +100,6 @@ void UIBarButtonItem::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     if (_customView) {
         AddOutputMember(writer, "UICustomView", _customView);
     }
-    if (_connections) {
-        for (int i = 0; i < _connections->count(); i++) {
-            XIBObject* curObj = _connections->objectAtIndex(i);
 
-            if (strcmp(curObj->_className, "segue") == 0) {
-                UIStoryboardSegue* segue = (UIStoryboardSegue*)curObj;
-
-                UIRuntimeEventConnection* newEvent = new UIRuntimeEventConnection();
-                newEvent->_label = "perform:";
-                newEvent->_source = this;
-                newEvent->_destination = segue;
-                writer->_connections->AddMember(NULL, newEvent);
-                writer->AddOutputObject(newEvent);
-
-                // AddOutputMember(writer, "UIOutlet", refObj);
-            }
-        }
-    }
     ObjectConverterSwapper::ConvertStaticMappings(writer, obj);
 }

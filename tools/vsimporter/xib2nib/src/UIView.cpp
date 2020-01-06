@@ -19,7 +19,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "UIRuntimeOutletCollectionConnection.h"
+#include "UILayoutGuide.h"
+#include "NSLayoutConstraint.h"
 
 static void InvertBool(struct _PropertyMapper* prop, NIBWriter* writer, XIBObject* propObj, XIBObject* obj) {
     XIBObjectBool* value = (XIBObjectBool*)propObj;
@@ -30,16 +33,21 @@ static void InvertBool(struct _PropertyMapper* prop, NIBWriter* writer, XIBObjec
 }
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIUserInteractionEnabled", "UIUserInteractionDisabled", InvertBool, "IBUITag", "UITag", NULL, "IBUIAlpha", "UIAlpha", NULL,
+    {"IBUIUserInteractionEnabled", "UIUserInteractionDisabled", InvertBool},
+    {"IBUITag", "UITag", NULL},
+    {"IBUIAlpha", "UIAlpha", NULL},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 
+enum {
+    NSContentHugginPriorityDefault = 250,
+    NSContentCompressionResistancePriorityDefault = 750
+};
+
 UIView::UIView() {
-    memset(&_bounds, 0, sizeof(_bounds));
-    memset(&_center, 0, sizeof(_center));
-    memset(&_contentStretch, 0, sizeof(_contentStretch));
     _subviews = new XIBArray();
     _constraints = new XIBArray();
+    _layoutGuides = new XIBArray();
     _hidden = false;
     _opaque = true;
     _autoresizeSubviews = true;
@@ -53,10 +61,10 @@ UIView::UIView() {
     _enabled = true;
     _translatesAutoresizeToConstraints = true;
     _tag = -1;
-    _horizontalHuggingPriority = -1.0;
-    _verticalHuggingPriority = -1.0;
-    _horizontalCompressionResistancePriority = -1.0;
-    _verticalCompressionResistancePriority = -1.0;
+    _horizontalHuggingPriority = NSContentHugginPriorityDefault;
+    _verticalHuggingPriority = NSContentHugginPriorityDefault;
+    _horizontalCompressionResistancePriority = NSContentCompressionResistancePriorityDefault;
+    _verticalCompressionResistancePriority = NSContentCompressionResistancePriorityDefault;
 }
 
 void UIView::InitFromXIB(XIBObject* obj) {
@@ -72,7 +80,7 @@ void UIView::InitFromXIB(XIBObject* obj) {
         _bounds.height = 0;
         _center.x = 0;
         _center.y = 0;
-        sscanf(pszFramePos, "{{%f, %f}, {%f, %f}}", &_center.x, &_center.y, &_bounds.width, &_bounds.height);
+        sscanf(pszFramePos, "{{%lf, %lf}, {%lf, %lf}}", &_center.x, &_center.y, &_bounds.width, &_bounds.height);
         _center.x += _bounds.width / 2.0f;
         _center.y += _bounds.height / 2.0f;
     } else {
@@ -81,7 +89,7 @@ void UIView::InitFromXIB(XIBObject* obj) {
         _bounds.y = 0;
         _bounds.width = 0;
         _bounds.height = 0;
-        sscanf(pszFramePos, "{%f, %f}", &_bounds.width, &_bounds.height);
+        sscanf(pszFramePos, "{%lf, %lf}", &_bounds.width, &_bounds.height);
         _center.x = _bounds.width / 2.0f;
         _center.y = _bounds.height / 2.0f;
     }
@@ -136,6 +144,11 @@ void UIView::InitFromStory(XIBObject* obj) {
         _constraints = new XIBArray();
     }
 
+    UILayoutGuide *safeAreaGuide = (UILayoutGuide*)FindMemberAndHandle("safeArea");
+    if (safeAreaGuide) {
+        _layoutGuides->AddMember(NULL, safeAreaGuide);
+    }
+    
     if (getAttrib("tag")) {
         _tag = static_cast<int>(strtod(getAttrAndHandle("tag"), NULL));
     }
@@ -212,19 +225,15 @@ void UIView::InitFromStory(XIBObject* obj) {
             _hidden = true;
         }
     }
-    XIBObject* frameRect = FindMemberAndHandle("frame");
 
-    if (frameRect) {
+    PopulateRectFromStoryboard("frame", _bounds);
+    PopulateRectFromStoryboard("contentStretch", _contentStretch);
+    if (_bounds.IsValid()) {
+        _center.x = _bounds.x + _bounds.width / 2.0f;
+        _center.y = _bounds.y + _bounds.height / 2.0f;
+
         _bounds.x = 0;
         _bounds.y = 0;
-        _bounds.width = static_cast<float>(strtod(frameRect->getAttrAndHandle("width"), NULL));
-        _bounds.height = static_cast<float>(strtod(frameRect->getAttrAndHandle("height"), NULL));
-
-        _center.x = static_cast<float>(strtod(frameRect->getAttrAndHandle("x"), NULL));
-        _center.y = static_cast<float>(strtod(frameRect->getAttrAndHandle("y"), NULL));
-
-        _center.x += _bounds.width / 2.0f;
-        _center.y += _bounds.height / 2.0f;
     }
 
     XIBObject* resizeMask = FindMemberAndHandle("autoresizingMask");
@@ -262,19 +271,19 @@ void UIView::InitFromStory(XIBObject* obj) {
     }
 
     if (getAttrib("horizontalHuggingPriority")) {
-        _horizontalHuggingPriority = strtof(getAttrAndHandle("horizontalHuggingPriority"), NULL);
+        _horizontalHuggingPriority = std::stoi(getAttrAndHandle("horizontalHuggingPriority"), NULL);
     }
 
     if (getAttrib("verticalHuggingPriority")) {
-        _verticalHuggingPriority = strtof(getAttrAndHandle("verticalHuggingPriority"), NULL);
+        _verticalHuggingPriority = std::stoi(getAttrAndHandle("verticalHuggingPriority"), NULL);
     }
 
     if (getAttrib("horizontalCompressionResistancePriority")) {
-        _horizontalCompressionResistancePriority = strtof(getAttrAndHandle("horizontalCompressionResistancePriority"), NULL);
+        _horizontalCompressionResistancePriority = std::stoi(getAttrAndHandle("horizontalCompressionResistancePriority"), NULL);
     }
 
     if (getAttrib("verticalCompressionResistancePriority")) {
-        _verticalCompressionResistancePriority = strtof(getAttrAndHandle("verticalCompressionResistancePriority"), NULL);
+        _verticalCompressionResistancePriority = std::stoi(getAttrAndHandle("verticalCompressionResistancePriority"), NULL);
     }
 
     _outputClassName = "UIView";
@@ -283,22 +292,6 @@ void UIView::InitFromStory(XIBObject* obj) {
 void UIView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     if (!_ignoreUIObject) {
         writer->_allUIObjects->AddMember(NULL, this);
-    }
-
-    if (_connections) {
-        for (int i = 0; i < _connections->count(); i++) {
-            XIBObject* curObj = _connections->objectAtIndex(i);
-            if (strcmp(curObj->_outputClassName, "UIRuntimeOutletCollectionConnection") == 0) {
-                UIRuntimeOutletCollectionConnection* cur = (UIRuntimeOutletCollectionConnection*)curObj;
-
-                UIRuntimeOutletCollectionConnection* newOutlet = new UIRuntimeOutletCollectionConnection();
-                newOutlet->_label = cur->_label;
-                newOutlet->_source = cur->_source;
-                newOutlet->_destination = cur->_destination;
-                writer->_connections->AddMember(NULL, newOutlet);
-                writer->AddOutputObject(newOutlet);
-            }
-        }
     }
 
     if (_subviews->count() > 0) {
@@ -311,9 +304,11 @@ void UIView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         }
     }
 
-    AddRect(writer, "UIBounds", _bounds);
-    AddPoint(writer, "UICenter", _center);
-    if (_contentStretch.x != 0.0f || _contentStretch.y != 0.0f || _contentStretch.width != 0.0f || _contentStretch.height != 0.0f) {
+    if (_bounds.IsValid())
+        AddRect(writer, "UIBounds", _bounds);
+    if (_center.IsValid())
+        AddPoint(writer, "UICenter", _center);
+    if (_contentStretch.IsValid()) {
         AddRect(writer, "UIContentStretch", _contentStretch);
     }
 
@@ -323,7 +318,31 @@ void UIView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     }
 
     if (_constraints->count() > 0) {
-        AddOutputMember(writer, "UIViewAutolayoutConstraints", _constraints);
+        // remove placeholders
+        XIBArray *tmp = new XIBArray();
+        for (int i = 0; i < _constraints->count(); i++) {
+            XIBObject *obj = _constraints->objectAtIndex(i);
+            if (obj->_outputClassName && strcmp(obj->_outputClassName, "NSLayoutConstraint") == 0) {
+                NSLayoutConstraint *constraint = (NSLayoutConstraint*)obj;
+                if (constraint->_placeholder)
+                    continue;
+            }
+            tmp->AddMember(NULL, obj);
+        }
+        if (tmp->count())
+            AddOutputMember(writer, "UIViewAutolayoutConstraints", tmp);
+        // FIXME: commented out as it produce a warning that XIBArrays is not final
+        // so tmp will leak here
+        // else
+        //    delete tmp;
+    }
+
+    if (_layoutGuides->count() > 0) {
+        if (writer->_minimumDeploymentTarget < DEPLOYMENT_TARGET_IOS11) {
+            writer->_wasLimitedByDeplymentTarget = true;
+        } else {
+            AddOutputMember(writer, "UIViewLayoutGuides", _layoutGuides);
+        }
     }
 
     if (_autoresizeSubviews) {
@@ -379,22 +398,17 @@ void UIView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         obj->AddInt(writer, "UITag", _tag);
     }
 
-    if (_horizontalHuggingPriority >= 0.0) {
-        AddOutputMember(writer, "UIViewHorizontalHuggingPriority", new XIBObjectFloat(_horizontalHuggingPriority));
+    if (_horizontalHuggingPriority != NSContentHugginPriorityDefault || _verticalHuggingPriority != NSContentHugginPriorityDefault) {
+        char buf[128];
+        snprintf(buf, 128, "{%d, %d}", _horizontalHuggingPriority, _verticalHuggingPriority);
+        obj->AddString(writer, "UIViewContentHuggingPriority", strdup(buf));
     }
 
-    if (_verticalHuggingPriority >= 0.0) {
-        AddOutputMember(writer, "UIViewVerticalHuggingPriority", new XIBObjectFloat(_verticalHuggingPriority));
-    }
-
-    if (_horizontalCompressionResistancePriority >= 0.0) {
-        AddOutputMember(writer,
-                        "UIViewHorizontalCompressionResistancePriority",
-                        new XIBObjectFloat(_horizontalCompressionResistancePriority));
-    }
-
-    if (_verticalCompressionResistancePriority >= 0.0) {
-        AddOutputMember(writer, "UIViewVerticalCompressionResistancePriority", new XIBObjectFloat(_verticalCompressionResistancePriority));
+    if (_horizontalCompressionResistancePriority != NSContentCompressionResistancePriorityDefault ||
+        _verticalCompressionResistancePriority != NSContentCompressionResistancePriorityDefault) {
+        char buf[128];
+        snprintf(buf, 128, "{%d, %d}", _horizontalCompressionResistancePriority, _verticalCompressionResistancePriority);
+        obj->AddString(writer, "UIViewContentCompressionResistancePriority", strdup(buf));
     }
 
     ObjectConverterSwapper::ConvertStaticMappings(writer, obj);

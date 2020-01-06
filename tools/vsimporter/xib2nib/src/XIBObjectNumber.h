@@ -14,28 +14,18 @@
 //
 //******************************************************************************
 
+
 #pragma once
-#include "UIControl.h"
-#include <cmath>
+#include "XIBObject.h"
 
-
-class UIFont;
-class UIButton : public UIControl {
+class XIBObjectNumber : public XIBObject {
+    XIBObject *_val;
+    const char *_keyName;
 public:
-    int _buttonType;
-    UIFont* _font;
-    UIColor* _tintColor;
-    XIBObject* _statefulContent;
-    bool _adjustsImageWhenHighlighted;
-    bool _adjustsImageWhenDisabled;
-    UIEdgeInsets _imageEdgeInsets;
-    UIEdgeInsets _contentEdgeInsets;
-    UIEdgeInsets _titleEdgeInsets;
-    int _lineBreakMode;
-
-    UIButton();
-    virtual void InitFromXIB(XIBObject* obj);
-    virtual void InitFromStory(XIBObject* obj);
-    virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);
-    void WriteStatefulContent(NIBWriter* writer, XIBObject* obj);
+    explicit XIBObjectNumber(long long val);
+    explicit XIBObjectNumber(int val);
+    explicit XIBObjectNumber(bool val);
+    explicit XIBObjectNumber(double val);
+    void EmitObject(NIBWriter* writer);
 };
+

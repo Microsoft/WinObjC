@@ -18,7 +18,7 @@
 #include "UIColor.h"
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIShowsSelectionImmediatelyOnTouchBegin", "UIShowsSelectionImmediatelyOnTouchBegin", NULL,
+    {"IBUIShowsSelectionImmediatelyOnTouchBegin", "UIShowsSelectionImmediatelyOnTouchBegin", NULL},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 
@@ -43,6 +43,7 @@ UITableView::UITableView() {
     _allowsSelectionDuringEditing = false;
     _separatorStyle = 0;
     _style = 0;
+    _rowHeight = -1;
 }
 
 void UITableView::InitFromXIB(XIBObject* obj) {
@@ -71,6 +72,12 @@ void UITableView::InitFromStory(XIBObject* obj) {
     if (_footerView) {
         _subviews->AddMember(NULL, _footerView);
     }
+    
+    const char *attr;
+    if ((attr = obj->getAttrAndHandle("rowHeight"))) {
+        _rowHeight = strtof(attr, NULL);
+    }
+
     obj->_outputClassName = "UITableView";
 }
 
@@ -92,4 +99,6 @@ void UITableView::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         AddOutputMember(writer, "UITableHeaderView", _headerView);
     if (_footerView)
         AddOutputMember(writer, "UITableFooterView", _footerView);
+    if (_rowHeight >= 0)
+        AddOutputMember(writer, "UIRowHeight", new XIBObjectFloat(_rowHeight));
 }

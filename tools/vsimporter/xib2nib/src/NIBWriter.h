@@ -32,6 +32,10 @@
 #define NIBOBJ_NULL 0x09
 #define NIBOBJ_UID 0x0A
 
+#define DEPLOYMENT_TARGET_IOS9 0x090000
+#define DEPLOYMENT_TARGET_IOS11 0x0B0000
+#define DEPLOYMENT_TARGET_RECENT DEPLOYMENT_TARGET_IOS11
+
 class ProxiedObject {
 public:
     XIBObject *_obj, *_proxyObj;
@@ -48,20 +52,21 @@ private:
     FILE* fpOut;
 
 public:
+    uint32_t _minimumDeploymentTarget;
+    bool _wasLimitedByDeplymentTarget;
     XIBObject* _allUIObjects;
     XIBObject* _connections;
     XIBObject* _baseObject;
     XIBObject* _topObjects;
     XIBObject* _accessibilityObjects;
     XIBObject* _visibleWindows;
+    XIBObject* _keyValuePairs;
 
     XIBDictionary* _externalReferencesDictionary;
 
     NIBWriter(FILE* out);
     NIBWriter(FILE* out, XIBDictionary* externalRefsDict, XIBObject* base);
 
-    static void ExportController(const char* controllerId);
-    static void ExportAllControllers();
     void ExportObject(XIBObject* obj);
     void WriteObjects();
     XIBObject* AddOutputObject(XIBObject* pObj);

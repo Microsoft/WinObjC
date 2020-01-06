@@ -16,6 +16,31 @@
 
 #pragma once
 #include "UIView.h"
+
+typedef enum {
+    UISelectionStyleNone = 0,
+    UISelectionStyleBlue,
+    UISelectionStyleGray,
+    UISelectionStyleDefault,
+} UISelectionStyle;
+
+typedef enum {
+    UIAccessoryTypeNone = 0,
+    UIAccessoryTypeDisclosureIndicator,
+    UIAccessoryTypeDetailDisclosureButton,
+    UIAccessoryTypeCheckmark,
+    UIAccessoryTypeDetailButton
+} UIAccessoryType;
+
+
+typedef enum {
+    UITableViewCellStyleCustom = 0,
+    UITableViewCellStyleBasic = UITableViewCellStyleCustom,
+    UITableViewCellStyleRightDetails,
+    UITableViewCellStyleLeftDetails,
+    UITableViewCellStyleSubtitle,
+} UITableViewCellStyle;
+
 class UITableViewCell : public UIView {
 private:
     const char* _reuseIdentifier;
@@ -25,7 +50,10 @@ private:
     int _selectionStyle;
     int _indentationLevel;
     float _indentationWidth;
-
+    int _accessoryType;
+    int _editingAccessoryType;
+    int _cellStyle;
+    bool _focusStyleCustom;
 public:
     UITableViewCell();
     virtual void Awaken();

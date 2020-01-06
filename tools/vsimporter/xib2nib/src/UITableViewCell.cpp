@@ -15,15 +15,39 @@
 //******************************************************************************
 
 #include "UITableViewCell.h"
+#include <map>
+
+
+static std::map<std::string, UISelectionStyle> storyToSelectionStyle = {
+    { "none", UISelectionStyleNone },
+    { "blue", UISelectionStyleBlue },
+    { "gray", UISelectionStyleGray },
+    { "default", UISelectionStyleDefault }};
+
+static std::map<std::string, UIAccessoryType> storyToAccessoryType = {
+    { "disclosureIndicator", UIAccessoryTypeDisclosureIndicator },
+    { "disclosureButton", UIAccessoryTypeDetailDisclosureButton },
+    { "checkmark", UIAccessoryTypeCheckmark },
+    { "detailButton", UIAccessoryTypeDetailButton }};
+
+static std::map<std::string, UITableViewCellStyle> storyToCellStyle = {
+    { "IBUITableViewCellStyleDefault", UITableViewCellStyleBasic },
+    { "IBUITableViewCellStyleValue1", UITableViewCellStyleRightDetails },
+    { "IBUITableViewCellStyleValue2", UITableViewCellStyleLeftDetails },
+    { "IBUITableViewCellStyleSubtitle", UITableViewCellStyleSubtitle }};
 
 UITableViewCell::UITableViewCell() {
     _indentationLevel = 0;
-    _indentationWidth = 0;
-    _selectionStyle = 0;
+    _indentationWidth = 0.0f;
+    _selectionStyle = UISelectionStyleDefault;
+    _accessoryType = UIAccessoryTypeNone;
+    _editingAccessoryType = UIAccessoryTypeNone;
+    _cellStyle = UITableViewCellStyleCustom;
     _reuseIdentifier = NULL;
     _detailTextLabel = NULL;
     _imageView = NULL;
     _textLabel = NULL;
+    _focusStyleCustom = false;
 }
 
 void UITableViewCell::InitFromXIB(XIBObject* obj) {
@@ -47,7 +71,44 @@ void UITableViewCell::InitFromStory(XIBObject* obj) {
 
     obj->_outputClassName = "UITableViewCell";
 
+    const char* attr;
+    if ((attr = obj->getAttrAndHandle("style"))) {
+        if (storyToCellStyle.find(attr) != storyToCellStyle.end()) {
+            _cellStyle = storyToCellStyle[attr];
+        }
+    }
+
+    if ((attr = obj->getAttrAndHandle("selectionStyle"))) {
+        if (storyToSelectionStyle.find(attr) != storyToSelectionStyle.end()) {
+            _selectionStyle = storyToSelectionStyle[attr];
+        }
+    }
+
+    if ((attr = obj->getAttrAndHandle("editingAccessoryType"))) {
+        if (storyToAccessoryType.find(attr) != storyToAccessoryType.end()) {
+            _editingAccessoryType = storyToAccessoryType[attr];
+        }
+    }
+
+    if ((attr = obj->getAttrAndHandle("accessoryType"))) {
+        if (storyToAccessoryType.find(attr) != storyToAccessoryType.end()) {
+            _accessoryType = storyToAccessoryType[attr];
+        }
+    }
+
+    if ((attr = obj->getAttrAndHandle("indentationWidth"))) {
+        _indentationWidth = strtof(attr, NULL);
+    }
+
+    if ((attr = obj->getAttrAndHandle("focusStyle"))) {
+        if (strcmp(attr, "custom") == 0)
+            _focusStyleCustom = true;
+    }
+
+    _reuseIdentifier = obj->getAttrAndHandle("reuseIdentifier");
     _contentView = (UIView*)obj->FindMemberAndHandle("contentView");
+    if (_contentView)
+        _subviews->AddMember(NULL, _contentView);
 }
 
 void UITableViewCell::Awaken() {
@@ -92,6 +153,16 @@ void UITableViewCell::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         obj->AddOutputMember(writer, "UITextLabel", _textLabel);
     if (_detailTextLabel)
         obj->AddOutputMember(writer, "UIDetailTextLabel", _detailTextLabel);
+
+    if (_accessoryType != UIAccessoryTypeNone)
+        obj->AddInt(writer, "UIAccessoryType", _accessoryType);
+    if (_editingAccessoryType != UIAccessoryTypeNone)
+        obj->AddInt(writer, "UIEditingAccessoryType", _editingAccessoryType);
+    if (_cellStyle != UITableViewCellStyleCustom)
+        obj->AddInt(writer, "UITableViewCellStyle", _cellStyle);
+    if (_focusStyleCustom)
+        obj->AddInt(writer, "UIFocusStyle", 1);
+
     obj->AddBool(writer, "UITableCellBackgroundColorSet", true);
     obj->AddInt(writer, "UISelectionStyle", _selectionStyle);
 }

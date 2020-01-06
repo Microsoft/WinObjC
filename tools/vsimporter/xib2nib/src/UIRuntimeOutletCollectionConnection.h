@@ -19,13 +19,15 @@
 class UIRuntimeOutletCollectionConnection : public ObjectConverter {
 public:
     const char* _label;
-    XIBObject *_source, *_destination;
+    XIBObject *_source;
     const char* _collectionClassName;
     bool _addsToExisting;
 
 public:
+    XIBArray *_destinations;
     UIRuntimeOutletCollectionConnection();
 
+    void addDestinations(XIBArray* objs);
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);

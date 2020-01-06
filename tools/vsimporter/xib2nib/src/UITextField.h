@@ -18,6 +18,7 @@
 #include "UIControl.h"
 
 class UIFont;
+class UITextInputTraits;
 
 class UITextField : public UIControl {
 private:
@@ -27,8 +28,7 @@ private:
     int _borderStyle;
     XIBObject* _textColor;
     UIFont* _font;
-    int _autoCorrectionType;
-    int _returnKeyType;
+    UITextInputTraits* _textInputTraits;
     bool _clearsOnBeginEditing;
     CGSize _clearButtonOffset;
 

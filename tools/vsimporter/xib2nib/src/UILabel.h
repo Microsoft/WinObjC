@@ -16,9 +16,24 @@
 
 #pragma once
 #include "UIView.h"
+#include <map>
 
 class UIColor;
 class UIFont;
+
+// line break mode used in both UILabel and UIButton (possible other places as well)
+typedef enum {
+    UILineBreakModeWordWrap = 0,
+    UILineBreakModeCharacterWrap,
+    UILineBreakModeClip,
+    UILineBreakModeHeadTruncation,
+    UILineBreakModeTailTruncation,
+    UILineBreakModeMiddleTruncation
+} UILineBreakMode;
+
+
+// helper map initialized in UILabel.cpp
+extern std::map<std::string, UILineBreakMode> storyToUILineBreakMode;
 
 class UILabel : public UIView {
 private:

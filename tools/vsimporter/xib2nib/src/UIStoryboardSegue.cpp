@@ -16,11 +16,13 @@
 
 #include <assert.h>
 #include "UIStoryboardSegue.h"
+#include "UIViewController.h"
 
 UIStoryboardSegue::UIStoryboardSegue() {
     _destination = NULL;
     _type = segueRelationship;
     _identifier = NULL;
+    _actionName = NULL;
 }
 
 void UIStoryboardSegue::InitFromXIB(XIBObject* obj) {
@@ -44,11 +46,34 @@ void UIStoryboardSegue::InitFromStory(XIBObject* obj) {
         bool isHandled = true;
         if (strcmp(pKind, "modal") == 0) {
             _type = segueModal;
+            _outputClassName = "UIStoryboardModalSegueTemplate";
         } else if (strcmp(pKind, "push") == 0) {
             _type = seguePush;
+            _outputClassName = "UIStoryboardPushSegueTemplate";
         } else if (strcmp(pKind, "relationship") == 0) {
             _type = segueRelationship;
+        } else if (strcmp(pKind, "show") == 0) {
+            _type = segueShow;
+            _outputClassName = "UIStoryboardShowSegueTemplate";
+            _actionName = "showViewController:sender:";
+        } else if (strcmp(pKind, "showDetail") == 0) {
+            _type = segueShowDetails;
+            _outputClassName = "UIStoryboardShowSegueTemplate";
+            _actionName = "showDetailViewController:sender:";
+        } else if (strcmp(pKind, "presentation") == 0) {
+            _type = seguePresentModally;
+            _outputClassName = "UIStoryboardPresentationSegueTemplate";
+        } else if (strcmp(pKind, "popoverPresentation") == 0) {
+            _type = seguePresentAsPopover;
+            _outputClassName = "UIStoryboardPopoverPresentationSegueTemplate";
+        } else if (strcmp(pKind, "custom") == 0) {
+            _type = segueCustom;
+            _outputClassName = "UIStoryboardSegueTemplate";
+        } else if (strcmp(pKind, "replace") == 0) {
+            _type = segueCustom;
+            _outputClassName = "UIStoryboardPushSegueTemplate";
         } else {
+            _type = segueUnsupported;
             isHandled = false;
         }
 
@@ -56,16 +81,20 @@ void UIStoryboardSegue::InitFromStory(XIBObject* obj) {
             getAttrAndHandle("kind");
         }
     }
-
-    if (_type == segueModal) {
-        _outputClassName = "UIStoryboardModalSegueTemplate";
-    } else if (_type == seguePush) {
-        _outputClassName = "UIStoryboardPushSegueTemplate";
-    }
 }
 
 void UIStoryboardSegue::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     ObjectConverter::ConvertStaticMappings(writer, obj);
     AddString(writer, "UIIdentifier", _identifier);
-    AddString(writer, "UIDestinationViewControllerIdentifier", _destination);
+
+    // find story view controller by id and try to use it storyboardIdentifier if set as destination
+    XIBObject* controller = XIBObject::findReference(_destination);
+    UIViewController* uiViewController = dynamic_cast<UIViewController*>(controller);
+    if (uiViewController && uiViewController->_storyboardIdentifier)
+        AddString(writer, "UIDestinationViewControllerIdentifier", uiViewController->_storyboardIdentifier);
+    else
+
+        AddString(writer, "UIDestinationViewControllerIdentifier", _destination);
+    if (_actionName != NULL)
+        AddString(writer, "UIActionName", _actionName);
 }

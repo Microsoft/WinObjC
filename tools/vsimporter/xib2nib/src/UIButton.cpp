@@ -20,10 +20,11 @@
 #include "UICustomResource.h"
 #include "UIRuntimeEventConnection.h"
 #include "UIFont.h"
+#include "UILabel.h"
 #include <assert.h>
 
 void ConvertInsets(struct _PropertyMapper* prop, NIBWriter* writer, XIBObject* propObj, XIBObject* obj) {
-    EdgeInsets edgeInsets;
+    UIEdgeInsets edgeInsets;
     char szName[255];
 
     sprintf(szName, "IBUI%sEdgeInsets.top", prop->nibName);
@@ -176,39 +177,17 @@ void UIButton::WriteStatefulContent(NIBWriter* writer, XIBObject* obj) {
 }
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIText",
-    "UIText",
-    NULL,
-    "IBUITextColor",
-    "UITextColor",
-    NULL,
-    "IBUIHighlightedColor",
-    "UIHighlightedColor",
-    NULL,
-    "IBUILineBreakMode",
-    "UILineBreakMode",
-    NULL,
-    "IBUIContentEdgeInsets.top",
-    "Content",
-    ConvertInsets,
-    "IBUITitleEdgeInsets.top",
-    "Title",
-    ConvertInsets,
-    "IBUIImageEdgeInsets.top",
-    "Image",
-    ConvertInsets,
-    "IBUITitleShadowOffset",
-    "TitleShadow",
-    ConvertOffset,
-    "IBUIShowsTouchWhenHighlighted",
-    "UIShowsTouchWhenHighlighted",
-    NULL,
-    "IBUIImage",
-    "UIImage",
-    NULL,
-    "IBUIBackgroundImage",
-    "UIBackgroundImage",
-    NULL,
+    {"IBUIText", "UIText", NULL},
+    {"IBUITextColor", "UITextColor", NULL},
+    {"IBUIHighlightedColor", "UIHighlightedColor", NULL},
+    {"IBUILineBreakMode", "LineBreakMode", NULL},
+    {"IBUIContentEdgeInsets.top", "Content", ConvertInsets},
+    {"IBUITitleEdgeInsets.top", "Title", ConvertInsets},
+    {"IBUIImageEdgeInsets.top", "Image", ConvertInsets},
+    {"IBUITitleShadowOffset", "TitleShadow", ConvertOffset},
+    {"IBUIShowsTouchWhenHighlighted", "UIShowsTouchWhenHighlighted", NULL},
+    {"IBUIImage", "UIImage", NULL},
+    {"IBUIBackgroundImage", "UIBackgroundImage", NULL},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
 
@@ -216,6 +195,10 @@ UIButton::UIButton() {
     _buttonType = 0;
     _statefulContent = NULL;
     _font = NULL;
+    _tintColor = NULL;
+
+    // default line break mode is middleTrucation
+    _lineBreakMode = UILineBreakModeMiddleTruncation;
 
     // Default is true for both of these, so no need to write to nib if that's the case
     _adjustsImageWhenHighlighted = true;
@@ -234,16 +217,6 @@ void UIButton::InitFromXIB(XIBObject* obj) {
     obj->_outputClassName = "UIButton";
 }
 
-void PopulateInsetsFromStoryboard(XIBObject* obj, const char* insetType, EdgeInsets& insets) {
-    XIBObject* insetNode = obj->FindMemberAndHandle(const_cast<char*>(insetType));
-    if (insetNode) {
-        insets.top = strtof(insetNode->getAttrAndHandle("minY"), NULL);
-        insets.left = strtof(insetNode->getAttrAndHandle("minX"), NULL);
-        insets.bottom = strtof(insetNode->getAttrAndHandle("maxY"), NULL);
-        insets.right = strtof(insetNode->getAttrAndHandle("maxX"), NULL);
-    }
-}
-
 void UIButton::InitFromStory(XIBObject* obj) {
     UIControl::InitFromStory(obj);
 
@@ -260,6 +233,16 @@ void UIButton::InitFromStory(XIBObject* obj) {
     }
 
     _font = (UIFont*)obj->FindMemberAndHandle("fontDescription");
+    _tintColor = (UIColor*)FindMemberAndHandle("tintColor");
+
+    const char* lineBreakModeAttributeValue = getAttrib("lineBreakMode");
+    if (lineBreakModeAttributeValue) {
+        if (storyToUILineBreakMode.find(lineBreakModeAttributeValue) != storyToUILineBreakMode.end()) {
+            _lineBreakMode = storyToUILineBreakMode[lineBreakModeAttributeValue];
+        } else {
+            printf("invalid linebreak value %s, using default (tailTruncation) \n", lineBreakModeAttributeValue);
+        }
+    }
 
     if (getAttrib("adjustsImageWhenDisabled")) {
         if (strcmp(getAttrAndHandle("adjustsImageWhenDisabled"), "NO") == 0) {
@@ -274,9 +257,9 @@ void UIButton::InitFromStory(XIBObject* obj) {
     }
 
     // Insets
-    PopulateInsetsFromStoryboard(obj, "imageEdgeInsets", _imageEdgeInsets);
-    PopulateInsetsFromStoryboard(obj, "contentEdgeInsets", _contentEdgeInsets);
-    PopulateInsetsFromStoryboard(obj, "titleEdgeInsets", _titleEdgeInsets);
+    PopulateInsetsFromStoryboard("imageEdgeInsets", _imageEdgeInsets);
+    PopulateInsetsFromStoryboard("contentEdgeInsets", _contentEdgeInsets);
+    PopulateInsetsFromStoryboard("titleEdgeInsets", _titleEdgeInsets);
 
     obj->_outputClassName = "UIButton";
 }
@@ -291,14 +274,22 @@ void UIButton::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         obj->AddOutputMember(writer, "UIFont", _font);
     }
 
-    // Default is true, so no need to write to nib if that's the case
-    if (!_adjustsImageWhenHighlighted) {
-        AddBool(writer, "UIAdjustsImageWhenHighlighted", false);
+    if (_tintColor) {
+        AddOutputMember(writer, "UITintColor", _tintColor);
+    }
+    
+    if (_lineBreakMode != UILineBreakModeMiddleTruncation) {
+        AddInt(writer, "UILineBreakMode", _lineBreakMode);
     }
 
-    // Default is true, so no need to write to nib if that's the case
-    if (!_adjustsImageWhenDisabled) {
-        AddBool(writer, "UIAdjustsImageWhenDisabled", false);
+    // Default in NIB is false, so no need to write to nib if that's the case
+    if (_adjustsImageWhenHighlighted) {
+        AddBool(writer, "UIAdjustsImageWhenHighlighted", true);
+    }
+
+    // Default in NIB is false, so no need to write to nib if that's the case
+    if (_adjustsImageWhenDisabled) {
+        AddBool(writer, "UIAdjustsImageWhenDisabled", true);
     }
 
     // Insets
@@ -312,24 +303,6 @@ void UIButton::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
 
     if (_titleEdgeInsets.IsValid()) {
         obj->AddData(writer, "UITitleEdgeInsets", _titleEdgeInsets);
-    }
-
-    if (_connections) {
-        for (int i = 0; i < _connections->count(); i++) {
-            XIBObject* curObj = _connections->objectAtIndex(i);
-
-            if (strcmp(curObj->_className, "segue") == 0) {
-                UIStoryboardSegue* segue = (UIStoryboardSegue*)curObj;
-
-                UIRuntimeEventConnection* newEvent = new UIRuntimeEventConnection();
-                newEvent->_label = "perform:";
-                newEvent->_source = this;
-                newEvent->_destination = segue;
-                newEvent->_eventMask = 0x40;
-                writer->_connections->AddMember(NULL, newEvent);
-                writer->AddOutputObject(newEvent);
-            }
-        }
     }
 
     WriteStatefulContent(writer, this);

@@ -19,6 +19,9 @@
 UIControl::UIControl() {
     _contentVerticalAlignment = UIControlContentVerticalAlignmentTop;
     _contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    _enabled = true;
+    _selected = false;
+    _highlighted = false;
 }
 
 void UIControl::InitFromXIB(XIBObject* obj) {
@@ -61,6 +64,22 @@ void UIControl::InitFromStory(XIBObject* obj) {
         } else {
             printf("Unknown contentVerticalAlignment value: %s\n", verticalAlign);
         }
+    }
+
+    const char* attr;
+    if ((attr = obj->getAttrAndHandle("enabled"))) {
+        if (strcmp(attr, "NO") == 0)
+            _enabled = false;
+    }
+
+    if ((attr = obj->getAttrAndHandle("selected"))) {
+        if (strcmp(attr, "YES") == 0)
+            _selected = true;
+    }
+
+    if ((attr = obj->getAttrAndHandle("highlighted"))) {
+        if (strcmp(attr, "YES") == 0)
+            _highlighted = true;
     }
 
     _outputClassName = "UIControl";

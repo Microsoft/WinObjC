@@ -18,6 +18,7 @@
 #include <assert.h>
 
 UISwitch::UISwitch() {
+    _on = false;
 }
 
 void UISwitch::InitFromXIB(XIBObject* obj) {
@@ -29,9 +30,30 @@ void UISwitch::InitFromXIB(XIBObject* obj) {
 void UISwitch::InitFromStory(XIBObject* obj) {
     UIControl::InitFromStory(obj);
 
+    const char* attr;
+    if ((attr = obj->getAttrAndHandle("on"))) {
+        if (strcmp(attr, "YES") == 0)
+            _on = true;
+    }
+
     _outputClassName = "UISwitch";
 }
 
 void UISwitch::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
+    if (_on)
+        AddBool(writer, "UISwitchOn", _on);
+    
+    if (_enabled)
+        AddBool(writer, "UISwitchEnabled", _enabled);
+    else
+        AddBool(writer, "UIDisabled", true);
+    
+    if (_selected)
+        AddBool(writer, "UISelected", _selected);
+
+    if (_highlighted)
+        AddBool(writer, "UIHighlighted", _selected);
+
     UIControl::ConvertStaticMappings(writer, obj);
 }
+

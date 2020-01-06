@@ -18,6 +18,8 @@
 #include "UIControl.h"
 class UISwitch : public UIControl {
 public:
+    bool _on;
+
     UISwitch();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);

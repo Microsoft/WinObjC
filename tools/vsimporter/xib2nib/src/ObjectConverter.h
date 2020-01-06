@@ -26,8 +26,13 @@ typedef struct _PropertyMapper {
 class ObjectConverter : public XIBObject {
 public:
     XIBArray* _connections;
+    XIBArray* _userDefinedAttributes;
     XIBArray* _variations;
 
+    ObjectConverter() {
+        _connections = NULL;
+        _userDefinedAttributes = NULL;
+    };
     virtual void InitFromXIB(XIBObject* obj);
     virtual void InitFromStory(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);

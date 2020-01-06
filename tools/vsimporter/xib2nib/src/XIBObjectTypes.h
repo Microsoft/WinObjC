@@ -21,6 +21,7 @@
 #include "XIBObjectFloat.h"
 #include "XIBObjectDouble.h"
 #include "XIBObjectInt.h"
+#include "XIBObjectNumber.h"
 #include "XIBDictionary.h"
 #include "XIBObjectNil.h"
 
@@ -60,8 +61,11 @@ public:
 };
 
 class XIBObjectReal : public XIBObject {
+private:
+    double _val;
 public:
     XIBObjectReal(pugi::xml_node node);
+    XIBObjectReal(double val);
     virtual bool NeedsSerialization();
     void WriteData(NIBWriter* writer);
 };

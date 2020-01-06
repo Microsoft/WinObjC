@@ -446,7 +446,7 @@ CGSize XIBObject::GetSize(char* pPropName, float defaultWidth, float defaultHeig
     if (pObj) {
         const char* pStr = pObj->stringValue();
 
-        sscanf(pStr, "{%f, %f}", &ret.width, &ret.height);
+        sscanf(pStr, "{%lf, %lf}", &ret.width, &ret.height);
     }
 
     return ret;
@@ -484,6 +484,35 @@ bool XIBObject::GetBool(char* pPropName, bool defaultValue) {
     }
 
     return defaultValue;
+}
+
+
+void XIBObject::PopulateInsetsFromStoryboard(const char* insetType, UIEdgeInsets& insets) {
+    XIBObject* insetNode = FindMemberAndHandle(const_cast<char*>(insetType));
+    if (insetNode) {
+        insets.top = strtof(insetNode->getAttrAndHandle("minY"), NULL);
+        insets.left = strtof(insetNode->getAttrAndHandle("minX"), NULL);
+        insets.bottom = strtof(insetNode->getAttrAndHandle("maxY"), NULL);
+        insets.right = strtof(insetNode->getAttrAndHandle("maxX"), NULL);
+    }
+}
+
+void XIBObject::PopulateRectFromStoryboard(const char* rectType, UIRect& rect) {
+    XIBObject* rectNode = FindMemberAndHandle(const_cast<char*>(rectType));
+    if (rectNode) {
+        rect.x = strtof(rectNode->getAttrAndHandle("x"), NULL);
+        rect.y = strtof(rectNode->getAttrAndHandle("y"), NULL);
+        rect.width = strtof(rectNode->getAttrAndHandle("width"), NULL);
+        rect.height = strtof(rectNode->getAttrAndHandle("height"), NULL);
+    }
+}
+
+void XIBObject::PopulateSizeFromStoryboard(const char* sizeType, CGSize& size) {
+    XIBObject* sizeNode = FindMemberAndHandle(const_cast<char*>(sizeType));
+    if (sizeNode) {
+        size.width = strtof(sizeNode->getAttrAndHandle("width"), NULL);
+        size.height = strtof(sizeNode->getAttrAndHandle("height"), NULL);
+    }
 }
 
 void XIBObject::AddSize(NIBWriter* writer, char* pPropName, CGSize size) {
@@ -658,4 +687,8 @@ void XIBObject::getDocumentCoverage(pugi::xml_document& doc) {
     CoverageWalker walker;
 
     doc.traverse(walker);
+}
+
+XIBObject *XIBObject::createDataWriter(char *dataOut, int size) {
+    return new XIBObjectDataWriter(dataOut, size);
 }

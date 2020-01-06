@@ -36,5 +36,5 @@ public:
     UITextView();
     virtual void InitFromXIB(XIBObject* obj);
     virtual void ConvertStaticMappings(NIBWriter* writer, XIBObject* obj);
-    virtual void UITextView::InitFromStory(XIBObject* obj);
+    virtual void InitFromStory(XIBObject* obj);
 };

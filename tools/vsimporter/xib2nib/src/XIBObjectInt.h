@@ -21,11 +21,12 @@
 
 class XIBObjectInt : public XIBObject {
 private:
-    int _val;
+    long long _val;
 
 public:
-    XIBObjectInt(int val);
+    XIBObjectInt(long long val);
     int intValue();
+    long long longValue();
     virtual bool NeedsSerialization();
     void WriteData(NIBWriter* writer);
 };
@@ -40,12 +41,5 @@ public:
     void WriteData(NIBWriter* writer);
 };
 
-class XIBObjectNumber : public XIBObject {
-    int _val;
-
-public:
-    XIBObjectNumber(int val);
-    void EmitObject(NIBWriter* writer);
-};
 
 #endif

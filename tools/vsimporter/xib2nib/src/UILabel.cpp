@@ -29,10 +29,20 @@ static void WriteLayoutWidth(struct _PropertyMapper* prop, NIBWriter* writer, XI
 }
 
 static PropertyMapper propertyMappings[] = {
-    "IBUIShadowColor",           "UIShadowColor",  NULL, "IBUILineBreakMode", "UILineBreakMode", NULL, "preferredMaxLayoutWidth",
-    "UIPreferredMaxLayoutWidth", WriteLayoutWidth,
+    {"IBUIShadowColor", "UIShadowColor",  NULL}, {"IBUILineBreakMode", "UILineBreakMode", NULL},
+    {"preferredMaxLayoutWidth", "UIPreferredMaxLayoutWidth", WriteLayoutWidth},
 };
 static const int numPropertyMappings = sizeof(propertyMappings) / sizeof(PropertyMapper);
+
+std::map<std::string, UILineBreakMode> storyToUILineBreakMode = {
+    { "wordWrap", UILineBreakModeWordWrap },
+    { "characterWrap", UILineBreakModeCharacterWrap },
+    { "clip", UILineBreakModeClip },
+    { "headTruncation", UILineBreakModeHeadTruncation },
+    { "tailTruncation", UILineBreakModeTailTruncation },
+    { "middleTruncation", UILineBreakModeMiddleTruncation },
+};
+
 
 UILabel::UILabel() {
     _text = NULL;
@@ -46,7 +56,7 @@ UILabel::UILabel() {
     _font = NULL;
 
     // default line break mode is tailTrucation
-    _lineBreakMode = 4;
+    _lineBreakMode = UILineBreakModeTailTruncation;
 }
 
 void UILabel::InitFromXIB(XIBObject* obj) {
@@ -97,24 +107,8 @@ void UILabel::InitFromStory(XIBObject* obj) {
     const char* lineBreakModeAttributeString = "lineBreakMode";
     const char* lineBreakModeAttributeValue = getAttrib(lineBreakModeAttributeString);
     if (lineBreakModeAttributeValue) {
-        if (strcmp(lineBreakModeAttributeValue, "wordWrap") == 0) {
-            _lineBreakMode = 0;
-            getAttrAndHandle(lineBreakModeAttributeString);
-        } else if (strcmp(lineBreakModeAttributeValue, "characterWrap") == 0) {
-            _lineBreakMode = 1;
-            getAttrAndHandle(lineBreakModeAttributeString);
-        } else if (strcmp(lineBreakModeAttributeValue, "clip") == 0) {
-            _lineBreakMode = 2;
-            getAttrAndHandle(lineBreakModeAttributeString);
-        } else if (strcmp(lineBreakModeAttributeValue, "headTruncation") == 0) {
-            _lineBreakMode = 3;
-            getAttrAndHandle(lineBreakModeAttributeString);
-        } else if (strcmp(lineBreakModeAttributeValue, "tailTruncation") == 0) {
-            _lineBreakMode = 4;
-            getAttrAndHandle(lineBreakModeAttributeString);
-        } else if (strcmp(lineBreakModeAttributeValue, "middleTruncation") == 0) {
-            _lineBreakMode = 5;
-            getAttrAndHandle(lineBreakModeAttributeString);
+        if (storyToUILineBreakMode.find(lineBreakModeAttributeValue) != storyToUILineBreakMode.end()) {
+            _lineBreakMode = storyToUILineBreakMode[lineBreakModeAttributeValue];
         } else {
             printf("invalid linebreak value %s, using default (tailTruncation) \n", lineBreakModeAttributeValue);
         }
@@ -176,7 +170,7 @@ void UILabel::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
         AddInt(writer, "UINumberOfLines", _numberOfLines);
     }
 
-    if (_lineBreakMode != 4) {
+    if (_lineBreakMode != UILineBreakModeTailTruncation) {
         AddInt(writer, "UILineBreakMode", _lineBreakMode);
     }
 
@@ -185,8 +179,10 @@ void UILabel::ConvertStaticMappings(NIBWriter* writer, XIBObject* obj) {
     }
 
     if (_minimumFontSize != -1.0f) {
+        AddBool(writer, "UIAdjustsFontSizeToFit", true);
         AddOutputMember(writer, "UIMinimumFontSize", new XIBObjectFloat(_minimumFontSize));
     } else if (_minimumScaleFactor != -1.0f) {
+        AddBool(writer, "UIAdjustsFontSizeToFit", true);
         AddOutputMember(writer, "UIMinimumScaleFactor", new XIBObjectFloat(_minimumScaleFactor));
     } else {
         AddBool(writer, "UIAdjustsFontSizeToFit", false);

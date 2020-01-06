@@ -22,6 +22,7 @@ public:
     bool _allowsSelectionDuringEditing;
     int _style;
     int _separatorStyle;
+    float _rowHeight;
     UITableView();
     virtual void Awaken();
     virtual void InitFromXIB(XIBObject* obj);
