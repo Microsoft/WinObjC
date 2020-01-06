@@ -25,7 +25,7 @@
 @class NSArray<ObjectType>;
 
 FOUNDATION_EXPORT_CLASS
-@interface NSMutableSet <ObjectType> : NSSet <NSCopying, NSFastEnumeration, NSMutableCopying, NSSecureCoding>
+@interface NSMutableSet <ObjectType> : NSSet <ObjectType>
 + (instancetype)setWithCapacity:(NSUInteger)numItems;
 - (instancetype)initWithCapacity:(NSUInteger)numItems;
 - (void)addObject:(ObjectType)object;

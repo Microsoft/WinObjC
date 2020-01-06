@@ -25,7 +25,7 @@
 @class NSArray<ObjectType>;
 
 FOUNDATION_EXPORT_CLASS
-@interface NSMutableDictionary <KeyType, ObjectType> : NSDictionary <NSCopying, NSFastEnumeration, NSMutableCopying, NSSecureCoding>
+@interface NSMutableDictionary <KeyType, ObjectType> : NSDictionary <KeyType, ObjectType>
 + (instancetype)dictionaryWithCapacity:(NSUInteger)numItems;
 - (instancetype)initWithCapacity:(NSUInteger)numItems;
 + (NSMutableDictionary*)dictionaryWithSharedKeySet:(id)keyset;

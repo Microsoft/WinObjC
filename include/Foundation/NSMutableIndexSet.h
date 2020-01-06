@@ -21,7 +21,7 @@
 #import <Foundation/NSIndexSet.h>
 
 FOUNDATION_EXPORT_CLASS
-@interface NSMutableIndexSet : NSIndexSet <NSCopying, NSMutableCopying, NSSecureCoding>
+@interface NSMutableIndexSet : NSIndexSet
 - (void)addIndex:(NSUInteger)index;
 - (void)addIndexes:(NSIndexSet*)indexSet;
 - (void)addIndexesInRange:(NSRange)indexRange;

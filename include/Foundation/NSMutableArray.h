@@ -28,7 +28,7 @@
 @class NSSortDescriptor;
 
 FOUNDATION_EXPORT_CLASS
-@interface NSMutableArray <ObjectType> : NSArray <NSCopying, NSFastEnumeration, NSMutableCopying, NSSecureCoding>
+@interface NSMutableArray <ObjectType> : NSArray <ObjectType>
 + (instancetype)arrayWithCapacity:(NSUInteger)numItems;
 - (instancetype)initWithCapacity:(NSUInteger)numItems;
 - (void)addObject:(ObjectType)anObject;

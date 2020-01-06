@@ -26,6 +26,6 @@
 @class NSEnumerator;
 
 FOUNDATION_EXPORT_CLASS
-@interface NSCountedSet : NSMutableSet <NSCopying, NSFastEnumeration, NSMutableCopying, NSSecureCoding>
-- (NSUInteger)countForObject:(id)anObject;
+@interface NSCountedSet <ObjectType> : NSMutableSet <ObjectType>
+- (NSUInteger)countForObject:(ObjectType)anObject;
 @end

@@ -26,7 +26,7 @@
 @class NSSet<ObjectType>;
 
 FOUNDATION_EXPORT_CLASS
-@interface NSMutableOrderedSet <ObjectType> : NSOrderedSet <NSCopying, NSFastEnumeration, NSMutableCopying, NSSecureCoding>
+@interface NSMutableOrderedSet <ObjectType> : NSOrderedSet <ObjectType>
 +(instancetype)orderedSetWithCapacity : (NSUInteger)numItems STUB_METHOD;
 - (instancetype)initWithCapacity:(NSUInteger)numItems STUB_METHOD;
 - (instancetype)init;
