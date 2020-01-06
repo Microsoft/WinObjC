@@ -44,17 +44,17 @@ To use the bridge you'll need:
   - Nuget Package Manager
   - C# and Visual Basic Roslyn compilers
   - Static analysis tools
-  - Windows 10 SDK (10.0.14393.0)
   - Visual Studio C++ core features
+  - VC++ 2015.3 v140 toolset (x86,x64)
   - VC++ 2017 v141 toolset (x86, x64)
   - Visual C++ compilers and libraries for ARM
   - Visual C++ runtime for UWP
   - Windows 10 SDK (10.0.10240.0)
   - Windows 10 SDK (10.0.10586.0)
+  - Windows 10 SDK (10.0.14393.0)
   - MSBuild
   - Windows Universal CRT SDK
   - Standard Library Modules
-  - VC++ 2015.3 v140 toolset (x86,x64)
   - Windows Universal C Runtime
 </p></details>
 
