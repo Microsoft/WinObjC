@@ -110,15 +110,15 @@ LIBRARY CoreMIDI
         MIDIThruConnectionSetParams
 
         ; MIDINetworkConnection.mm
-        _OBJC_CLASS_MIDINetworkConnection DATA
-        __objc_class_name_MIDINetworkConnection CONSTANT
+        $_OBJC_CLASS_MIDINetworkConnection DATA
+        $_OBJC_REF_CLASS_MIDINetworkConnection DATA
 
         ; MIDINetworkHost.mm
         MIDINetworkBonjourServiceType DATA
-        _OBJC_CLASS_MIDINetworkHost DATA
-        __objc_class_name_MIDINetworkHost CONSTANT
+        $_OBJC_CLASS_MIDINetworkHost DATA
+        $_OBJC_REF_CLASS_MIDINetworkHost DATA
 
         ; MIDINetworkSession.mm
-        _OBJC_CLASS_MIDINetworkSession DATA
-        __objc_class_name_MIDINetworkSession CONSTANT
+        $_OBJC_CLASS_MIDINetworkSession DATA
+        $_OBJC_REF_CLASS_MIDINetworkSession DATA
 

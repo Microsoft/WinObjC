@@ -1,0 +1,115 @@
+From f1ef53065c270c5d3bea34ef783f1ab04a4b70a5 Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:30:57 -0800
+Subject: [PATCH 09/19] [ObjC] Improve the handling of empty tries & funclet
+ pad personalities
+
+This commit adds support for eliminating @catch blocks for any @try
+whose body cannot throw an exception. It also adds support for EH
+personalities that require funclet pads by populating the exception slot
+via catchpad and emitting a catchret.
+---
+ lib/CodeGen/CGObjCRuntime.cpp | 52 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 50 insertions(+), 2 deletions(-)
+
+diff --git a/lib/CodeGen/CGObjCRuntime.cpp b/lib/CodeGen/CGObjCRuntime.cpp
+index 2f886fd82c..4a09ef6527 100644
+--- a/lib/CodeGen/CGObjCRuntime.cpp
++++ b/lib/CodeGen/CGObjCRuntime.cpp
+@@ -22,6 +22,7 @@
+ #include "clang/AST/StmtObjC.h"
+ #include "clang/CodeGen/CGFunctionInfo.h"
+ #include "llvm/IR/CallSite.h"
++#include "llvm/Support/SaveAndRestore.h"
+ 
+ using namespace clang;
+ using namespace CodeGen;
+@@ -137,6 +138,20 @@ namespace {
+   };
+ }
+ 
++namespace {
++struct CatchRetScope final : EHScopeStack::Cleanup {
++  llvm::CatchPadInst *CPI;
++
++  CatchRetScope(llvm::CatchPadInst *CPI) : CPI(CPI) {}
++
++  void Emit(CodeGenFunction &CGF, Flags flags) override {
++    llvm::BasicBlock *BB = CGF.createBasicBlock("catchret.dest");
++    CGF.Builder.CreateCatchRet(CPI, BB);
++    CGF.EmitBlock(BB);
++  }
++};
++}
++
+ 
+ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
+                                      const ObjCAtTryStmt &S,
+@@ -155,6 +170,8 @@ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
+ 
+   SmallVector<CatchHandler, 8> Handlers;
+ 
++  EHCatchScope *CatchScope = nullptr;
++
+   // Enter the catch, if there is one.
+   if (S.getNumCatchStmts()) {
+     for (unsigned I = 0, N = S.getNumCatchStmts(); I != N; ++I) {
+@@ -185,6 +202,19 @@ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
+   // Emit the try body.
+   CGF.EmitStmt(S.getTryBody());
+ 
++  // If the catch was not required, bail out now.
++  if (S.getNumCatchStmts()) {
++    EHCatchScope &CatchScope = cast<EHCatchScope>(*CGF.EHStack.begin());
++    if (!CatchScope.hasEHBranches()) {
++      CatchScope.clearHandlerBlocks();
++      CGF.EHStack.popCatch();
++      if(S.getFinallyStmt()) {
++        FinallyInfo.exit(CGF);
++      }
++      return;
++    }
++  }
++
+   // Leave the try.
+   if (S.getNumCatchStmts())
+     CGF.popCatchScope();
+@@ -197,6 +227,26 @@ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
+     CatchHandler &Handler = Handlers[I];
+ 
+     CGF.EmitBlock(Handler.Block);
++
++    CodeGenFunction::LexicalScope cleanups(CGF, Handler.Body->getSourceRange());
++
++    llvm::CatchPadInst *CPI = nullptr;
++    llvm::SaveAndRestore<llvm::Instruction *>
++        RestoreCurrentFuncletPad(CGF.CurrentFuncletPad);
++    if (EHPersonality::get(CGF).usesFuncletPads()) {
++      CPI = cast<llvm::CatchPadInst>(Handler.Block->getFirstNonPHI());
++      assert(CPI &&
++        "a personality that requires funclets must have a funclet pad in"
++        " objective-c catch");
++
++      CGF.CurrentFuncletPad = CPI;
++      CGF.EHStack.pushCleanup<CatchRetScope>(NormalCleanup, CPI);
++
++      if (Handler.Variable) {
++        CPI->setArgOperand(2, CGF.getExceptionSlot().getPointer());
++      }
++    }
++
+     llvm::Value *RawExn = CGF.getExceptionFromSlot();
+ 
+     // Enter the catch.
+@@ -204,8 +254,6 @@ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
+     if (beginCatchFn)
+       Exn = CGF.EmitNounwindRuntimeCall(beginCatchFn, RawExn, "exn.adjusted");
+ 
+-    CodeGenFunction::LexicalScope cleanups(CGF, Handler.Body->getSourceRange());
+-
+     if (endCatchFn) {
+       // Add a cleanup to leave the catch.
+       bool EndCatchMightThrow = (Handler.Variable == nullptr);
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

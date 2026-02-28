@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "NuGet.Build.Packaging": "0.1.186"
+    "NuGet.Build.Packaging": "0.2.3"
   },
   "frameworks": {
     ".NETFramework,Version=v4.6.1": {}

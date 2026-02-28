@@ -42,8 +42,8 @@
 @implementation _NSKeyValueCodingAggregateFunctions
 
 + (SEL)resolveFunction:(NSString*)funName {
-    if (funName == nil) {
-        return nil;
+    if (!funName) {
+        return nullptr;
     }
     return NSSelectorFromString([NSString stringWithFormat:@"%@:", funName]);
 }

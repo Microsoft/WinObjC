@@ -984,7 +984,7 @@ TEST_P(ComparisonTests, PrefixSuffix) {
     checkHasPrefixHasSuffix(combinerWithLhs, rhs, ::testing::get<12>(GetParam()), ::testing::get<13>(GetParam()));
 }
 
-OSX_DISABLED_INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_CASE_P(
     NSString,
     ComparisonTests,
     ::testing::Values(::testing::make_tuple(@"", @"", NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO),
@@ -1076,13 +1076,7 @@ OSX_DISABLED_INSTANTIATE_TEST_CASE_P(
                       // U+0341 has a canonical decomposition mapping of U+0301.
                       ::testing::make_tuple(@"\u0301", @"\u0341", NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO),
                       ::testing::make_tuple(@"\u0301", @"\u0954", NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO),
-                      ::testing::make_tuple(@"\u0341", @"\u0954", NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO)),
-    // DISABLED TESTS
-    // Due to a difference in CFConstantString implementation, this test fails on the reference platform. Essientially the issue comes down
-    // to how embedded null characters are handled and thus how the string length is computed. WinObjC does not handle them and thus sees
-    // @"\u0000\u0000" as equivalent to @"\u0000" meaning that, in a sense, [@"u0000" hasPrefix:@"\u0000\u0000"] is true. The expected
-    // results should change when compiler generated builtin constant strings are supported.
-    ::testing::Values(::testing::make_tuple(@"\u0000", @"\u0000\u0000", YES, NO, YES, YES, NO, NO, NO, NO, NO, NO, NO, NO)));
+                      ::testing::make_tuple(@"\u0341", @"\u0954", NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO)));
 
 // WINOBJC: No playground support for ObjC
 /*

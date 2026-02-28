@@ -1,0 +1,61 @@
+From 5da1c8b80060eed1d08a1d84b78e5d964d27c7f4 Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:34:18 -0800
+Subject: [PATCH 12/19] [ObjCGNU] Emit protocols, class refs and const strings
+ into COMDAT sections
+
+---
+ lib/CodeGen/CGObjCGNU.cpp | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/lib/CodeGen/CGObjCGNU.cpp b/lib/CodeGen/CGObjCGNU.cpp
+index 28fda684bd..ec12e7dae6 100644
+--- a/lib/CodeGen/CGObjCGNU.cpp
++++ b/lib/CodeGen/CGObjCGNU.cpp
+@@ -182,6 +182,9 @@ protected:
+       ConstStr = new llvm::GlobalVariable(TheModule, value->getType(), true,
+                                           llvm::GlobalValue::LinkOnceODRLinkage,
+                                           value, Name);
++      if (CGM.supportsCOMDAT()) {
++        ConstStr->setComdat(TheModule.getOrInsertComdat(Name));
++      }
+     }
+     return llvm::ConstantExpr::getGetElementPtr(ConstStr->getValueType(),
+                                                 ConstStr, Zeros);
+@@ -874,8 +877,17 @@ void CGObjCGNU::EmitClassRef(const std::string &className) {
+                                            llvm::GlobalValue::ExternalLinkage,
+                                            nullptr, symbolName);
+   }
+-  new llvm::GlobalVariable(TheModule, ClassSymbol->getType(), true,
+-    llvm::GlobalValue::WeakAnyLinkage, ClassSymbol, symbolRef);
++  llvm::GlobalVariable *classRef = new llvm::GlobalVariable(TheModule,
++    ClassSymbol->getType(), true, llvm::GlobalValue::LinkOnceODRLinkage,
++    ClassSymbol, symbolRef);
++
++  if (CGM.supportsCOMDAT()) {
++    // PE/COFF require a COMDAT section to fold these together; the linker will
++    // not do so otherwise.
++    classRef->setComdat(TheModule.getOrInsertComdat(symbolRef));
++  }
++
++  CGM.addCompilerUsedGlobal(classRef);
+ }
+ 
+ static std::string SymbolNameForMethod( StringRef ClassName,
+@@ -1928,9 +1940,12 @@ void CGObjCGNU::GenerateProtocol(const ObjCProtocolDecl *PD) {
+   Elements.add(OptionalClassMethodList);
+   Elements.add(PropertyList);
+   Elements.add(OptionalPropertyList);
++  llvm::GlobalVariable *protocol = Elements.finishAndCreateGlobal(
++      ".objc_protocol", CGM.getPointerAlign(), false, llvm::GlobalVariable::WeakODRLinkage);
++  protocol->setComdat(TheModule.getOrInsertComdat(protocol->getName()));
+   ExistingProtocols[ProtocolName] =
+     llvm::ConstantExpr::getBitCast(
+-      Elements.finishAndCreateGlobal(".objc_protocol", CGM.getPointerAlign()),
++      protocol,
+       IdTy);
+ }
+ void CGObjCGNU::GenerateProtocolHolderCategory() {
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

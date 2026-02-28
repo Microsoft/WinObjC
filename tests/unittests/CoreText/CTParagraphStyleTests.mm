@@ -36,7 +36,7 @@ TEST(CoreText, CTParagraphStyle) {
     EXPECT_NEAR(bufferFloat, val, .0001f);
 
     CTParagraphStyleRef paragraphStyleCopy = CTParagraphStyleCreateCopy(nullptr);
-    EXPECT_EQ(paragraphStyleCopy, nil);
+    EXPECT_EQ(paragraphStyleCopy, nullptr);
 
     paragraphStyleCopy = CTParagraphStyleCreateCopy(paragraphStyle);
     bufferFloat = 3.0f;

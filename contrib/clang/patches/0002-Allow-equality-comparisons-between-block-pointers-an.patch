@@ -1,0 +1,100 @@
+From f39235e6682c5e9e811917982e0a48655f8d8dab Mon Sep 17 00:00:00 2001
+From: John McCall <rjmccall@apple.com>
+Date: Sat, 7 Apr 2018 17:42:06 +0000
+Subject: [PATCH 02/19] Allow equality comparisons between block pointers and
+ block-pointer-compatible ObjC object pointer types.
+
+Patch by Dustin Howett!
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@329508 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 04b6584405d0d5552c23babecfc2dd664bf93ee1)
+---
+ lib/Sema/SemaExpr.cpp          | 13 +++++++++++
+ test/SemaObjC/block-compare.mm | 51 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 64 insertions(+)
+ create mode 100644 test/SemaObjC/block-compare.mm
+
+diff --git a/lib/Sema/SemaExpr.cpp b/lib/Sema/SemaExpr.cpp
+index a6e43765e1..69806f6bb1 100644
+--- a/lib/Sema/SemaExpr.cpp
++++ b/lib/Sema/SemaExpr.cpp
+@@ -9986,6 +9986,19 @@ QualType Sema::CheckCompareOperands(ExprResult &LHS, ExprResult &RHS,
+         RHS = ImpCastExprToType(RHS.get(), LHSType, CK_BitCast);
+       return ResultTy;
+     }
++
++    if (!IsRelational && LHSType->isBlockPointerType() &&
++        RHSType->isBlockCompatibleObjCPointerType(Context)) {
++      LHS = ImpCastExprToType(LHS.get(), RHSType,
++                              CK_BlockPointerToObjCPointerCast);
++      return ResultTy;
++    } else if (!IsRelational &&
++               LHSType->isBlockCompatibleObjCPointerType(Context) &&
++               RHSType->isBlockPointerType()) {
++      RHS = ImpCastExprToType(RHS.get(), LHSType,
++                              CK_BlockPointerToObjCPointerCast);
++      return ResultTy;
++    }
+   }
+   if ((LHSType->isAnyPointerType() && RHSType->isIntegerType()) ||
+       (LHSType->isIntegerType() && RHSType->isAnyPointerType())) {
+diff --git a/test/SemaObjC/block-compare.mm b/test/SemaObjC/block-compare.mm
+new file mode 100644
+index 0000000000..c63f484a80
+--- /dev/null
++++ b/test/SemaObjC/block-compare.mm
+@@ -0,0 +1,51 @@
++// RUN: %clang_cc1 -S -o - -triple i686-windows -verify -fblocks \
++// RUN:     -Wno-unused-comparison %s
++
++#pragma clang diagnostic ignored "-Wunused-comparison"
++
++#define nil ((id)nullptr)
++
++@protocol NSObject
++@end
++
++@protocol NSCopying
++@end
++
++@protocol OtherProtocol
++@end
++
++__attribute__((objc_root_class))
++@interface NSObject <NSObject, NSCopying>
++@end
++
++__attribute__((objc_root_class))
++@interface Test
++@end
++
++int main() {
++  void (^block)() = ^{};
++  NSObject *object;
++  id<NSObject, NSCopying> qualifiedId;
++
++  id<OtherProtocol> poorlyQualified1;
++  Test *objectOfWrongType;
++
++  block == nil;
++  block == object;
++  block == qualifiedId;
++
++  nil == block;
++  object == block;
++  qualifiedId == block;
++
++  // these are still not valid: blocks must be compared with id, NSObject*, or a protocol-qualified id
++  // conforming to NSCopying or NSObject.
++
++  block == poorlyQualified1; // expected-error {{invalid operands to binary expression ('void (^)()' and 'id<OtherProtocol>')}}
++  block == objectOfWrongType; // expected-error {{invalid operands to binary expression ('void (^)()' and 'Test *')}}
++
++  poorlyQualified1 == block; // expected-error {{invalid operands to binary expression ('id<OtherProtocol>' and 'void (^)()')}}
++  objectOfWrongType == block; // expected-error {{invalid operands to binary expression ('Test *' and 'void (^)()')}}
++
++  return 0;
++}
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

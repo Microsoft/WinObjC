@@ -6,13 +6,13 @@ LIBRARY iAd
         ADBannerContentSizeIdentifierPortrait DATA
         ADBannerContentSizeIdentifierLandscape DATA
         ADErrorDomain DATA
-        _OBJC_CLASS_ADBannerView DATA
-        __objc_class_name_ADBannerView CONSTANT
+        $_OBJC_CLASS_ADBannerView DATA
+        $_OBJC_REF_CLASS_ADBannerView DATA
 
         ; ADClient.mm
-        _OBJC_CLASS_ADClient DATA
-        __objc_class_name_ADClient CONSTANT
+        $_OBJC_CLASS_ADClient DATA
+        $_OBJC_REF_CLASS_ADClient DATA
 
         ; ADInterstitialAd.mm
-        _OBJC_CLASS_ADInterstitialAd DATA
-        __objc_class_name_ADInterstitialAd CONSTANT
+        $_OBJC_CLASS_ADInterstitialAd DATA
+        $_OBJC_REF_CLASS_ADInterstitialAd DATA

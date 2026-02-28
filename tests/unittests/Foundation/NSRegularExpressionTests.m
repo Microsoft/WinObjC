@@ -69,7 +69,7 @@ TEST(NSRegularExpression, CaptureGroupReplacementTest) {
 
 TEST(NSRegularExpression, ReplacementTests) {
     StrongId<NSRegularExpression> regex =
-        [NSRegularExpression regularExpressionWithPattern:@"Bad" options:NSRegularExpressionCaseInsensitive error:nil];
+        [NSRegularExpression regularExpressionWithPattern:@"Bad" options:NSRegularExpressionCaseInsensitive error:NULL];
 
     StrongId<NSString> testString = @"Bad Match";
     NSRange range = { 0, [testString length] };
@@ -90,7 +90,7 @@ TEST(NSRegularExpression, ReplacementTests) {
     rangeresult = [offsetFromReplacement range];
     ASSERT_EQ(rangeresult.location, 1);
 
-    regex = [NSRegularExpression regularExpressionWithPattern:@"iOS" options:0 error:nil];
+    regex = [NSRegularExpression regularExpressionWithPattern:@"iOS" options:0 error:NULL];
 
     StrongId<NSMutableString> mutableTestString = [[@"iOS is amazing" mutableCopy] autorelease];
     NSUInteger matches = [regex replaceMatchesInString:mutableTestString
@@ -100,7 +100,7 @@ TEST(NSRegularExpression, ReplacementTests) {
 
     ASSERT_OBJCEQ(@"Windows is amazing", mutableTestString);
 
-    regex = [NSRegularExpression regularExpressionWithPattern:@"iOS(?=\\sbridge)" options:0 error:nil];
+    regex = [NSRegularExpression regularExpressionWithPattern:@"iOS(?=\\sbridge)" options:0 error:NULL];
 
     testString = [[@"iOS bridge is amazing" mutableCopy] autorelease];
     StrongId<NSString> outputString = [regex stringByReplacingMatchesInString:testString
@@ -158,7 +158,7 @@ TEST(NSRegularExpression, MatchingTests) {
 }
 
 TEST(NSRegularExpression, RangeResultTests) {
-    StrongId<NSRegularExpression> regex = [NSRegularExpression regularExpressionWithPattern:@"iOS" options:0 error:nil];
+    StrongId<NSRegularExpression> regex = [NSRegularExpression regularExpressionWithPattern:@"iOS" options:0 error:NULL];
     StrongId<NSString> testString = @"The Windows bridge for iOS";
 
     NSRange theRange =

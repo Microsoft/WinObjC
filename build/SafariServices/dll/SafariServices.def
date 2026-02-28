@@ -1,4 +1,4 @@
 LIBRARY SafariServices
     EXPORTS
-        _OBJC_CLASS_SFSafariViewController DATA
-        __objc_class_name_SFSafariViewController CONSTANT
+        $_OBJC_CLASS_SFSafariViewController DATA
+        $_OBJC_REF_CLASS_SFSafariViewController DATA

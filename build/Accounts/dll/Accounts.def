@@ -1,13 +1,13 @@
 LIBRARY Accounts
     EXPORTS
-        _OBJC_CLASS_ACAccount DATA
-        _OBJC_CLASS_ACAccountCredential DATA
-        _OBJC_CLASS_ACAccountStore DATA
-        _OBJC_CLASS_ACAccountType DATA
-        __objc_class_name_ACAccount CONSTANT
-        __objc_class_name_ACAccountCredential CONSTANT
-        __objc_class_name_ACAccountStore CONSTANT
-        __objc_class_name_ACAccountType CONSTANT
+        $_OBJC_CLASS_ACAccount DATA
+        $_OBJC_CLASS_ACAccountCredential DATA
+        $_OBJC_CLASS_ACAccountStore DATA
+        $_OBJC_CLASS_ACAccountType DATA
+        $_OBJC_REF_CLASS_ACAccount DATA
+        $_OBJC_REF_CLASS_ACAccountCredential DATA
+        $_OBJC_REF_CLASS_ACAccountStore DATA
+        $_OBJC_REF_CLASS_ACAccountType DATA
         ACAccountTypeIdentifierFacebook DATA
         ACAccountTypeIdentifierSinaWeibo DATA
         ACAccountTypeIdentifierTwitter DATA

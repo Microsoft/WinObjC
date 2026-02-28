@@ -1,122 +1,122 @@
 LIBRARY GameplayKit
     EXPORTS
         ; GKAgent.mm
-        _OBJC_CLASS_GKAgent DATA
-        __objc_class_name_GKAgent CONSTANT
+        $_OBJC_CLASS_GKAgent DATA
+        $_OBJC_REF_CLASS_GKAgent DATA
 
         ; GKAgent2D.mm
-        _OBJC_CLASS_GKAgent2D DATA
-        __objc_class_name_GKAgent2D CONSTANT
+        $_OBJC_CLASS_GKAgent2D DATA
+        $_OBJC_REF_CLASS_GKAgent2D DATA
 
         ; GKARC4RandomSource.mm
-        _OBJC_CLASS_GKARC4RandomSource DATA
-        __objc_class_name_GKARC4RandomSource CONSTANT
+        $_OBJC_CLASS_GKARC4RandomSource DATA
+        $_OBJC_REF_CLASS_GKARC4RandomSource DATA
 
         ; GKBehavior.mm
-        _OBJC_CLASS_GKBehavior DATA
-        __objc_class_name_GKBehavior CONSTANT
+        $_OBJC_CLASS_GKBehavior DATA
+        $_OBJC_REF_CLASS_GKBehavior DATA
 
         ; GKCircleObstacle.mm
-        _OBJC_CLASS_GKCircleObstacle DATA
-        __objc_class_name_GKCircleObstacle CONSTANT
+        $_OBJC_CLASS_GKCircleObstacle DATA
+        $_OBJC_REF_CLASS_GKCircleObstacle DATA
 
         ; GKComponent.mm
-        _OBJC_CLASS_GKComponent DATA
-        __objc_class_name_GKComponent CONSTANT
+        $_OBJC_CLASS_GKComponent DATA
+        $_OBJC_REF_CLASS_GKComponent DATA
 
         ; GKComponentSystem.mm
-        _OBJC_CLASS_GKComponentSystem DATA
-        __objc_class_name_GKComponentSystem CONSTANT
+        $_OBJC_CLASS_GKComponentSystem DATA
+        $_OBJC_REF_CLASS_GKComponentSystem DATA
 
         ; GKEntity.mm
-        _OBJC_CLASS_GKEntity DATA
-        __objc_class_name_GKEntity CONSTANT
+        $_OBJC_CLASS_GKEntity DATA
+        $_OBJC_REF_CLASS_GKEntity DATA
 
         ; GKGaussianDistribution.mm
-        _OBJC_CLASS_GKGaussianDistribution DATA
-        __objc_class_name_GKGaussianDistribution CONSTANT
+        $_OBJC_CLASS_GKGaussianDistribution DATA
+        $_OBJC_REF_CLASS_GKGaussianDistribution DATA
 
         ; GKGoal.mm
-        _OBJC_CLASS_GKGoal DATA
-        __objc_class_name_GKGoal CONSTANT
+        $_OBJC_CLASS_GKGoal DATA
+        $_OBJC_REF_CLASS_GKGoal DATA
 
         ; GKGraph.mm
-        _OBJC_CLASS_GKGraph DATA
-        __objc_class_name_GKGraph CONSTANT
+        $_OBJC_CLASS_GKGraph DATA
+        $_OBJC_REF_CLASS_GKGraph DATA
 
         ; GKGraphNode.mm
-        _OBJC_CLASS_GKGraphNode DATA
-        __objc_class_name_GKGraphNode CONSTANT
+        $_OBJC_CLASS_GKGraphNode DATA
+        $_OBJC_REF_CLASS_GKGraphNode DATA
 
         ; GKGraphNode2D.mm
-        _OBJC_CLASS_GKGraphNode2D DATA
-        __objc_class_name_GKGraphNode2D CONSTANT
+        $_OBJC_CLASS_GKGraphNode2D DATA
+        $_OBJC_REF_CLASS_GKGraphNode2D DATA
 
         ; GKGridGraph.mm
-        _OBJC_CLASS_GKGridGraph DATA
-        __objc_class_name_GKGridGraph CONSTANT
+        $_OBJC_CLASS_GKGridGraph DATA
+        $_OBJC_REF_CLASS_GKGridGraph DATA
 
         ; GKGridGraphNode.mm
-        _OBJC_CLASS_GKGridGraphNode DATA
-        __objc_class_name_GKGridGraphNode CONSTANT
+        $_OBJC_CLASS_GKGridGraphNode DATA
+        $_OBJC_REF_CLASS_GKGridGraphNode DATA
 
         ; GKLinearCongruentialRandomSource.mm
-        _OBJC_CLASS_GKLinearCongruentialRandomSource DATA
-        __objc_class_name_GKLinearCongruentialRandomSource CONSTANT
+        $_OBJC_CLASS_GKLinearCongruentialRandomSource DATA
+        $_OBJC_REF_CLASS_GKLinearCongruentialRandomSource DATA
 
         ; GKMersenneTwisterRandomSource.mm
-        _OBJC_CLASS_GKMersenneTwisterRandomSource DATA
-        __objc_class_name_GKMersenneTwisterRandomSource CONSTANT
+        $_OBJC_CLASS_GKMersenneTwisterRandomSource DATA
+        $_OBJC_REF_CLASS_GKMersenneTwisterRandomSource DATA
 
         ; GKMinmaxStrategist.mm
-        _OBJC_CLASS_GKMinmaxStrategist DATA
-        __objc_class_name_GKMinmaxStrategist CONSTANT
+        $_OBJC_CLASS_GKMinmaxStrategist DATA
+        $_OBJC_REF_CLASS_GKMinmaxStrategist DATA
 
         ; GKNSPredicateRule.mm
-        _OBJC_CLASS_GKNSPredicateRule DATA
-        __objc_class_name_GKNSPredicateRule CONSTANT
+        $_OBJC_CLASS_GKNSPredicateRule DATA
+        $_OBJC_REF_CLASS_GKNSPredicateRule DATA
 
         ; GKObstacle.mm
-        _OBJC_CLASS_GKObstacle DATA
-        __objc_class_name_GKObstacle CONSTANT
+        $_OBJC_CLASS_GKObstacle DATA
+        $_OBJC_REF_CLASS_GKObstacle DATA
 
         ; GKObstacleGraph.mm
-        _OBJC_CLASS_GKObstacleGraph DATA
-        __objc_class_name_GKObstacleGraph CONSTANT
+        $_OBJC_CLASS_GKObstacleGraph DATA
+        $_OBJC_REF_CLASS_GKObstacleGraph DATA
 
         ; GKPath.mm
-        _OBJC_CLASS_GKPath DATA
-        __objc_class_name_GKPath CONSTANT
+        $_OBJC_CLASS_GKPath DATA
+        $_OBJC_REF_CLASS_GKPath DATA
 
         ; GKPolygonObstacle.mm
-        _OBJC_CLASS_GKPolygonObstacle DATA
-        __objc_class_name_GKPolygonObstacle CONSTANT
+        $_OBJC_CLASS_GKPolygonObstacle DATA
+        $_OBJC_REF_CLASS_GKPolygonObstacle DATA
 
         ; GKRandomDistribution.mm
-        _OBJC_CLASS_GKRandomDistribution DATA
-        __objc_class_name_GKRandomDistribution CONSTANT
+        $_OBJC_CLASS_GKRandomDistribution DATA
+        $_OBJC_REF_CLASS_GKRandomDistribution DATA
 
         ; GKRandomSource.mm
-        _OBJC_CLASS_GKRandomSource DATA
-        __objc_class_name_GKRandomSource CONSTANT
+        $_OBJC_CLASS_GKRandomSource DATA
+        $_OBJC_REF_CLASS_GKRandomSource DATA
 
         ; GKRule.mm
-        _OBJC_CLASS_GKRule DATA
-        __objc_class_name_GKRule CONSTANT
+        $_OBJC_CLASS_GKRule DATA
+        $_OBJC_REF_CLASS_GKRule DATA
 
         ; GKRuleSystem.mm
-        _OBJC_CLASS_GKRuleSystem DATA
-        __objc_class_name_GKRuleSystem CONSTANT
+        $_OBJC_CLASS_GKRuleSystem DATA
+        $_OBJC_REF_CLASS_GKRuleSystem DATA
 
         ; GKShuffledDistribution.mm
-        _OBJC_CLASS_GKShuffledDistribution DATA
-        __objc_class_name_GKShuffledDistribution CONSTANT
+        $_OBJC_CLASS_GKShuffledDistribution DATA
+        $_OBJC_REF_CLASS_GKShuffledDistribution DATA
 
         ; GKState.mm
-        _OBJC_CLASS_GKState DATA
-        __objc_class_name_GKState CONSTANT
+        $_OBJC_CLASS_GKState DATA
+        $_OBJC_REF_CLASS_GKState DATA
 
         ; GKStateMachine.mm
-        _OBJC_CLASS_GKStateMachine DATA
-        __objc_class_name_GKStateMachine CONSTANT
+        $_OBJC_CLASS_GKStateMachine DATA
+        $_OBJC_REF_CLASS_GKStateMachine DATA
 

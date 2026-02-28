@@ -1,0 +1,451 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:transformCallback="Microsoft.Cpp.Dev10.ConvertPropertyCallback">
+  <Rule
+    Name="Clang"
+    PageTemplate="tool"
+    DisplayName="Clang"
+    Order="200">
+    <!--This file is generated! Modify with caution!-->
+    <Rule.DataSource>
+      <DataSource
+        Persistence="ProjectFile"
+        ItemType="ClangCompile" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+        Name="General"
+        DisplayName="General" />
+      <Category
+        Name="Paths"
+        DisplayName="Paths" />
+      <Category
+        Name="Language"
+        DisplayName="Language" />
+      <Category
+        Name="Preprocessor"
+        DisplayName="Preprocessor" />
+      <Category
+        Name="All Options"
+        DisplayName="All Options"
+        Subtype="Search" />
+      <Category
+        Name="Command Line"
+        DisplayName="Command Line"
+        Subtype="CommandLine" />
+    </Rule.Categories>
+    <StringProperty
+      IncludeInCommandLine="False"
+      Visible="False"
+      Name="LLVMClangVersion" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      Name="LLVMResourceDir" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      Name="CommandTLogFile" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      Name="ProjectFile" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      Name="ReadTLogFile" />
+    <StringListProperty
+      Visible="False"
+      Category="Command Line"
+      Switch="-c "
+      Name="Input">
+      <StringListProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType="ClangCompile"
+          SourceType="Item" />
+      </StringListProperty.DataSource>
+    </StringListProperty>
+    <EnumProperty
+      IncludeInCommandLine="False"
+      Category="General"
+      DisplayName="Use Header Map"
+      Description="Specify type of header map to use."
+      Name="HeaderMap">
+      <EnumValue
+        DisplayName="Disabled"
+        Description="Disable use of header maps."
+        Name="Disabled" />
+      <EnumValue
+        DisplayName="Project"
+        Description="User a header map containing all headers in the VS project."
+        Name="Project" />
+      <EnumValue
+        DisplayName="Combined"
+        Description="User a header map containing all headers in the VS project, as well as any headers found in the same directory as the source files being compiled."
+        Name="Combined" />
+    </EnumProperty>
+    <BoolProperty
+      IncludeInCommandLine="False"
+      Category="General"
+      DisplayName="Framework-style header map entries"
+      Description="Add framework-style entries to header map."
+      Name="HeaderMapAddFrameworkEntries" />
+    <StringProperty
+      Visible="False"
+      Category="General"
+      DisplayName="Header Map Include"
+      Description="Header Map Include"
+      Name="HeaderMapInclude" />
+    <EnumProperty
+      Category="General"
+      DisplayName="Runtime Library"
+      Description="Specify runtime library for linking."
+      Name="RuntimeLibrary">
+      <EnumValue
+        DisplayName="Multi-threaded"
+        Description="Causes your application to use the multithread, static version of the run-time library."
+        Switch="-D_MT -Xclang --dependent-lib=libcmt -Xclang --dependent-lib=oldnames"
+        Name="MultiThreaded" />
+      <EnumValue
+        DisplayName="Multi-threaded Debug"
+        Description="Defines _DEBUG and _MT. This option also causes the compiler to place the library name LIBCMTD.lib into the .obj file so that the linker will use LIBCMTD.lib to resolve external symbols."
+        Switch="-D_DEBUG -D_MT -Xclang --dependent-lib=libcmtd -Xclang --dependent-lib=oldnames"
+        Name="MultiThreadedDebug" />
+      <EnumValue
+        DisplayName="Multi-threaded DLL"
+        Description="Causes your application to use the multithread- and DLL-specific version of the run-time library. Defines _MT and _DLL and causes the compiler to place the library name MSVCRT.lib into the .obj file."
+        Switch="-D_MT -D_DLL -Xclang --dependent-lib=msvcrt -Xclang --dependent-lib=oldnames"
+        Name="MultiThreadedDLL" />
+      <EnumValue
+        DisplayName="Multi-threaded Debug DLL"
+        Description="Defines _DEBUG, _MT, and _DLL and causes your application to use the debug multithread- and DLL-specific version of the run-time library. It also causes the compiler to place the library name MSVCRTD.lib into the .obj file."
+        Switch="-D_DEBUG -D_MT -D_DLL -Xclang --dependent-lib=msvcrtd -Xclang --dependent-lib=oldnames"
+        Name="MultiThreadedDebugDLL" />
+    </EnumProperty>
+    <EnumProperty
+      Category="General"
+      DisplayName="Optimization Level"
+      Description="Select option for code optimization."
+      Name="OptimizationLevel">
+      <EnumValue
+        DisplayName="Disabled"
+        Description="Disable optimization."
+        Switch="-O0"
+        Name="Disabled" />
+      <EnumValue
+        DisplayName="Optimize for size"
+        Description="Medium level, with extra optimizations to reduce code size."
+        Switch="-Os"
+        Name="MinSpace" />
+      <EnumValue
+        DisplayName="Optimize for speed"
+        Description="More optimizations."
+        Switch="-O2"
+        Name="MaxSpeed" />
+      <EnumValue
+        DisplayName="Maximum optimizations"
+        Description="Even more optimizations."
+        Switch="-O3"
+        Name="Full" />
+    </EnumProperty>
+    <BoolProperty
+      Category="General"
+      DisplayName="Debug Information"
+      Description="Specifies whether to keep debug information."
+      Switch="-g -gcodeview"
+      Name="DebugInformation" />
+    <BoolProperty
+      Category="General"
+      DisplayName="Enable Exceptions"
+      Description="Specifies exception handling model to be used by the compiler for (Objective-)C++."
+      Switch="-fexceptions"
+      Name="ExceptionHandling" />
+    <BoolProperty
+      Category="General"
+      DisplayName="Enable Objective-C ARC"
+      Description="Specifies whether to use Automatic Reference Counting."
+      Switch="-fobjc-arc"
+      Name="ObjectiveCARC" />
+    <BoolProperty
+      Category="General"
+      DisplayName="Enable C and Objective-C Modules"
+      Description="Specifies whether to use Clang modules."
+      Switch="-fmodules"
+      Name="ObjectiveCModules" />
+    <StringProperty
+      Visible="False"
+      Category="General"
+      DisplayName="Path to Objective-C modules"
+      Description="Path to the directory where the modules will be cached"
+      Switch="-fmodules-cache-path="
+      Name="ObjectiveCModulesCachePath" />
+    <StringListProperty
+      Visible="False"
+      Category="Paths"
+      DisplayName="Hidden SYSTEM include search paths"
+      Description="Hidden SYSTEM include search paths"
+      Switch="-isystem "
+      Name="InternalSystemIncludePaths" />
+    <StringListProperty
+      Visible="False"
+      Category="Paths"
+      DisplayName="Hidden include paths"
+      Description="Hidden include paths"
+      Switch="-I "
+      Name="InternalIncludePaths" />
+    <StringListProperty
+      Visible="False"
+      Category="Paths"
+      DisplayName="Hidden force inclusions"
+      Description="Hidden force inclusions"
+      Switch="-include "
+      Name="InternalForceIncludes" />
+    <StringListProperty
+      IncludeInCommandLine="False"
+      Category="Paths"
+      DisplayName="Excluded Search Path Subdirectories"
+      Description="Wildcard pattern for subdirectories to exclude from recursive search"
+      Name="ExcludedSearchPathSubdirectories" />
+    <StringListProperty
+      Category="Paths"
+      DisplayName="User Include Paths"
+      Description="User header search paths."
+      Switch="-iquote "
+      Name="UserIncludePaths" />
+    <StringListProperty
+      Category="Paths"
+      DisplayName="Include Paths"
+      Description="Header search paths."
+      Switch="-I"
+      Name="IncludePaths" />
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Paths"
+      Subtype="file"
+      DisplayName="Object File Name"
+      Description="Specifies a name to override the default object file name."
+      Switch="-o "
+      Name="ObjectFileName" />
+    <StringListProperty
+      Category="Preprocessor"
+      DisplayName="Preprocessor Definitions"
+      Description="Define preprocessor symbols for your source files."
+      Switch="-D"
+      Name="PreprocessorDefinitions" />
+    <StringListProperty
+      Category="Preprocessor"
+      DisplayName="Undefine Preprocessor Definitions"
+      Description="Specifies one or more preprocessor undefines."
+      Switch="-U"
+      Name="UndefinePreprocessorDefinitions" />
+    <EnumProperty
+      Category="Language"
+      DisplayName="Compile As"
+      Description="Select compile language for [Objective] C/C++ files."
+      Name="CompileAs">
+      <EnumValue
+        DisplayName="Default"
+        Description="Default"
+        Name="Default" />
+      <EnumValue
+        DisplayName="Compile as C Code"
+        Description="Compile as C Code"
+        Switch="-x c"
+        Name="CompileAsC" />
+      <EnumValue
+        DisplayName="Compile as C++ Code"
+        Description="Compile as C++ Code"
+        Switch="-x c++"
+        Name="CompileAsCpp" />
+      <EnumValue
+        DisplayName="Compile as Objective C Code"
+        Description="Compile as Objective C Code"
+        Switch="-x objective-c"
+        Name="CompileAsObjC" />
+      <EnumValue
+        DisplayName="Compile as Objective C++ Code"
+        Description="Compile as Objective C++ Code"
+        Switch="-x objective-c++"
+        Name="CompileAsObjCpp" />
+    </EnumProperty>
+    <EnumProperty
+      Category="Language"
+      DisplayName="C Language Standard"
+      Description="Determines the C language standard."
+      Name="CLanguageStandard">
+      <EnumValue
+        DisplayName="C89"
+        Description="C89 Language Standard."
+        Switch="-std=c89"
+        Name="stdc89" />
+      <EnumValue
+        DisplayName="C99"
+        Description="C99 Language Standard."
+        Switch="-std=c99"
+        Name="stdc99" />
+      <EnumValue
+        DisplayName="C11"
+        Description="C11 Language Standard."
+        Switch="-std=c11"
+        Name="stdc11" />
+      <EnumValue
+        DisplayName="C99 (GNU Dialect)"
+        Description="C99 (GNU Dialect) Language Standard."
+        Switch="-std=gnu99"
+        Name="stdgnu99" />
+      <EnumValue
+        DisplayName="C11 (GNU Dialect)"
+        Description="C11 (GNU Dialect) Language Standard."
+        Switch="-std=gnu11"
+        Name="stdgnu11" />
+    </EnumProperty>
+    <EnumProperty
+      Category="Language"
+      DisplayName="C++ Language Standard"
+      Description="Determines the C++ language standard."
+      Name="CppLanguageStandard">
+      <EnumValue
+        DisplayName="C++03"
+        Description="C++03 Language Standard."
+        Switch="-std=c++98"
+        Name="stdcpp98" />
+      <EnumValue
+        DisplayName="C++11"
+        Description="C++11 Language Standard."
+        Switch="-std=c++11"
+        Name="stdcpp11" />
+      <EnumValue
+        DisplayName="C++14"
+        Description="C++14 Language Standard."
+        Switch="-std=c++14"
+        Name="stdcpp14" />
+      <EnumValue
+        DisplayName="C++17"
+        Description="C++17 Language Standard."
+        Switch="-std=c++17"
+        Name="stdcpp17" />
+      <EnumValue
+        DisplayName="C++03 (GNU Dialect)"
+        Description="C++03 (GNU Dialect) Language Standard."
+        Switch="-std=gnu++98"
+        Name="stdgnupp98" />
+      <EnumValue
+        DisplayName="C++11 (GNU Dialect)"
+        Description="C++11 (GNU Dialect) Language Standard."
+        Switch="-std=gnu++11"
+        Name="stdgnupp11" />
+      <EnumValue
+        DisplayName="C++14 (GNU Dialect)"
+        Description="C++14 (GNU Dialect) Language Standard."
+        Switch="-std=gnu++14"
+        Name="stdgnupp14" />
+      <EnumValue
+        DisplayName="C++17 (GNU Dialect)"
+        Description="C++17 (GNU Dialect) Language Standard."
+        Switch="-std=gnu++17"
+        Name="stdgnupp17" />
+    </EnumProperty>
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Language"
+      DisplayName="LLVM Directory"
+      Description="Use LLVM from this directory for compilation"
+      Name="LLVMDirectory" />
+    <StringListProperty
+      Category="General"
+      Subtype="file"
+      DisplayName="Prefix Header"
+      Description="Specifies prefix header file to be included when compiling all source files."
+      Switch="-include "
+      Name="PrefixHeader" />
+    <IntProperty
+      IncludeInCommandLine="False"
+      Category="General"
+      DisplayName="Maximum Clang Processes"
+      Description="Specifies the maximum number of clang processes to run in parallel. The argument can be -1 or any positive integer. A positive property value limits the number of concurrent operations to the set value. If it is -1, there is no limit on the number of concurrently running operations."
+      Name="MaxClangProcesses" />
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Language"
+      DisplayName="Other C Flags"
+      Description="Other C Flags"
+      Name="OtherCFlags" />
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Language"
+      DisplayName="Other C++ Flags"
+      Description="Other C++ Flags"
+      Name="OtherCPlusPlusFlags" />
+    <StringProperty
+      Visible="False"
+      Category="Language"
+      DisplayName="Language-specific flags"
+      Description="Language-specific flags"
+      Name="OtherFlags" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      DisplayName="Internal Compiler Flags"
+      Name="InternalCompilerFlags" />
+    <StringProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      DisplayName="Command Line"
+      Name="CommandLineTemplate" />
+    <StringListProperty
+      Visible="False"
+      IncludeInCommandLine="False"
+      DisplayName="Outputs"
+      Name="Outputs" />
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Command Line"
+      Subtype="AdditionalOptions"
+      DisplayName="Additional Options"
+      Description="Additional Options"
+      Name="AdditionalOptions" />
+    <StringProperty
+      IncludeInCommandLine="False"
+      Category="Preprocessor"
+      DisplayName="Dependency File"
+      Description="Specifies a name to override the default dependency file name."
+      Switch="-MF "
+      Name="DependencyFile" />
+    <BoolProperty
+      Category="Preprocessor"
+      DisplayName="Use System Headers For Dependencies"
+      Description="Don't ignore system headers when calculating dependencies."
+      Switch="-MD"
+      ReverseSwitch="-MMD"
+      Name="SystemHeaderDeps" />
+  </Rule>
+  <ItemType
+    Name="ClangCompile"
+    DisplayName="Clang source" />
+  <FileExtension
+    Name="*.c"
+    ContentType="ClangCpp" />
+  <FileExtension
+    Name="*.cpp"
+    ContentType="ClangCpp" />
+  <FileExtension
+    Name="*.cc"
+    ContentType="ClangCpp" />
+  <FileExtension
+    Name="*.cxx"
+    ContentType="ClangCpp" />
+  <FileExtension
+    Name="*.m"
+    ContentType="ClangObjCpp" />
+  <FileExtension
+    Name="*.mm"
+    ContentType="ClangObjCpp" />
+  <ContentType
+    Name="ClangCpp"
+    DisplayName="Clang C/C++"
+    ItemType="ClangCompile" />
+  <ContentType
+    Name="ClangObjCpp"
+    DisplayName="Clang Objective C/C++"
+    ItemType="ClangCompile" />
+</ProjectSchemaDefinitions>

@@ -51,8 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

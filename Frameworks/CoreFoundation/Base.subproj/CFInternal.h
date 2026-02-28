@@ -366,8 +366,8 @@ CF_PRIVATE Boolean __CFProcessIsRestricted();
 
 // WINOBJC: Compilation can't find these class names
 // Needed for class checks against cfisa, _CFRuntimeBridgeTypeToClass
-extern "C" Class _OBJC_CLASS__NSCFNumber;
-extern "C" Class _OBJC_CLASS__NSCFBoolean;
+extern "C" Class $_OBJC_CLASS__NSCFNumber;
+extern "C" Class $_OBJC_CLASS__NSCFBoolean;
 
 // WINOBJC: Returns an empty protocol that is assigned only to bridged classes, so that bridged objects can be distinguished quickly
 static Protocol* __CFRuntimeGetBridgeProtocol() {
@@ -390,26 +390,26 @@ static Protocol* __CFRuntimeGetBridgeProtocol() {
 #define CONST_STRING_SECTION
 #endif
 // TODO: Pinned retain count for constants?
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define CONST_STRING_DECL(S, V) \
-const struct __CFConstStr __##S CONST_STRING_SECTION = {{(uintptr_t)&_OBJC_CLASS__NSCFString, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+const struct __CFConstStr __##S CONST_STRING_SECTION = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_EXPORT const CFStringRef const S = (CFStringRef)&__##S;
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define PE_CONST_STRING_DECL(S, V) \
-const static struct __CFConstStr __##S CONST_STRING_SECTION = {{(uintptr_t)&_OBJC_CLASS__NSCFString, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+const static struct __CFConstStr __##S CONST_STRING_SECTION = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, _CF_CONSTANT_OBJECT_STRONG_RC, 0, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_PRIVATE const CFStringRef S = (CFStringRef)&__##S;
 
 #else
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define CONST_STRING_DECL(S, V) \
-const struct __CFConstStr __##S = {{(uintptr_t)&_OBJC_CLASS__NSCFString, _CFSWIFT_RC_INIT {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+const struct __CFConstStr __##S = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, _CFSWIFT_RC_INIT {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_EXPORT const CFStringRef const S = (CFStringRef)&__##S;
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define PE_CONST_STRING_DECL(S, V) \
-const static struct __CFConstStr __##S = {{(uintptr_t)&_OBJC_CLASS__NSCFString, _CFSWIFT_RC_INIT {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+const static struct __CFConstStr __##S = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, _CFSWIFT_RC_INIT {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_PRIVATE const CFStringRef S = (CFStringRef)&__##S;
 
 #endif
@@ -422,31 +422,31 @@ struct CF_CONST_STRING {
     uint32_t _length;
 };
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 // CF_EXPORT void* __CFConstantStringClassReferencePtr[];
 
 /* CFNetwork also has a copy of the CONST_STRING_DECL macro (for use on platforms without constant string support in cc); please warn cfnetwork-core@group.apple.com of any necessary changes to this macro. -- REW, 1/28/2002 */
 
 #if __CF_BIG_ENDIAN__
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define CONST_STRING_DECL(S, V)         \
-static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&_OBJC_CLASS__NSCFString, {0x00, 0x00, 0x07, 0xc8}}, (uint8_t *)V, sizeof(V) - 1}; \
+static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, {0x00, 0x00, 0x07, 0xc8}}, (uint8_t *)V, sizeof(V) - 1}; \
 CF_EXPORT const CFStringRef const S = (CFStringRef) & __ ## S ## __;
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define PE_CONST_STRING_DECL(S, V)          \
-static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&_OBJC_CLASS__NSCFString, {0x00, 0x00, 0x07, 0xc8}}, (uint8_t *)V, sizeof(V) - 1}; \
+static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, {0x00, 0x00, 0x07, 0xc8}}, (uint8_t *)V, sizeof(V) - 1}; \
 CF_PRIVATE const CFStringRef S = (CFStringRef) & __ ## S ## __;
 
 #elif __CF_LITTLE_ENDIAN__
 
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define CONST_STRING_DECL(S, V)         \
-static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&_OBJC_CLASS__NSCFString, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_EXPORT const CFStringRef const S = (CFStringRef) & __ ## S ## __;
-// WINOBJC: use &_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
+// WINOBJC: use &$_OBJC_CLASS__NSCFString instead of __CFConstantStringClassReferencePtr
 #define PE_CONST_STRING_DECL(S, V)          \
-static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&_OBJC_CLASS__NSCFString, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
+static struct CF_CONST_STRING __ ## S ## __ = {{(uintptr_t)&$_OBJC_CLASS__NSCFString, {0xc8, 0x07, 0x00, 0x00}}, (uint8_t *)(V), sizeof(V) - 1}; \
 CF_PRIVATE const CFStringRef S = (CFStringRef) & __ ## S ## __;
 
 #endif
@@ -699,10 +699,10 @@ CF_INLINE bool __CF_IsBridgedObject(CFTypeRef obj) {
         return false;
     }
 
-    if ((object->_cfisa == (uintptr_t)(&_OBJC_CLASS__NSCFType)) || 
-        (object->_cfisa == (uintptr_t)(&_OBJC_CLASS__NSCFString)) || 
-        (object->_cfisa == (uintptr_t)(&_OBJC_CLASS__NSCFNumber)) || 
-        (object->_cfisa == (uintptr_t)(&_OBJC_CLASS__NSCFBoolean))) {
+    if ((object->_cfisa == (uintptr_t)(&$_OBJC_CLASS__NSCFType)) || 
+        (object->_cfisa == (uintptr_t)(&$_OBJC_CLASS__NSCFString)) || 
+        (object->_cfisa == (uintptr_t)(&$_OBJC_CLASS__NSCFNumber)) || 
+        (object->_cfisa == (uintptr_t)(&$_OBJC_CLASS__NSCFBoolean))) {
         return true;
     }
 

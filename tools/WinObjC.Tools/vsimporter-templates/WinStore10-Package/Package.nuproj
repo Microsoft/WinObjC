@@ -19,7 +19,7 @@
     <None Include="$projectname$.Custom.targets" />
     <None Include="$projectname$.Custom.props" />
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <ItemGroup VSImporterLabel="ProjectReferences" />

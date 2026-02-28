@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 
 #import <windows.h>
+#import <algorithm>
 
 void testUrlCharacterSetEncoding(NSString* decodedString, NSString* encodedString, NSCharacterSet* allowedCharacterSet) {
     NSString* testString = [decodedString stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
@@ -552,7 +553,7 @@ TEST(NSString, PathExtensions) {
     string = @"hello.world";
     ASSERT_TRUE([string.pathExtension isEqualToString:@"world"]);
 
-    string = @"C:\FolderA\file.plist";
+    string = @"C:\\FolderA\\file.plist";
     ASSERT_TRUE([string.pathExtension isEqualToString:@"plist"]);
 
     string = @"/tmp/scratch.tiff";
@@ -821,4 +822,25 @@ TEST(NSString, ComparingDifferentTypes) {
     EXPECT_EQ(stringTwo.hash, stringTwoUTF8String.hash);
     EXPECT_EQ(stringTwo.hash, stringTwoUTF16String.hash);
     EXPECT_EQ(stringTwoUTF8String.hash, stringTwoUTF16String.hash);
+}
+
+TEST(NSString, GetCharacters) {
+    NSString* string1 = @"i am a fairly boring string";
+    //                                    1       2
+    //                    0       8       6       4
+    NSRange range1{ 7, 13 };
+    unichar buffer1[16]{ 0 };
+    const char16_t* expected1 = u"fairly boring"; // range: {7, 13}
+
+    [string1 getCharacters:buffer1 range:range1];
+    EXPECT_TRUE(std::equal(expected1, expected1 + range1.length, buffer1));
+
+    NSString* string2 = @"my \u0CA0_\u0CA0 face";
+    //                    0  3     45     6  8
+    NSRange range2{ 3, 3 };
+    unichar buffer2[16]{ 0 };
+    const char16_t* expected2 = u"\u0CA0_\u0CA0"; // range: {3, 3}
+
+    [string2 getCharacters:buffer2 range:range2];
+    EXPECT_TRUE(std::equal(expected2, expected2 + range2.length, buffer2));
 }

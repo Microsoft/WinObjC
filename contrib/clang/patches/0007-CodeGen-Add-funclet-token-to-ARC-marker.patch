@@ -1,0 +1,64 @@
+From 939c4c2cc6be2c526d226fb92df42bd71591bd5f Mon Sep 17 00:00:00 2001
+From: Shoaib Meenai <smeenai@fb.com>
+Date: Mon, 19 Mar 2018 19:34:39 +0000
+Subject: [PATCH 07/19] [CodeGen] Add funclet token to ARC marker
+
+The inline assembly generated for the ARC autorelease elision marker
+must have a funclet token if it's emitted inside a funclet, otherwise
+the inline assembly (and all subsequent code in the funclet) will be
+marked unreachable. r324689 fixed this issue for regular inline assembly
+blocks.
+
+Note that clang only emits the marker at -O0, so this only fixes that
+case. The optimizations case (where the marker is emitted by the
+backend) will be fixed in a separate change.
+
+Differential Revision: https://reviews.llvm.org/D44640
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@327892 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 75ec747077d46ed5c15d28b06981d5291159d7b2)
+---
+ lib/CodeGen/CGObjC.cpp                   |  2 +-
+ test/CodeGenObjCXX/arc-marker-funclet.mm | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+ create mode 100644 test/CodeGenObjCXX/arc-marker-funclet.mm
+
+diff --git a/lib/CodeGen/CGObjC.cpp b/lib/CodeGen/CGObjC.cpp
+index f26263d947..2e6e596148 100644
+--- a/lib/CodeGen/CGObjC.cpp
++++ b/lib/CodeGen/CGObjC.cpp
+@@ -2052,7 +2052,7 @@ static void emitAutoreleasedReturnValueMarker(CodeGenFunction &CGF) {
+ 
+   // Call the marker asm if we made one, which we do only at -O0.
+   if (marker)
+-    CGF.Builder.CreateCall(marker);
++    CGF.Builder.CreateCall(marker, None, CGF.getBundlesForFunclet(marker));
+ }
+ 
+ /// Retain the given object which is the result of a function call.
+diff --git a/test/CodeGenObjCXX/arc-marker-funclet.mm b/test/CodeGenObjCXX/arc-marker-funclet.mm
+new file mode 100644
+index 0000000000..900c2788da
+--- /dev/null
++++ b/test/CodeGenObjCXX/arc-marker-funclet.mm
+@@ -0,0 +1,17 @@
++// RUN: %clang_cc1 -triple i686-unknown-windows-msvc -fobjc-runtime=ios-6.0 -fobjc-arc \
++// RUN:   -fexceptions -fcxx-exceptions -emit-llvm -o - %s | FileCheck %s
++
++id f();
++void g() {
++  try {
++    f();
++  } catch (...) {
++    f();
++  }
++}
++
++// CHECK: call i8* @"?f@@YAPAUobjc_object@@XZ"() [ "funclet"(token %1) ]
++// CHECK-NEXT: call void asm sideeffect "movl{{.*}}%ebp, %ebp{{.*}}", ""() [ "funclet"(token %1) ]
++
++// The corresponding f() call was invoked from the entry basic block.
++// CHECK: call void asm sideeffect "movl{{.*}}%ebp, %ebp{{.*}}", ""(){{$}}
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

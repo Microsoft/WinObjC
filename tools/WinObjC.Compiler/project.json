@@ -1,0 +1,29 @@
+﻿{
+  "dependencies": {
+    "NuGet.Build.Packaging": "0.2.3"
+  },
+  "frameworks": {
+    "uap10.0": {
+      "imports": [
+        "dotnet",
+        "netstandard1.0",
+        "netstandard1.1",
+        "netstandard1.2",
+        "netstandard1.3",
+        "netstandard1.4",
+        "netstandard1.5",
+        "netstandard1.6",
+        "net20",
+        "net35",
+        "net40",
+        "net45",
+        "net452",
+        "net461",
+        "native",
+        "uap",
+        "monoandroid",
+        "xamarinios10"
+      ]
+    }
+  }
+}

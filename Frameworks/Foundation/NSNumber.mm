@@ -42,8 +42,7 @@
     // Now that NSNumber is loaded, go ahead and reset _NSCFNumber's and _NSCFBoolean's superclass
     // to be NSNumber. This is needed so that any CFNumber that was created *before*
     // NSNumber was loaded (namely all the constants in CF) will be properly bridged.
-    class_setSuperclass(objc_getClass("_NSCFNumber"), self);
-    class_setSuperclass(objc_getClass("_NSCFBoolean"), self);
+    class_setSuperclass(objc_getClass("_NSCFNumberSuperclassAnchor"), self);
 }
 
 #pragma clang diagnostic pop

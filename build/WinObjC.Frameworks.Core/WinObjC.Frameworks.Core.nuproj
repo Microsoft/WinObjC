@@ -51,8 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -65,7 +64,9 @@
 
   <!-- NuProj Project References. Ensure that these only get evaluated once by checking that this isn't the second time through this project -->
   <ItemGroup Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\WinObjC.Frameworks.ThirdParty\WinObjC.Frameworks.ThirdParty.nuproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\WinObjC.Frameworks.ThirdParty\WinObjC.Frameworks.ThirdParty.nuproj">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
   </ItemGroup>
   
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

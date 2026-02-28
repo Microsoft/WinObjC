@@ -178,7 +178,7 @@ TEST(NSFileManager, DirectoryWithUTF16Chars) {
 
     EXPECT_TRUE([[NSFileManager defaultManager] createDirectoryAtPath:testPath attributes:nil]);
     EXPECT_TRUE([[NSFileManager defaultManager] fileExistsAtPath:testPath]);
-    EXPECT_TRUE([[NSFileManager defaultManager] removeItemAtPath:testPath error:nil]);
+    EXPECT_TRUE([[NSFileManager defaultManager] removeItemAtPath:testPath error:nullptr]);
     EXPECT_FALSE([[NSFileManager defaultManager] fileExistsAtPath:testPath]);
 }
 

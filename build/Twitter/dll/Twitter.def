@@ -1,10 +1,10 @@
 LIBRARY Twitter
     EXPORTS
         ; TWRequest.mm
-        _OBJC_CLASS_TWRequest DATA
-        __objc_class_name_TWRequest CONSTANT
+        $_OBJC_CLASS_TWRequest DATA
+        $_OBJC_REF_CLASS_TWRequest DATA
 
         ; TWTweetComposeViewController.mm
-        _OBJC_CLASS_TWTweetComposeViewController DATA
-        __objc_class_name_TWTweetComposeViewController CONSTANT
+        $_OBJC_CLASS_TWTweetComposeViewController DATA
+        $_OBJC_REF_CLASS_TWTweetComposeViewController DATA
 

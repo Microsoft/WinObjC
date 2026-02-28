@@ -13,20 +13,20 @@ LIBRARY AssetsLibrary
         ALAssetTypePhoto DATA
         ALAssetTypeVideo DATA
         ALAssetTypeUnknown DATA
-        _OBJC_CLASS_ALAsset DATA
-        __objc_class_name_ALAsset CONSTANT
+        $_OBJC_CLASS_ALAsset DATA
+        $_OBJC_REF_CLASS_ALAsset DATA
 
         ; ALAssetRepresentation.mm
-        _OBJC_CLASS_ALAssetRepresentation DATA
-        __objc_class_name_ALAssetRepresentation CONSTANT
+        $_OBJC_CLASS_ALAssetRepresentation DATA
+        $_OBJC_REF_CLASS_ALAssetRepresentation DATA
 
         ; ALAssetsGroup.mm
         ALAssetsGroupPropertyName DATA
         ALAssetsGroupPropertyType DATA
         ALAssetsGroupPropertyPersistentID DATA
         ALAssetsGroupPropertyURL DATA
-        _OBJC_CLASS_ALAssetsGroup DATA
-        __objc_class_name_ALAssetsGroup CONSTANT
+        $_OBJC_CLASS_ALAssetsGroup DATA
+        $_OBJC_REF_CLASS_ALAssetsGroup DATA
 
         ; ALAssetsLibrary.mm
         ALAssetLibraryUpdatedAssetsKey DATA
@@ -34,6 +34,6 @@ LIBRARY AssetsLibrary
         ALAssetLibraryUpdatedAssetGroupsKey DATA
         ALAssetLibraryDeletedAssetGroupsKey DATA
         ALAssetsLibraryErrorDomain DATA
-        _OBJC_CLASS_ALAssetsLibrary DATA
-        __objc_class_name_ALAssetsLibrary CONSTANT
+        $_OBJC_CLASS_ALAssetsLibrary DATA
+        $_OBJC_REF_CLASS_ALAssetsLibrary DATA
 

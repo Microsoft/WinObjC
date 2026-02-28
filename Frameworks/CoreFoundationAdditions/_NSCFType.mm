@@ -18,7 +18,13 @@
 #include "CFFoundationInternal.h"
 #include "CFInternal.h"
 
-@interface _NSCFType: _NSCFTemporaryRootObject
+@interface _NSCFTypeSuperclassAnchor: _NSCFTemporaryRootObject
+@end
+
+@implementation _NSCFTypeSuperclassAnchor
+@end
+
+@interface _NSCFType: _NSCFTypeSuperclassAnchor
 @end
 @implementation _NSCFType
 

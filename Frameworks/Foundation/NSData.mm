@@ -320,7 +320,7 @@ BASE_CLASS_REQUIRED_IMPLS(NSData, NSDataPrototype, CFDataGetTypeID);
  @Notes Only file:// URLs supported. atomically parameter not supported.
 */
 - (BOOL)writeToURL:(NSURL*)url atomically:(BOOL)atomically {
-    return [self writeToURL:url options:(atomically ? NSDataWritingAtomic : 0) error:nil];
+    return [self writeToURL:url options:(atomically ? NSDataWritingAtomic : 0) error:nullptr];
 }
 
 /**

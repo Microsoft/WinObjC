@@ -41,7 +41,7 @@ public:
 
     void MatchCallback(CFRange* ranges, CFIndex count, _CFRegularExpressionMatchingOptions options, Boolean* stop) {
         BOOL localStop = NO;
-        if (count > 0 && ranges != nil) {
+        if (count > 0 && ranges != nullptr) {
             std::vector<NSRange> rangeVector(count);
             for (CFIndex i = 0; i < count; i++) {
                 rangeVector[i] = NSMakeRange(ranges[i].location, ranges[i].length);

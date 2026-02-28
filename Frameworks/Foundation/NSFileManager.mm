@@ -292,7 +292,7 @@ static NSDate* __SystemTimeToNSDate(DateTime systemTime) {
  @Status Interoperable
 */
 - (NSArray*)subpathsAtPath:(NSString*)path {
-    return [self subpathsOfDirectoryAtPath:path error:nil];
+    return [self subpathsOfDirectoryAtPath:path error:nullptr];
 }
 
 // Creating and Deleting Items
@@ -358,7 +358,7 @@ static NSDate* __SystemTimeToNSDate(DateTime systemTime) {
  @Notes attributes parameter not supported
 */
 - (BOOL)createFileAtPath:(id)pathAddr contents:(id)contents attributes:(id)attributes {
-    return [[NSData dataWithData:contents] writeToFile:pathAddr options:0 error:nil];
+    return [[NSData dataWithData:contents] writeToFile:pathAddr options:0 error:nullptr];
 }
 
 /**

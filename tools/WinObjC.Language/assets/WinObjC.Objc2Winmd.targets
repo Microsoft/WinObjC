@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <WritePublicHeaderList>false</WritePublicHeaderList>
+    <Objc2WinmdExe>$(MSBuildThisFileDirectory)..\bin\objc2winmd.exe</Objc2WinmdExe>
+    <SolutionPublicHeadersDir>$(SolutionDir)$(Configuration)\Headers</SolutionPublicHeadersDir>
+    <PublicHeadersDir>$(SolutionPublicHeadersDir)\$(TargetName)</PublicHeadersDir>
+    <PublicHeaderListFileSuffix>.headers</PublicHeaderListFileSuffix>
+    <PublicHeaderArgsFileSuffix>.args</PublicHeaderArgsFileSuffix>
+    <PublicHeaderListFile>$(PublicHeadersDir)\$(TargetName)$(PublicHeaderListFileSuffix)</PublicHeaderListFile>
+    <PublicHeaderArgsFile>$(PublicHeadersDir)\$(TargetName)$(PublicHeaderArgsFileSuffix)</PublicHeaderArgsFile>
+  </PropertyGroup>
+
+  <Target
+    Name="FindPublicHeaders"
+    Condition="'$(ConfigurationType)' == 'StaticLibrary' or '$(ConfigurationType)' == 'DynamicLibrary'" >
+    
+    <ItemGroup>
+      <PublicHeader
+        Include="$(PublicHeadersDir)\%(ClInclude.Filename)%(ClInclude.Extension)"
+        Condition="'%(ClInclude.PublicHeader)' == 'true'">
+        <Source>%(ClInclude.FullPath)</Source>
+      </PublicHeader>
+    </ItemGroup>
+    
+    <PropertyGroup>
+      <WritePublicHeaderList Condition="'$(ExportPublicHeaders)' == 'true' and '@(PublicHeader)' != ''">true</WritePublicHeaderList>
+    </PropertyGroup>
+    
+  </Target>
+
+  <!-- Copy project's public headers before build starts -->
+  <PropertyGroup>
+    <BeforeBuildCompileTargets>CopyPublicHeaders;$(BeforeBuildCompileTargets)</BeforeBuildCompileTargets>
+  </PropertyGroup>
+
+  <!-- FindPublicHeaders must run before _CopyPublicHeaders's condition is evaluated -->
+  <Target Name="CopyPublicHeaders" DependsOnTargets="FindPublicHeaders;_CopyPublicHeaders" />
+  
+  <Target
+    Name="_CopyPublicHeaders"
+    Condition="'@(PublicHeader)' != ''"
+    Inputs="@(PublicHeader->'%(Source)')"
+    Outputs="@(PublicHeader)">
+    
+    <MakeDir Directories="@(PublicHeader->DirectoryName()->Distinct()->ClearMetadata())" />
+    
+    <Copy
+      SourceFiles="@(PublicHeader->'%(Source)')"
+      DestinationFiles="@(PublicHeader)" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).read.headers.tlog"
+      Lines="^$(ProjectPath);@(PublicHeader->'%(Source)')"
+      Overwrite="true"
+      Encoding="Unicode" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).write.headers.tlog"
+      Lines="^$(ProjectPath);@(PublicHeader)"
+      Overwrite="true"
+      Encoding="Unicode" />
+    
+  </Target>
+  
+  <Target
+    Name="WritePublicHeaderList"
+    Condition="'$(WritePublicHeaderList)' == 'true'"
+    DependsOnTargets="CopyPublicHeaders"
+    AfterTargets="Link;Lib"
+    Inputs="@(PublicHeader);$(ProjectPath)"
+    Outputs="$(PublicHeaderListFile);$(PublicHeaderArgsFile)">
+    
+    <!-- Get project-wide Clang arguments -->
+    <Clang
+      InternalCompilerFlags="%(ClangCompile.InternalCompilerFlags)"
+      InternalSystemIncludePaths="%(ClangCompile.InternalSystemIncludePaths)"
+      InternalIncludePaths="%(ClangCompile.InternalIncludePaths)"
+      InternalForceIncludes="%(ClangCompile.InternalForceIncludes)"
+      ExcludedSearchPathSubdirectories="%(ClangCompile.ExcludedSearchPathSubdirectories)"
+      Autocomplete="true"
+      AutocompleteCommandLineTemplate="%(ClangCompile.AutocompleteCommandLineTemplate)"
+      CommandLineTemplate="%(ClangCompile.CommandLineTemplate)"
+      CommandTLogFile="%(ClangCompile.CommandTLogFile)"
+      CompileAs="CompileAsObjCpp"
+      DebugInformation="%(ClangCompile.DebugInformation)"
+      DependencyFile="%(ClangCompile.DependencyFile)"
+      ExceptionHandling="%(ClangCompile.ExceptionHandling)"
+      HeaderMapInclude=""
+      IncludePaths="$(SolutionPublicHeadersDir);%(ClangCompile.IncludePaths)"
+      Input="@(ClangCompile->WithMetadataValue('Identity', '$(DummyClangFile)'))"
+      LLVMDirectory="$(StarboardLLVMDirectory)"
+      ObjectiveCARC="%(ClangCompile.ObjectiveCARC)"
+      ObjectiveCModules="false"
+      ObjectiveCModulesCachePath="%(ClangCompile.ObjectiveCModulesCachePath)"
+      ObjectFileName="%(ClangCompile.ObjectFileName)"
+      OptimizationLevel="%(ClangCompile.OptimizationLevel)"
+      PrefixHeader="%(ClangCompile.PrefixHeader)"
+      PreprocessorDefinitions="%(ClangCompile.PreprocessorDefinitions)"
+      ProjectFile="$(MSBuildProjectFullPath)"
+      RuntimeLibrary="%(ClangCompile.RuntimeLibrary)"
+      SystemHeaderDeps="%(ClangCompile.SystemHeaderDeps)"
+      UserIncludePaths="%(ClangCompile.UserIncludePaths)"
+      ReadTLogFile="%(ClangCompile.ReadTLogFile)"
+      MaxClangProcesses="%(ClangCompile.MaxClangProcesses)"
+      CLanguageStandard="%(ClangCompile.CLanguageStandard)"
+      CppLanguageStandard="%(ClangCompile.CppLanguageStandard)"
+      AdditionalOptions="%(ClangCompile.OtherFlags) %(ClangCompile.AdditionalOptions)">
+      <Output TaskParameter="Outputs" ItemName="DummyClangOutput" />
+    </Clang>
+
+    <WriteLinesToFile
+      File="$(PublicHeaderListFile)"
+      Lines="@(PublicHeader)"
+      Overwrite="true"
+      Encoding="ASCII" />
+
+    <WriteLinesToFile
+      File="$(PublicHeaderArgsFile)"
+      Lines="@(DummyClangOutput->Metadata('AutocompleteCommand'))"
+      Overwrite="true"
+      Encoding="ASCII" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).read.headerlist.tlog"
+      Lines="^$(ProjectPath);@(PublicHeader)"
+      Overwrite="true"
+      Encoding="Unicode" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).write.headerlist.tlog"
+      Lines="^$(ProjectPath);$(PublicHeaderListFile);$(PublicHeaderArgsFile)"
+      Overwrite="true"
+      Encoding="Unicode" />
+
+  </Target>
+  
+  <Target
+    Name="_ComputeObjc2WinmdInputs"
+    DependsOnTargets="FindPublicHeaders"
+    Returns="@(Objc2WinmdHeaderListFile)" >
+    
+    <ItemGroup Condition="'$(WritePublicHeaderList)' == 'true'">
+      <Objc2WinmdHeaderListFile Include="$(PublicHeaderListFile)">
+        <ArgsFile>$(PublicHeaderArgsFile)</ArgsFile>
+      </Objc2WinmdHeaderListFile>
+    </ItemGroup>
+    
+  </Target>
+
+  <Target
+    Name="ComputeObjc2WinmdInputs"
+    Condition="'$(IslandwoodConfigurationType)' == 'Projection'">
+
+    <MSBuild
+      Projects="@(_MSBuildProjectReferenceExistent)"
+      Targets="_ComputeObjc2WinmdInputs"
+      BuildInParallel="$(BuildInParallel)"
+      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform)"
+      Condition="'%(_MSBuildProjectReferenceExistent.Extension)' == '.vcxproj' and '@(ProjectReferenceWithConfiguration)' != '' and '@(_MSBuildProjectReferenceExistent)' != ''"
+      ContinueOnError="!$(BuildingProject)"
+      RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)">
+      <Output TaskParameter="TargetOutputs" ItemName="Objc2WinmdHeaderListFile"/>
+    </MSBuild>
+
+    <ItemGroup>
+      <Objc2WinmdInput Include="@(Objc2WinmdHeaderListFile);@(Objc2WinmdHeaderListFile->'%(ArgsFile)')" />
+    </ItemGroup>
+
+  </Target>
+  
+  <PropertyGroup>
+    <ResolveAssemblyReferencesDependsOn>SetFirstTimeLoading;$(ResolveAssemblyReferencesDependsOn);</ResolveAssemblyReferencesDependsOn>
+    <BeforeMidlCompileTargets>ComputeObjc2WinmdInputs;InvokeObjc2Winmd;ProcessObjc2WinmdGeneratedFiles;$(BeforeMidlTargets);</BeforeMidlCompileTargets>
+    <Objc2WinmdDummyOutput>$(Objc2WinmdGeneratedFilesDir)\InvokeObjc2Winmd.dummy</Objc2WinmdDummyOutput>
+  </PropertyGroup>
+  
+  <Target Name="SetFirstTimeLoading">
+    <PropertyGroup>
+      <FirstTimeLoading Condition=" '$(FirstTimeLoading)' == '' ">false</FirstTimeLoading>
+    </PropertyGroup>
+  </Target>
+  
+  <Target
+    Name="InvokeObjc2Winmd"
+    Condition="'$(FirstTimeLoading)' == 'false' And '$(IslandwoodConfigurationType)' == 'Projection' And '@(Objc2WinmdInput)' != ''"
+    Inputs="@(Objc2WinmdInput)"
+    Outputs="$(Objc2WinmdDummyOutput)">
+    
+    <MakeDir Directories="$(Objc2WinmdGeneratedFilesDir)" />
+    
+    <!-- Call objc2winmd -->
+    <Exec
+      Condition="'@(Objc2WinmdHeaderListFile)' != ''"
+      Command="&quot;$(Objc2WinmdExe)&quot; -r &quot;$(TargetName)&quot; -o &quot;$(Objc2WinmdGeneratedFilesDir)&quot; @(Objc2WinmdInput->'&quot;%(FullPath)&quot;', ' ')" />
+    
+    <!-- Use a dummy file for tracking when files were generated -->
+    <Touch
+      Files="$(Objc2WinmdDummyOutput)"
+      AlwaysCreate="true" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).read.objc2winmd.tlog"
+      Lines="^$(ProjectPath);@(Objc2WinmdInput)"
+      Overwrite="true"
+      Encoding="Unicode" />
+
+    <WriteLinesToFile
+      File="$(TLogLocation)$(ProjectName).write.objc2winmd.tlog"
+      Lines="^$(ProjectPath);$(Objc2WinmdDummyOutput)"
+      Overwrite="true"
+      Encoding="Unicode" />
+
+    <!-- Touch the project file so VS asks the user to reload it -->
+    <Touch Files="$(MSBuildProjectDirectory)\$(MSBuildProjectFile)" />
+
+  </Target>
+
+  <Target
+    Name="ProcessObjc2WinmdGeneratedFiles"
+    Condition="'$(IslandwoodConfigurationType)' == 'Projection' And Exists('$(Objc2WinmdGeneratedFilesDir)')">
+
+    <!-- Add the files generated by objc2winmd to the project so they can be compiled.
+         Try to avoid adding files that already exist in the project.
+    -->
+    <ItemGroup>
+      <ClangCompile Include="$(Objc2WinmdGeneratedFilesDir)\*.mm" Exclude="@(ClangCompile->'%(FullPath)')" />
+      <Midl Include="$(Objc2WinmdGeneratedFilesDir)\*.idl" Exclude="@(Midl->'%(FullPath)')" />
+    </ItemGroup>
+
+  </Target>
+
+  <Target
+    Name="MergeWinmd"
+    Condition="'$(IslandwoodConfigurationType)' == 'Projection' And '@(Midl)' != ''"
+    Inputs="@(Midl->Metadata('MetadataFileName'))"
+    Outputs="$(OutputPath)\$(TargetName).winmd"
+    AfterTargets="Link">
+
+    <!-- Find the directory for the intermediate WinMD files -->
+    <ItemGroup>
+      <MergeWinmdInputDir Include="@(Midl->Metadata('MetadataFileName')->DirectoryName()->Distinct())" />
+    </ItemGroup>
+
+    <Error
+      Condition="'@(MergeWinmdInputDir->Count())' != '1'"
+      Text="All WinMD files generated by Midl should be in the same directory." />
+
+    <!-- Call mdmerge -->
+    <!-- $TargetPlatformWinMDLocation or windowsSDK_MetadataPath -->
+    <Exec
+      Condition="'@(Midl->'%(MetadataFileName)')' != ''"
+      Command="mdmerge.exe -i &quot;@(MergeWinmdInputDir)&quot; -o &quot;$(OutputPath.TrimEnd('\'))&quot; -n:1 -partial -metadata_dir &quot;$(TargetPlatformWinMDLocation)\Windows.Foundation.FoundationContract\1.0.0.0&quot; -metadata_dir &quot;$(TargetPlatformWinMDLocation)\Windows.Foundation.UniversalApiContract\1.0.0.0&quot;" />
+  </Target>
+  
+</Project>

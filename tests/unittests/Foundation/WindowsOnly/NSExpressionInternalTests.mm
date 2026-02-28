@@ -37,7 +37,7 @@ void validateNSExpressionVariable(NSExpression* obj) {
 void validateNSExpressionFunction(NSExpression* obj, NSArray* args, NSExpression* target) {
     NSExpressionFunction* functionExp = (NSExpressionFunction*)obj;
 
-    ASSERT_TRUE_MSG([functionExp selector] != nil, "FAILED: selector should be non-null!");
+    ASSERT_TRUE_MSG([functionExp selector] != nullptr, "FAILED: selector should be non-null!");
     ASSERT_OBJCEQ_MSG([functionExp args], args, "FAILED: args is not valid.");
     ASSERT_OBJCEQ_MSG([functionExp target], target, "FAILED: target is not valid.");
 }

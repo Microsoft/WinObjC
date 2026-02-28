@@ -36,10 +36,10 @@ static NSAttributedString* getAttributedString(NSString* str) {
 }
 
 DISABLED_TEST(CTFrame, GetStringRange) {
-    EXPECT_EQ(0, CTFrameGetStringRange(nil).location);
-    EXPECT_EQ(0, CTFrameGetStringRange(nil).length);
-    EXPECT_EQ(0, CTFrameGetVisibleStringRange(nil).location);
-    EXPECT_EQ(0, CTFrameGetVisibleStringRange(nil).length);
+    EXPECT_EQ(0, CTFrameGetStringRange(nullptr).location);
+    EXPECT_EQ(0, CTFrameGetStringRange(nullptr).length);
+    EXPECT_EQ(0, CTFrameGetVisibleStringRange(nullptr).location);
+    EXPECT_EQ(0, CTFrameGetVisibleStringRange(nullptr).length);
 
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)getAttributedString(@"");
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
@@ -79,7 +79,7 @@ DISABLED_TEST(CTFrame, GetStringRange) {
 }
 
 DISABLED_TEST(CTFrame, GetLines) {
-    EXPECT_EQ(nil, CTFrameGetLines(nil));
+    EXPECT_EQ(nullptr, CTFrameGetLines(nullptr));
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)getAttributedString(@"");
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
@@ -185,7 +185,7 @@ DISABLED_TEST(CTFrame, GetLineOrigins) {
 }
 
 TEST(CTFrame, GetPath) {
-    EXPECT_EQ(nil, CTFrameGetPath(nil));
+    EXPECT_EQ(nullptr, CTFrameGetPath(nullptr));
 
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)getAttributedString(@"TEST");
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
@@ -198,5 +198,5 @@ TEST(CTFrame, GetPath) {
     EXPECT_EQ(path, CTFrameGetPath(frame));
 
     CGPathRelease(path);
-    EXPECT_NE(nil, CTFrameGetPath(frame));
+    EXPECT_NE(nullptr, CTFrameGetPath(frame));
 }

@@ -176,8 +176,8 @@ static const int s_InvalidButtonIndex = -1;
         [self setDelegate:delegate];
 
         // The other button/s category
-        va_list pReader;
-        va_start(pReader, otherButtonTitles);
+        __builtin_va_list pReader;
+        __builtin_va_start(pReader, otherButtonTitles);
 
         id otherButtonTitle = otherButtonTitles;
         while (otherButtonTitle != nil) {
@@ -186,10 +186,10 @@ static const int s_InvalidButtonIndex = -1;
                 _firstOtherButtonIndex = buttonIndex;
             }
 
-            otherButtonTitle = va_arg(pReader, id);
+            otherButtonTitle = __builtin_va_arg(pReader, id);
         }
 
-        va_end(pReader);
+        __builtin_va_end(pReader);
 
         // The destructive button category
         if (destructiveButtonTitle != nil) {

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+  </ItemGroup>
+
+  <ItemDefinitionGroup>
+    <ClangCompile>
+      <InternalCompilerFlags>%(InternalCompilerFlags) $(ClangWinObjCArgs)</InternalCompilerFlags>
+    </ClangCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
+    <ResolveSDKReferencesDependsOn>ComputeStarboardCRT;AddRuntimeComponentFile;$(ResolveSDKReferencesDependsOn)</ResolveSDKReferencesDependsOn>
+    <ClangCompileDependsOn>$(ClangCompileDependsOn);AddWOCStdLib</ClangCompileDependsOn>
+
+    <!-- BuildLinkTargets is only defined for vcxproj. C# "Links" by calling csc with multiple files so the Compile step should be sufficient there -->
+    <RemoveExtraLibsDependsOn Condition="'$(ProjectExt)' != '.vcxproj'">Compile;</RemoveExtraLibsDependsOn>
+    <RemoveExtraLibsDependsOn Condition="'$(ProjectExt)' == '.vcxproj'">Link;</RemoveExtraLibsDependsOn>
+
+    <ComputeLinkInputsTargets>$(ComputeLinkInputsTargets);AddCRTLinkInputs;</ComputeLinkInputsTargets>
+    <UseWinObjCCRT Condition="'$(UseWinObjCCRT)' == ''">true</UseWinObjCCRT>
+  </PropertyGroup>
+
+  <Target
+    Name="AddCRTLinkInputs">
+
+    <ItemGroup>
+      <ClCompile Include="tmp" Condition="'@(ClCompile)'==''">
+       <DeleteSoon>true</DeleteSoon>
+      </ClCompile>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <ClCompileCRTs>@(ClCompile->Metadata('RuntimeLibrary')->Distinct()->ClearMetadata())</ClCompileCRTs>
+    </PropertyGroup>
+
+    <ItemGroup Condition="$(ClCompileCRTs.ToLower().Contains('multithreadeddll'))">
+      <Link Include="vccorlib.lib" />
+      <Link Include="msvcrt.lib" />
+      <Link Condition="'$(UseWinObjCCRT)' == 'true'" Include="WinObjCRT.lib" />
+      <Link Include="ucrt.lib" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(ClCompileCRTs.ToLower().Contains('multithreadeddebugdll'))">
+      <Link Include="vccorlibd.lib" />
+      <Link Include="msvcrtd.lib" />
+      <Link Condition="'$(UseWinObjCCRT)' == 'true'" Include="WinObjCRT.lib" />
+      <Link Include="ucrtd.lib" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ClCompile Remove="@(ClCompile)" Condition="'%(ClCompile.DeleteSoon)'=='true'" />
+    </ItemGroup>
+
+  </Target>
+
+  <ItemDefinitionGroup>
+    <Link Condition="'$(UseWinObjCCRT)' == 'true'">
+      <AdditionalOptions>/DISALLOWLIB:libucrt.lib /DISALLOWLIB:libucrtd.lib /nodefaultlib:ucrt /nodefaultlib:ucrtd /nodefaultlib:vccorlib /nodefaultlib:msvcrt /nodefaultlib:vccorlibd /nodefaultlib:msvcrtd /defaultlib:winobjcrt %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <Target
+    Name="AddWOCStdLib"
+    DependsOnTargets="ComputeClangOptions">
+    <!-- Figure out WOCStdlib options to use -->
+    <ItemGroup>
+      <ClangCompile>
+        <InternalSystemIncludePaths Condition="'%(ClangCompile.WOCStdlib)' == 'true'">$(StarboardSdkRoot)\include\WOCStdLib;%(InternalSystemIncludePaths)</InternalSystemIncludePaths>
+        <InternalForceIncludes Condition="'%(ClangCompile.WOCStdlib)' == 'true'">WOCStdlib.h;%(InternalForceIncludes)</InternalForceIncludes>
+      </ClangCompile>
+    </ItemGroup>
+  </Target>
+
+  <!-- In cases when the project doesn't contain any explicit ClCompile items, adding this file
+       ensures that the SDK references are resolved correctly. Otherwise, the APPX will be missing
+       the runtime libraries, such as vccorlib140d_app.DLL. -->
+  <!-- ComputeStarboardCRT comes from WinObjC.Compiler/ClangCompile.targets -->
+  <Target
+    Name="AddRuntimeComponentFile"
+    DependsOnTargets="ComputeStarboardCRT">
+
+    <ItemGroup Condition="'$(AppContainerApplication)' == 'true'">
+      <ClCompile Include="$(MSBuildThisFileDirectory)ConsumeRuntimeComponent.cpp">
+        <PrecompiledHeader>NotUsing</PrecompiledHeader>
+        <RuntimeLibrary>$(StarboardCRT)</RuntimeLibrary>
+        <AdditionalOptions Condition="'$(ConfigurationType)' == 'Application'">$(AdditionalOptions) -D_WOC_APP</AdditionalOptions>
+        <CompileAsWinRT Condition="'$(ConfigurationType)' == 'Application'">true</CompileAsWinRT>
+      </ClCompile>
+    </ItemGroup>
+
+  </Target>
+
+  <Target
+    Name="RemoveExtraLibs"
+    BeforeTargets="_CopyFilesMarkedCopyLocal"
+    Condition="'$(ConfigurationType)' != 'Utility' And '$(ConfigurationType)' != 'StaticLibrary'"
+    DependsOnTargets="$(RemoveExtraLibsDependsOn)">
+
+    <PropertyGroup>
+      <DepWalkerSearchPathFile>$(IntDir)$(ProjectName).dwp</DepWalkerSearchPathFile>
+      <LibPathPattern>^,"([^"]*.\DLL)"</LibPathPattern>
+    </PropertyGroup>
+
+    <!--
+         0. Before doing any actual dependency walking and removing of extra libs, check that the user hasn't added
+         any missing/non-existent ReferenceCopyLocalPaths that are WinObjC ones. If they are winobjc ones, make sure
+         that those aren't candidates to be removed as the user was explicit in the desire to copy them
+    -->
+    <ItemGroup>
+      <_NonExistentReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths)" Condition="!Exists('%(ReferenceCopyLocalPaths.FullPath)')" />
+      <_WinObjCReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.IsWinObjC)' == 'true'"/>
+
+      <!-- Filter down to only the items that are also IsWinObjC and have a matching Filename -->
+      <_NonExistentReferenceCopyLocalPaths Remove="@(_NonExistentReferenceCopyLocalPaths)" Condition="'%(FileName)' == '' And '@(_WinObjCReferenceCopyLocalPaths)' != '' And '@(_NonExistentReferenceCopyLocalPaths)' != ''" />
+
+      <!-- Non existent ReferenceCopyLocalPaths cause build errors so remove them -->
+      <ReferenceCopyLocalPaths Remove="@(_NonExistentReferenceCopyLocalPaths)" />
+
+      <!-- Fixup the original WinObjC ReferenceCopyLocalPaths to not be a candidate for removal -->
+      <ReferenceCopyLocalPaths Condition="'%(FileName)' != '' And '@(ReferenceCopyLocalPaths)' != '' And '@(_NonExistentReferenceCopyLocalPaths)' != ''">
+        <IsWinObjC></IsWinObjC>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+
+    <!-- 1. Collect items that need to be walked. This includes the main target and all refernces. -->
+    <ItemGroup>
+      <DepWalkerInputs Include="$(TargetPath)" />
+
+      <!-- Assume dll is next to winmd -->
+      <_DepWalkerInputs Include="@(Reference -> '%(RootDir)%(Directory)%(Implementation)')" Condition="'%(Reference.Extension)' == '.winmd' And '%(Reference.Implementation)' != ''" />
+      <DepWalkerInputs Include="@(_DepWalkerInputs->Distinct())" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!-- Add in a command and output file metadata for each item that needs walked.  -->
+      <DepWalkerInputs>
+        <OutputFile>$(IntDir)%(FileName).dwo</OutputFile>
+      </DepWalkerInputs>
+      <DepWalkerInputs>
+        <Command>"$(MSBuildThisFileDirectory)..\bin\depends.exe" /c /f:1 /d:"$(DepWalkerSearchPathFile)" /oc:"%(OutputFile)" "%(FullPath)"</Command>
+      </DepWalkerInputs>
+    </ItemGroup>
+
+    <!--
+         2. Collect dep walker search paths and write to a file. This is the closure of all WinObjC ReferenceCopyLocalPaths dlls.
+
+         In order to distinguish between ReferenceCopyLocalPaths that the app itself or other middleware may have added and WinObjC specific ones, look for
+         the IsWinObjC metadata. This is a more conservative approach to dependency walking as only the WinObjC binaries are subject to being exceluded from
+         ending up in the output directory. Additionally, all "sidecar" files (like .pri files / .winmds / etc) that a dll may need are going to end up in the
+         the output regardless. The assumption is that these are small enough to not care about for now.
+     -->
+    <ItemGroup>
+      <DepWalkerSearchPaths Include="@(ReferenceCopyLocalPaths -> 'UserDir %(RootDir)%(Directory)')" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dll' And '%(ReferenceCopyLocalPaths.IsWinObjC)' == 'true'" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(DepWalkerSearchPathFile)"
+      Encoding="ASCII"
+      Overwrite="true"
+      Lines="@(DepWalkerSearchPaths->Distinct())" />
+
+    <!-- 3. Call Dependency Walker -->
+    <Exec
+      Condition="Exists('%(DepWalkerInputs.FullPath)')"
+      IgnoreExitCode="true"
+      Command="%(DepWalkerInputs.Command)" />
+
+    <!-- 4. Read Dependency Walker output -->
+    <ReadLinesFromFile File="%(DepWalkerInputs.OutputFile)">
+      <Output TaskParameter="Lines" ItemName="DepWalkerOutputLines"/>
+    </ReadLinesFromFile>
+
+    <!-- 5. Extract dependencies -->
+    <ItemGroup>
+      <_DependenciesToInclude Include="$([System.Text.RegularExpressions.Regex]::Match('%(DepWalkerOutputLines.Identity)', $(LibPathPattern)).Groups[1].Value)"/>
+    </ItemGroup>
+
+    <!-- 6. Do a little set subtraction to figure out which items to *NOT* include since by default all items are copied.
+            This is a little more robust of a failure mode but is more complicated to calculate. -->
+    <ItemGroup>
+      <_ReferenceCopyLocalPathsToRemove Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dll' And '%(ReferenceCopyLocalPaths.IsWinObjC)' == 'true'"  />
+      <_ReferenceCopyLocalPathsToRemove Remove="@(_ReferenceCopyLocalPathsToRemove)" Condition="'%(FileName)' != '' And '@(_DependenciesToInclude)' != '' And '@(_ReferenceCopyLocalPathsToRemove)' != ''" />
+      <ReferenceCopyLocalPaths Remove="@(_ReferenceCopyLocalPathsToRemove)" />
+    </ItemGroup>
+
+  </Target>
+
+</Project>

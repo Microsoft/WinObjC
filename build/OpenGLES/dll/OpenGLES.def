@@ -1,7 +1,7 @@
 LIBRARY OpenGLES
     EXPORTS
-        _OBJC_CLASS_EAGLContext DATA
-        __objc_class_name_EAGLContext CONSTANT
+        $_OBJC_CLASS_EAGLContext DATA
+        $_OBJC_REF_CLASS_EAGLContext DATA
         kEAGLColorFormatRGB565 DATA
         kEAGLColorFormatRGBA8 DATA
         kEAGLDrawablePropertyColorFormat DATA

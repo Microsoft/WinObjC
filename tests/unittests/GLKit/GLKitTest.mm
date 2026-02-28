@@ -20,8 +20,10 @@
 #import <GLKit/GLKit.h>
 
 #include <math.h>
-#include "Frameworks/GLKit/ShaderGen.h"
-#include "Frameworks/GLKit/ShaderInfo.h"
+
+// (GKLit internal)
+#include "ShaderGen.h"
+#include "ShaderInfo.h"
 
 #include <windows.h>
 
@@ -96,8 +98,6 @@ bool hasVariable(GLKShaderPair* p, const char* varName, bool checkVS = true, boo
 
 static void checkMatrixWithinTolerance(
     const char* pStr, const float* pM, const float* pMGolden, int dimension = 4, float tolerance = COMPARISON_EPSILON) {
-    const unsigned int* pMUInt = reinterpret_cast<const unsigned int*>(pM);
-    const unsigned int* pMGoldenUInt = reinterpret_cast<const unsigned int*>(pMGolden);
 
     assert(dimension <= 4);
 
@@ -105,9 +105,9 @@ static void checkMatrixWithinTolerance(
 
     for (int i = 0; i < dimension; i++) {
         for (int j = 0; j < dimension; j++) {
-            // Catch cases where element data are identical but ASSERT_NEAR and ASSERT_EQ identifies as different
-            // Specifically, ASSERT_NEAR incorrectly marks +/- NaN values as not being identical
-            if (pMUInt[index] != pMGoldenUInt[index]) {
+            // ASSERT_NEAR correctly marks +/- NaN values as not being identical, but we don't care
+            // for that distinction.
+            if (!isnan(pM[index]) && !isnan(pMGolden[index])) {
                 ASSERT_NEAR_MSG(pM[index],
                                 pMGolden[index],
                                 tolerance,

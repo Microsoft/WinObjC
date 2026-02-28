@@ -3155,7 +3155,7 @@ inline void ReportFailure_Msg(
     ReportFailure(__R_FN_CALL_FULL, type, hr, message);
 }
 
-inline void ReportFailure_ReplaceMsg(__R_FN_PARAMS_FULL, FailureType type, HRESULT hr, _Printf_format_string_ PCSTR formatString, ...) {
+__declspec(noinline) inline void ReportFailure_ReplaceMsg(__R_FN_PARAMS_FULL, FailureType type, HRESULT hr, _Printf_format_string_ PCSTR formatString, ...) {
     va_list argList;
     va_start(argList, formatString);
     ReportFailure_Msg(__R_FN_CALL_FULL, type, hr, formatString, argList);
@@ -4755,7 +4755,7 @@ __R_INTERNAL_NOINLINE_METHOD(_Objc_Throw_HrMsg)
     wil::details::ReportFailure_HrMsg(__R_INTERNAL_NOINLINE_FN_CALL FailureType::ObjCException, hr, formatString, argList);
 }
 
-__R_CONDITIONAL_METHOD(void, Objc_Throw_IfFailedMsg)(__R_CONDITIONAL_FN_PARAMS HRESULT hr, _Printf_format_string_ PCSTR formatString, ...) {
+__R_CONDITIONAL_NOINLINE_METHOD(void, Objc_Throw_IfFailedMsg)(__R_CONDITIONAL_FN_PARAMS HRESULT hr, _Printf_format_string_ PCSTR formatString, ...) {
     if (FAILED(hr)) {
         va_list argList;
         va_start(argList, formatString);

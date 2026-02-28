@@ -25,7 +25,7 @@ TEST(NSPropertyListSerialization, PropertyListForDate) {
     NSDictionary* plistDict;
     ASSERT_NO_THROW({
         plistDict =
-            [NSPropertyListSerialization propertyListWithData:[xml dataUsingEncoding:NSUTF8StringEncoding] options:0 format:nil error:nil];
+            [NSPropertyListSerialization propertyListWithData:[xml dataUsingEncoding:NSUTF8StringEncoding] options:0 format:nullptr error:nullptr];
     });
     ASSERT_NE(nil, plistDict);
 

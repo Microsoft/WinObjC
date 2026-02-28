@@ -36,7 +36,7 @@ static CFSetCallBacks _NSCFSetCallBacks = {
 PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFSet)
 
 - (_Nullable instancetype)init {
-    return [self initWithObjects:nil count:0];
+    return [self initWithObjects:nullptr count:0];
 }
 
 - (_Nullable instancetype)initWithObjects:(id _Nonnull const*)objs count:(NSUInteger)count {
@@ -55,7 +55,7 @@ PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFSet)
 PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFSet)
 
 - (_Nullable instancetype)init {
-    return [self initWithObjects:nil count:0];
+    return [self initWithObjects:nullptr count:0];
 }
 
 - (_Nullable instancetype)initWithObjects:(id _Nonnull const*)objs count:(NSUInteger)count {

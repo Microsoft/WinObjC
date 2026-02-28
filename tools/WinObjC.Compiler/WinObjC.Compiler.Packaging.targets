@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="AddBuiltOutput" BeforeTargets="GetPackageContents" Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
+      <ItemGroup>
+          <_AssetFiles Include="$(MSBuildThisFileDirectory)LLVM\**\*.*"/>
+
+          <!-- Include vcclang -->
+          <_PrebuiltFiles Include="$(MSBuildThisFileDirectory)prebuilt\**\*.*"/>
+
+          <PackageFile Include="@(_AssetFiles)">
+              <PackagePath>build\LLVM\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+          </PackageFile>
+          <PackageFile Include="@(_PrebuiltFiles)">
+              <PackagePath>build\prebuilt\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+          </PackageFile>
+      </ItemGroup>
+
+      <!-- Inlcude custom .props and .targets files. These are automatically added to a consuming project. -->
+      <!-- This helps bootstrap the package and abstracts out starboard and other concepts that may change -->
+      <!-- in future versions of the package. -->
+      <ItemGroup>
+          <PackageFile Include="$(MSBuildThisFileDirectory)$(PackageId).props" Condition="Exists('$(MSBuildThisFileDirectory)$(PackageId).props')">
+              <PackagePath>build\$(PackageId).props</PackagePath>
+          </PackageFile>
+          <PackageFile Include="$(MSBuildThisFileDirectory)$(PackageId).targets" Condition="Exists('$(MSBuildThisFileDirectory)$(PackageId).targets')">
+              <PackagePath>build\$(PackageId).targets</PackagePath>
+          </PackageFile>
+      </ItemGroup>
+  </Target>
+  
+</Project>

@@ -36,7 +36,7 @@
 */
 - (instancetype)initWithKey:(NSString*)key ascending:(BOOL)ascending selector:(SEL)selector {
     if (self = [self initWithKey:key ascending:ascending]) {
-        if (selector != nil) {
+        if (selector != nullptr) {
             _selector = selector;
         }
     }

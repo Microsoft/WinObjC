@@ -356,7 +356,7 @@ static inline CGImageRef getImage(UIImage* uiImage) {
 
         pthread_mutex_lock(&imageCacheLock);
         //  Check if it's already loaded
-        if (g_imageCache == nil) {
+        if (!g_imageCache) {
             g_imageCache = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, NULL);
         }
 

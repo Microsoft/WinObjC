@@ -1,0 +1,14 @@
+The patches in this directory should be applied to Clang 6.0.1.
+
+They include upstream changes committed to Clang between the 6.0 release and
+SVN trunk, as well as Microsoft-specific changes required to support WinObjC.
+
+Patch Directory
+---------------
+0001-0007: Upstream changes cherry-picked from Clang trunk
+     0008: <empty patch to delineate upstream changes from local changes>
+0009-0011: Fixes for Objective-C exception handling on Windows
+0012-0014: Misc. improvements to the GNUstep Objective-C ABI
+0015-0016: Speculative exception handling improvements
+0017-0018: Support for -fobjc-runtime=microsoft
+     0019: Disallowment of forceinline on variadic functions

@@ -2,55 +2,55 @@ LIBRARY StoreKit
     EXPORTS
         ; SKDownload.mm
         SKDownloadTimeRemainingUnknown DATA
-        _OBJC_CLASS_SKDownload DATA
-        __objc_class_name_SKDownload CONSTANT
+        $_OBJC_CLASS_SKDownload DATA
+        $_OBJC_REF_CLASS_SKDownload DATA
 
         ; SKMutablePayment.mm
-        _OBJC_CLASS_SKMutablePayment DATA
-        __objc_class_name_SKMutablePayment CONSTANT
+        $_OBJC_CLASS_SKMutablePayment DATA
+        $_OBJC_REF_CLASS_SKMutablePayment DATA
 
         ; SKPayment.mm
-        _OBJC_CLASS_SKPayment DATA
-        __objc_class_name_SKPayment CONSTANT
+        $_OBJC_CLASS_SKPayment DATA
+        $_OBJC_REF_CLASS_SKPayment DATA
 
         ; SKPaymentQueue.mm
-        _OBJC_CLASS_SKPaymentQueue DATA
-        __objc_class_name_SKPaymentQueue CONSTANT
+        $_OBJC_CLASS_SKPaymentQueue DATA
+        $_OBJC_REF_CLASS_SKPaymentQueue DATA
 
         ; SKPaymentTransaction.mm
-        _OBJC_CLASS_SKPaymentTransaction DATA
-        __objc_class_name_SKPaymentTransaction CONSTANT
+        $_OBJC_CLASS_SKPaymentTransaction DATA
+        $_OBJC_REF_CLASS_SKPaymentTransaction DATA
 
         ; SKProduct.mm
-        _OBJC_CLASS_SKProduct DATA
-        __objc_class_name_SKProduct CONSTANT
+        $_OBJC_CLASS_SKProduct DATA
+        $_OBJC_REF_CLASS_SKProduct DATA
 
         ; SKProductsRequest.mm
-        _OBJC_CLASS_SKProductsRequest DATA
-        __objc_class_name_SKProductsRequest CONSTANT
+        $_OBJC_CLASS_SKProductsRequest DATA
+        $_OBJC_REF_CLASS_SKProductsRequest DATA
 
         ; SKProductsResponse.mm
-        _OBJC_CLASS_SKProductsResponse DATA
-        __objc_class_name_SKProductsResponse CONSTANT
+        $_OBJC_CLASS_SKProductsResponse DATA
+        $_OBJC_REF_CLASS_SKProductsResponse DATA
 
         ; SKReceiptRefreshRequest.mm
         SKReceiptPropertyIsExpired DATA
         SKReceiptPropertyIsRevoked DATA
         SKReceiptPropertyIsVolumePurchase DATA
-        _OBJC_CLASS_SKReceiptRefreshRequest DATA
-        __objc_class_name_SKReceiptRefreshRequest CONSTANT
+        $_OBJC_CLASS_SKReceiptRefreshRequest DATA
+        $_OBJC_REF_CLASS_SKReceiptRefreshRequest DATA
 
         ; SKRequest.mm
-        _OBJC_CLASS_SKRequest DATA
-        __objc_class_name_SKRequest CONSTANT
+        $_OBJC_CLASS_SKRequest DATA
+        $_OBJC_REF_CLASS_SKRequest DATA
 
         ; SKStoreProductViewController.mm
         SKStoreProductParameterITunesItemIdentifier DATA
         SKStoreProductParameterAffiliateToken DATA
         SKStoreProductParameterCampaignToken DATA
         SKStoreProductParameterProviderToken DATA
-        _OBJC_CLASS_SKStoreProductViewController DATA
-        __objc_class_name_SKStoreProductViewController CONSTANT
+        $_OBJC_CLASS_SKStoreProductViewController DATA
+        $_OBJC_REF_CLASS_SKStoreProductViewController DATA
 
         ; StoreKit Constants.mm
         SKErrorDomain DATA

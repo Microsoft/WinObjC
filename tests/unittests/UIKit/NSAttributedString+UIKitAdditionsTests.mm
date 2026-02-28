@@ -84,7 +84,7 @@ DISABLED_TEST(NSAttributedString, InitWithData_HtmlBasic) {
                                                                  options:@{
                                                                      NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType
                                                                  }
-                                                      documentAttributes:nil
+                                                      documentAttributes:nullptr
                                                                    error:nullptr] autorelease];
     ASSERT_OBJCEQ(@"OBJ", [aStr string]);
     assertFontTraitAt(aStr, 0, 3, UIFontDescriptorTraitBold);
@@ -97,7 +97,7 @@ DISABLED_TEST(NSAttributedString, InitWithData_HtmlFontTraitsAndBreak) {
                                           options:@{
                                               NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType
                                           }
-                               documentAttributes:nil
+                               documentAttributes:nullptr
                                             error:nullptr] autorelease];
     ASSERT_OBJCEQ(@"AAABBBC\r\nAAAA", [aStr string]);
 
@@ -122,7 +122,7 @@ TEST(NSAttributedString, InitWithData_PlainText) {
                                                                  options:@{
                                                                      NSDocumentTypeDocumentAttribute : NSPlainTextDocumentType
                                                                  }
-                                                      documentAttributes:nil
+                                                      documentAttributes:nullptr
                                                                    error:nullptr] autorelease];
     ASSERT_OBJCEQ(@"OBJ", [aStr string]);
     ASSERT_EQ(0, [[aStr attributesAtIndex:0 effectiveRange:nullptr] count]);
@@ -136,7 +136,7 @@ TEST(NSAttributedString, InitWithData_BadEncodingOption) {
                                               NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
                                               NSCharacterEncodingDocumentAttribute : @(NSUTF32LittleEndianStringEncoding)
                                           }
-                               documentAttributes:nil
+                               documentAttributes:nullptr
                                             error:&error] autorelease];
     ASSERT_OBJCNE(nil, error);
 }
@@ -149,7 +149,7 @@ TEST(NSAttributedString, InitWithData_NilInput) {
                                               NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
                                               NSCharacterEncodingDocumentAttribute : @(NSUTF32LittleEndianStringEncoding)
                                           }
-                               documentAttributes:nil
+                               documentAttributes:nullptr
                                             error:&error] autorelease];
     ASSERT_OBJCEQ(nil, aStr);
 }

@@ -414,7 +414,7 @@ TEST(NSComparisonPredicate, NSCustomSelectorPredicateOperatorType) {
     ASSERT_TRUE_MSG(rightExp != nil, "FAILED: rightExp should be non-null!");
 
     SEL selector = NSSelectorFromString(@"isValidCoin:");
-    ASSERT_TRUE_MSG(selector != nil, "FAILED: selector should be non-null!");
+    ASSERT_TRUE_MSG(selector != nullptr, "FAILED: selector should be non-null!");
 
     NSPredicate* comparisonPredicate =
         [NSComparisonPredicate predicateWithLeftExpression:leftExp rightExpression:rightExp customSelector:selector];

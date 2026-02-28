@@ -523,10 +523,10 @@ BASE_CLASS_REQUIRED_IMPLS(NSString, NSStringPrototype, CFStringGetTypeID);
             result = false;
         }
     }
-    if (usedLength != nil) {
+    if (usedLength != nullptr) {
         *usedLength = totalBytesWritten;
     }
-    if (left != nil) {
+    if (left != nullptr) {
         *left = NSMakeRange(range.location + numCharsProcessed, range.length - numCharsProcessed);
     }
     return result;
@@ -1368,7 +1368,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
 
     THROW_NS_IF_FALSE(E_INVALIDARG, (range.location <= len) && (NSMaxRange(range) <= len));
 
-    if (range.location == 0 && range.length == len && contentsEndPtr == nil) { // This occurs often
+    if (range.location == 0 && range.length == len && contentsEndPtr == nullptr) { // This occurs often
         if (startPtr) {
             *startPtr = 0;
         }
@@ -1378,7 +1378,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
         return;
     }
     /* Find the starting point first */
-    if (startPtr != nil) {
+    if (startPtr != nullptr) {
         NSUInteger start = 0;
         if (range.location == 0) {
             start = 0;
@@ -1410,7 +1410,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
         *startPtr = start;
     }
 
-    if (endPtr != nil || contentsEndPtr != nil) {
+    if (endPtr != nullptr || contentsEndPtr != nullptr) {
         NSUInteger endOfContents = 1;
         NSUInteger lineSeparatorLength = 1;
         NSInteger index = NSMaxRange(range) - (range.length > 0 ? 1 : 0);
@@ -1549,7 +1549,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
 - (NSRange)lineRangeForRange:(NSRange)range {
     unsigned int start = 0;
     unsigned int lineEnd = 0;
-    [self getLineStart:&start end:&lineEnd contentsEnd:nil forRange:range];
+    [self getLineStart:&start end:&lineEnd contentsEnd:nullptr forRange:range];
     return NSMakeRange(start, lineEnd - start);
 }
 
@@ -1582,16 +1582,16 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
 - (BOOL)boolValue {
     NSScanner* scanner = [NSScanner scannerWithString:self];
     // skip initial whitespace if present
-    [scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
+    [scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nullptr];
     // scan a single optional '+' or '-' character, followed by zeroes
-    if ([scanner scanString:@"+" intoString:nil] == NO) {
-        [scanner scanString:@"-" intoString:nil];
+    if ([scanner scanString:@"+" intoString:nullptr] == NO) {
+        [scanner scanString:@"-" intoString:nullptr];
     }
     // scan any following zeroes
-    [scanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"0"] intoString:nil];
+    [scanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"0"] intoString:nullptr];
 
     // allowable characters are 1-9 y Y t T. It doesn't matter if there are any trailing characters.
-    return [scanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"tTyY123456789"] intoString:nil];
+    return [scanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"tTyY123456789"] intoString:nullptr];
 }
 
 /**
@@ -1627,7 +1627,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
  @Notes atomically parameter not supported
 */
 - (BOOL)writeToURL:(NSURL*)url atomically:(BOOL)atomically {
-    return [self writeToURL:url atomically:atomically encoding:[[self class] defaultCStringEncoding] error:nil];
+    return [self writeToURL:url atomically:atomically encoding:[[self class] defaultCStringEncoding] error:nullptr];
 }
 
 /**
@@ -1651,7 +1651,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
  @Notes atomically parameter not supported
 */
 - (BOOL)writeToFile:(NSString*)path atomically:(BOOL)atomically {
-    return [self writeToFile:path atomically:atomically encoding:[[self class] defaultCStringEncoding] error:nil];
+    return [self writeToFile:path atomically:atomically encoding:[[self class] defaultCStringEncoding] error:nullptr];
 }
 
 /**
@@ -1738,7 +1738,7 @@ BOOL _isALineSeparatorTypeCharacter(unichar ch) {
 - (NSRange)paragraphRangeForRange:(NSRange)aRange {
     NSUInteger start = 0;
     NSUInteger parEnd = 0;
-    [self getParagraphStart:&start end:&parEnd contentsEnd:nil forRange:aRange];
+    [self getParagraphStart:&start end:&parEnd contentsEnd:nullptr forRange:aRange];
     return NSMakeRange(start, parEnd - start);
 }
 

@@ -40,9 +40,9 @@ static CFMutableDataRef ObtainJPEGRepresentationFromCGImage(CGImageRef image) {
     CFAutorelease(cfData);
     CGImageDestinationRef destination = CGImageDestinationCreateWithData(cfData, CFSTR("public.jpeg"), 1, NULL);
     CFAutorelease(destination);
-    CGImageDestinationAddImage(destination, image, nil);
+    CGImageDestinationAddImage(destination, image, nullptr);
     if (!CGImageDestinationFinalize(destination)) {
-        return nil;
+        return nullptr;
     }
     return cfData;
 }
@@ -69,10 +69,10 @@ TEST(CoreImage, CGImageFromRect) {
     ASSERT_NE(nullptr, croppedPhoto);
 
     CFMutableDataRef originalImageCropped = ObtainJPEGRepresentationFromCGImage(cgImage);
-    ASSERT_NE(nil, originalImageCropped);
+    ASSERT_NE(nullptr, originalImageCropped);
 
     CFMutableDataRef croppedImage = ObtainJPEGRepresentationFromCGImage(croppedPhoto);
-    ASSERT_NE(nil, croppedImage);
+    ASSERT_NE(nullptr, croppedImage);
 
     ASSERT_TRUE(CFEqual(originalImageCropped, croppedImage));
 }

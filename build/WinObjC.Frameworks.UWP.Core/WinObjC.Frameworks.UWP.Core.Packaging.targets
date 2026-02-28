@@ -4,14 +4,6 @@
   <Target Name="AddBuiltOutput" BeforeTargets="GetPackageContents" DependsOnTargets="$(GitVersionDependsOn)" Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
 
       <ItemGroup>
-        <!-- Include Extra Deps for this project -->
-        <_DepsFiles Include="$(StarboardBasePath)\deps\prebuilt\**\RTObjCInterop.dll"/>
-        <_DepsFiles Include="$(StarboardBasePath)\deps\prebuilt\**\RTObjCInterop.lib"/>
-
-        <PackageFile Include="@(_DepsFiles)">
-            <PackagePath>build\deps\prebuilt\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
-        </PackageFile>
-
         <!-- include folder for project  -->
         <_IncludeFiles Include="$(StarboardBasePath)\include\Platform\Universal Windows\**\InteropBase.h"/>
         <_IncludeFiles Include="$(StarboardBasePath)\include\Platform\Universal Windows\**\RTHelpers.h"/>

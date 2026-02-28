@@ -24,7 +24,7 @@ using namespace winrt::Windows::ApplicationModel::Contacts;
 - (id)initWithContact:(const Contact&)contact andType:(ABRecordContactType)type {
     if (self = [super init]) {
         self->_contact = contact;
-        self->_manager = nil;
+        self->_manager = nullptr;
         self->_type = type;
     }
 

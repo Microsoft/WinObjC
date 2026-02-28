@@ -17,9 +17,12 @@
 #include <Foundation/NSMutableString.h>
 #include "_NSCFTemporaryRootObject.h"
 
+@interface _NSCFStringSuperclassAnchor : _NSCFTemporaryRootObject
+@end
+
 // _NSCFTemporaryRootObject will be replaced with NSMutableString at Foundation load time
 FOUNDATION_EXPORT_CLASS
-@interface _NSCFString : _NSCFTemporaryRootObject
+@interface _NSCFString : _NSCFStringSuperclassAnchor
 
 - (_Nonnull instancetype)retain;
 - (oneway void)release;

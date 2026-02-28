@@ -48,8 +48,4 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 @end
 
-@interface NSObject (NSArchiver)
-- replacementObjectForArchiver:(NSArchiver*)archiver;
-@end
-
 #import <Foundation/NSUnarchiver.h>

@@ -26,7 +26,6 @@
 
 #include <COMIncludes.h>
 #import <wrl\wrappers\corewrappers.h>
-#import <windows.phone.devices.notification.h>
 #import <windows.foundation.metadata.h>
 #import <winrt/Windows.Media.Playback.h>
 #include <COMIncludes_End.h>
@@ -36,7 +35,6 @@
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
-using namespace ABI::Windows::Phone::Devices::Notification;
 using namespace ABI::Windows::Foundation;
 using namespace winrt::Windows::Media::Playback;
 namespace WF = winrt::Windows::Foundation;
@@ -106,8 +104,8 @@ void _handleMediaEndedEvent();
 
 - (void)removeCallbackFunction {
     self.callbackRegistered = false;
-    _callbackFunction = nil;
-    _clientData = nil;
+    _callbackFunction = nullptr;
+    _clientData = nullptr;
 }
 
 - (WF::Uri)mediaUri {
@@ -168,57 +166,8 @@ OSStatus AudioServicesDisposeSystemSoundID(SystemSoundID inSystemSoundID) {
     return kAudioServicesSystemSoundUnspecifiedError;
 }
 
-
-// Calls into C++ to access Windows.Phone.Devices.Notification namespace to vibrate devices with vibration capability.
-void vibrateDevice() {
-    Boolean vibrationCapable = false;
-    HRESULT status; 
-    
-    ComPtr<Metadata::IApiInformationStatics> apiInformation;
-    status = GetActivationFactory(HStringReference(RuntimeClass_Windows_Foundation_Metadata_ApiInformation).Get(),
-                                                   &apiInformation);
-    if (!SUCCEEDED(status)) {
-        NSTraceInfo(TAG, @"Metadata::ApiInformation activation failed");
-        return;
-    }
-
-    status = apiInformation->IsTypePresent(HStringReference(RuntimeClass_Windows_Phone_Devices_Notification_VibrationDevice).Get(), 
-                                           &vibrationCapable);
-    if (!SUCCEEDED(status)) {
-        NSTraceInfo(TAG, @"VibrationDevice availability check failed");
-        return;
-    }
-
-    if (vibrationCapable) {
-        ComPtr<IVibrationDevice> vibrationDevice;
-
-        ComPtr<IVibrationDeviceStatics> vibrationDeviceStatics;
-        status = GetActivationFactory(HStringReference(RuntimeClass_Windows_Phone_Devices_Notification_VibrationDevice).Get(),
-                                                       &vibrationDeviceStatics);
-        if (!SUCCEEDED(status)) {
-            NSTraceInfo(TAG, @"VibrationDevice activation failed");
-            return;
-        }
-        status = vibrationDeviceStatics->GetDefault(&vibrationDevice);
-        if (!SUCCEEDED(status)) {
-            NSTraceInfo(TAG, @"VibrationDevice GetDefault() failed");
-            return;
-        }
-
-        // Vibration duration set as 0.5 second. The unit is 100-nanoseconds. 
-        TimeSpan vibrationDuration = { 5000000 };
-
-        status = vibrationDevice->Vibrate(vibrationDuration);
-        if (!SUCCEEDED(status)) {
-            NSTraceInfo(TAG, @"VibrationDevice Vibrate() failed");
-            return;
-        }
-    }
-}
-
-
-// Plays the sound file and calls vibrateDevice() as needed.
-static inline void _playSound(SystemSoundID inSystemSoundID, BOOL vibration) {
+// Plays the sound file
+static inline void _playSound(SystemSoundID inSystemSoundID, BOOL /*vibration*/) {
 
     if (inSystemSoundID > c_systemSoundIDStart) {
         SystemSound* systemSoundObject = _systemSoundDictionary[[NSNumber numberWithUnsignedInt:inSystemSoundID]];
@@ -236,16 +185,12 @@ static inline void _playSound(SystemSoundID inSystemSoundID, BOOL vibration) {
             mediaPlayer.AutoPlay(false);
             mediaPlayer.IsLoopingEnabled(false);
 
-            if (vibration) {
-                vibrateDevice();
-            }
-
             _latestSystemSoundID = inSystemSoundID;
             mediaPlayer.SetUriSource([systemSoundObject mediaUri]);
             mediaPlayer.Play();
         }
     } else if (inSystemSoundID == kSystemSoundID_Vibrate) {
-        vibrateDevice();        
+        UNIMPLEMENTED();
     } else if (inSystemSoundID > 0) {
         // System supplied sounds not supported. 
         UNIMPLEMENTED();

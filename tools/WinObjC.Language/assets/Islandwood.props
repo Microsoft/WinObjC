@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <StarboardSdkRoot>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '..'))</StarboardSdkRoot>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Clang Args">
+    <ClangPlatformArgs Condition="'$(ApplicationType)' == 'Windows Store'">-DWINAPI_FAMILY=WINAPI_FAMILY_APP -D_WINSOCK_DEPRECATED_NO_WARNINGS</ClangPlatformArgs>
+    <ClangPlatformArgs Condition="'$(ApplicationType)' == 'Windows Phone'">-DWINAPI_FAMILY=WINAPI_FAMILY_PHONE_APP</ClangPlatformArgs>
+    <ClangWinObjCArgs>-fblocks -fno-strict-aliasing -fobjc-runtime=microsoft -Xclang -fconst-strings -fconstant-string-class=NSConstantString -D_HAS_EXCEPTIONS=0 -DWINOBJC -D__WRL_NO_DEFAULT_LIB__ -Wno-incomplete-umbrella $(ClangPlatformArgs)</ClangWinObjCArgs>
+  </PropertyGroup>
+
+  <PropertyGroup Label="SBAdditionalLibraries">
+    <StarboardLinkWholeArchive Condition="'$(StarboardLinkWholeArchive)' == ''">false</StarboardLinkWholeArchive>
+  </PropertyGroup>
+  
+  <!-- This need to be an absolute path, so we can successfully filter duplicates -->
+  <PropertyGroup>
+    <Objc2WinmdGeneratedFilesDir>$(MSBuildProjectDirectory)\Generated</Objc2WinmdGeneratedFilesDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Label="Defaults">
+    <ClangCompile>
+      <!-- This option only exists if WinObjC.Lanugage is included, and only has meaning to Islandwood.targets -->
+      <WOCStdlib Condition="'%(ClangCompile.WOCStdlib)' == ''">true</WOCStdlib>
+    </ClangCompile>
+  </ItemDefinitionGroup>
+
+</Project>

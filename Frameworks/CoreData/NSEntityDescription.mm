@@ -22,9 +22,15 @@
 
 @interface NSEntityDescription () {
     NSManagedObjectModel* _managedObjectModel;
-    StrongId<NSArray<NSPropertyDescription*>> _properties;
-    StrongId<NSArray<NSEntityDescription*>> _subentities;
-    StrongId<NSMutableArray<NSPropertyDescription*>> _unresolvedProperties;
+    // GH#2862
+    // https://bugs.llvm.org/show_bug.cgi?id=25343
+    // New template rules in Clang >= 6.0.0 combined with a _lack_ of
+    // new mangling rules for Objective-C generics causes this to emit
+    // a spurious "definition with same mangled name as another definition"
+    // in SmartTypes.h.
+    StrongId<NSArray/*<NSPropertyDescription*>*/> _properties;
+    StrongId<NSArray/*<NSEntityDescription*>*/> _subentities;
+    StrongId<NSMutableArray/*<NSPropertyDescription*>*/> _unresolvedProperties;
 }
 @property (readwrite, assign) NSEntityDescription* superentity;
 @property (readwrite, copy) NSDictionary* subentitiesByName;

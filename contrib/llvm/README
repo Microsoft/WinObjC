@@ -1,0 +1,8 @@
+The patches in this directory should be applied to LLVM 6.0.
+ 
+They include upstream changes committed to LLVM between the 6.0 release and SVN
+trunk.
+
+Patch Directory
+---------------
+0001-0005: Upstream changes cherry-picked from LLVM trunk.

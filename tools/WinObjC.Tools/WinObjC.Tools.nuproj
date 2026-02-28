@@ -22,9 +22,9 @@
     <Description>Command Line tools and Visual Studio Extensions for the WinObjC Project. This package includes vsimporter (the tool to convert an existing Xcode Cbjective-C project to a Visual Studio solution), winmd2objc (the tool to generate ObjC projections from Windows Metadata files (winmd)), objc2winmd (the tools to convert ObjC middleware to WinRT Component) as well as the Visual Studio Extensions (requires Visual Studio 2017 or later) for Objective C syntax highlighting and Nuget package creation. See https://github.com/Microsoft/WinObjC for more details.</Description>
     <PackageReleaseNotes>
     </PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/Microsoft/WinObjC</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/Microsoft/WinObjC/blob/master/license.txt</PackageLicenseUrl>
-    <Copyright>Copyright © Microsoft</Copyright>
+    <PackageProjectUrl>https://aka.ms/winobjc</PackageProjectUrl>
+    <PackageLicenseUrl>https://aka.ms/winobjc_license</PackageLicenseUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageTags>winobjc-tools;winobjc;vsimporter;winmd2objc;objc2winmd</PackageTags>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/6154722?v=3&amp;s=200</PackageIconUrl>
   </PropertyGroup>
@@ -41,8 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <ItemGroup>

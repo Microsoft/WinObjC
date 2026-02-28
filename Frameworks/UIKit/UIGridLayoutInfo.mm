@@ -61,7 +61,7 @@
 
 - (UIGridLayoutInfo*)snapshot {
     UIGridLayoutInfo* layoutInfo = [self.class new];
-    layoutInfo.sections = self.sections;
+    layoutInfo.sections = [self.sections mutableCopy];
     layoutInfo.rowAlignmentOptions = self.rowAlignmentOptions;
     layoutInfo.usesFloatingHeaderFooter = self.usesFloatingHeaderFooter;
     layoutInfo.dimension = self.dimension;

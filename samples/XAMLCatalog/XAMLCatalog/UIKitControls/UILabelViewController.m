@@ -166,7 +166,11 @@
     // reset the log
     _eventId = 0;
 
+#if __has_feature(objc_arc)
     __weak UILabelViewController* weakSelf = self;
+#else
+    UILabelViewController* weakSelf = self;
+#endif
 
     // push the enumeration to background thread so that main thread isn't caught
     // up with busy looping and enumerating all configurations

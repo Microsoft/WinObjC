@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="$(MSBuildThisFileDirectory)filterprojects.tasks" />
+
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>$(ComputeLinkInputsTargets);AddObjCLinkInputs;</ComputeLinkInputsTargets>
+  </PropertyGroup>
+
+  <Target
+    Name="AddObjCLinkInputs"
+    DependsOnTargets="ComputeStarboardHasObjCSources">
+
+    <ItemGroup Condition="'$(StarboardHasObjCSources)' == 'true'">
+      <Link Include="libobjc2.lib" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Sets StarboardHasObjCSources based on whether any files in this project are being built as Objective-C -->
+  <!-- ComputeClangOptions comes from WinObjC.Compiler/ClangCompile.targets -->
+  <Target Name="ComputeStarboardHasObjCSources" DependsOnTargets="ComputeClangOptions">
+    <ItemGroup>
+      <ObjCSources Include="@(ClangCompile)" Condition="'%(ClangCompile.ExcludedFromBuild)' != 'true' And ('%(ClangCompile.CompileAs)' == 'CompileAsObjC' or '%(ClangCompile.CompileAs)' == 'CompileAsObjCpp')" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <StarboardHasObjCSources Condition="'$(StarboardHasObjCSources)' == '' And '@(ObjCSources)' != ''">true</StarboardHasObjCSources>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ObjCSources Remove="@(ObjCSources)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Sets StarboardRequiresObjectiveCRuntime based on whether this project has Objective-C sources non-recursively. -->
+  <Target Name="ComputeStarboardRequiresObjectiveCRuntime" DependsOnTargets="ComputeStarboardHasObjCSources">
+    <PropertyGroup Condition="'$(StarboardRequiresObjectiveCRuntime)' == ''">
+      <StarboardRequiresObjectiveCRuntime Condition="'@(_StarboardReferencesRequiringObjectiveC)' != ''">true</StarboardRequiresObjectiveCRuntime>
+      <StarboardRequiresObjectiveCRuntime Condition="'$(StarboardHasObjCSources)' == 'true'">true</StarboardRequiresObjectiveCRuntime>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Recursive Target.
+       Returns a list of .lib files from all referenced projects that include Objective-C code by
+       invoking _ComputeStarboardReferencedProjectRequiresObjectiveC on them.
+  -->
+  <Target Name="ComputeStarboardReferencesRequiringObjectiveC">
+    <!-- Not all references are guaranteed to contain the target, so filter out the ones that don't -->
+    <!-- NOTE: We must explicitly pass in any properties needed to load referenced projects.
+         Msbuild mandates that any properties needed by the task must be explicitly passed -->
+    <ProjectsWithTarget
+      Projects="@(_MSBuildProjectReferenceExistent)"
+      TargetName="_ComputeStarboardReferencedProjectRequiresObjectiveC">
+      <Output TaskParameter="FilteredProjects" ItemName="ProjectReferencesFiltered" />
+    </ProjectsWithTarget>
+
+    <MSBuild
+      Projects="@(ProjectReferencesFiltered)"
+      Targets="_ComputeStarboardReferencedProjectRequiresObjectiveC"
+      BuildInParallel="$(BuildInParallel)"
+      Properties="%(ProjectReferencesFiltered.SetConfiguration); %(ProjectReferencesFiltered.SetPlatform)"
+      Condition="'%(ProjectReferencesFiltered.Extension)' == '.vcxproj' and '@(ProjectReferenceWithConfiguration)' != '' and '@(ProjectReferencesFiltered)' != ''"
+      ContinueOnError="!$(BuildingProject)"
+      RemoveProperties="%(ProjectReferencesFiltered.GlobalPropertiesToRemove)">
+      <Output TaskParameter="TargetOutputs" ItemName="_StarboardReferencesRequiringObjectiveC"/>
+    </MSBuild>
+
+    <ItemGroup>
+      <ProjectReferencesFiltered Remove="@(ProjectReferencesFiltered)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Returns every output from <Lib> in this project if we include Objective-C code.
+       Right now, we only go so far as to check whether we have Objective-C ourselves. A lib consuming a lib
+       consuming Objective-C will not be considered to be consuming Objective-C.
+       We should consider recursing.
+  -->
+  <Target Name="_ComputeStarboardReferencedProjectRequiresObjectiveC" Returns="@(ObjCLibFullPath)" DependsOnTargets="ComputeStarboardHasObjCSources">
+    <ItemGroup>
+      <Lib Include="tmp"  Condition="'@(Lib)'==''">
+       <DeleteSoon>true</DeleteSoon>
+      </Lib>
+    </ItemGroup>
+    <PropertyGroup>
+      <!-- Consider recursing on this rule to capture libs aggregating Objective-C libs. -->
+      <_ObjCLibFullPath Condition="'$(ConfigurationType)'=='StaticLibrary' and '$(StarboardHasObjCSources)'=='true'">@(Lib->MetaData('OutputFile')->FullPath()->Distinct())</_ObjCLibFullPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <ObjCLibFullPath Include="$(_ObjCLibFullPath)">
+        <FileType>lib</FileType>
+        <ConsumesObjectiveC>$(StarboardHasObjCSources)</ConsumesObjectiveC>
+      </ObjCLibFullPath>
+      <Lib Remove="@(Lib)" Condition="'%(Lib.DeleteSoon)'=='true'" />
+    </ItemGroup>
+  </Target>
+
+  <!-- This target adds one /WHOLEARCHIVE: for every referenced project that includes Objective-C code.
+       This pulls in a lot of things, but it clears up many of the issues surrounding Objective-C categories
+       and 2-stage loading.
+  -->
+  <Target Name="ComputeWholeArchiveLinkInputs" DependsOnTargets="ComputeStarboardReferencesRequiringObjectiveC">
+    <ItemGroup Condition="'@(_StarboardReferencesRequiringObjectiveC)'!='' and '$(StarboardLinkWholeArchive)'=='true'">
+      <Link>
+        <AdditionalOptions>%(Link.AdditionalOptions) "/WHOLEARCHIVE:@(_StarboardReferencesRequiringObjectiveC, '" /WHOLEARCHIVE:"')"</AdditionalOptions>
+      </Link>
+    </ItemGroup>
+  </Target>
+
+</Project>

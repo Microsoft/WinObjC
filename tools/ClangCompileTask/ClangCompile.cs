@@ -695,7 +695,7 @@ namespace ClangCompile
             DisplayName = "Debug Information",
             Description = "Specifies whether to keep debug information.",
             Category = "General",
-            Switch = "-g")]
+            Switch = "-g -gcodeview")]
         public bool DebugInformation { get; set; }
 
         [PropertyPage(
@@ -915,6 +915,78 @@ namespace ClangCompile
 
         CompileAsEnum CompileAsValue;
 
+        public enum CLanguageStandardEnum
+        {
+            // The names in this enum are lowercase to match the ClCompile names for the same thing.
+            Unspecified,
+            [Field(DisplayName = "C89", Description = "C89 Language Standard.", Switch = "-std=c89")]
+            stdc89,
+            [Field(DisplayName = "C99", Description = "C99 Language Standard.", Switch = "-std=c99")]
+            stdc99,
+            [Field(DisplayName = "C11", Description = "C11 Language Standard.", Switch = "-std=c11")]
+            stdc11,
+            [Field(DisplayName = "C99 (GNU Dialect)", Description = "C99 (GNU Dialect) Language Standard.", Switch = "-std=gnu99")]
+            stdgnu99,
+            [Field(DisplayName = "C11 (GNU Dialect)", Description = "C11 (GNU Dialect) Language Standard.", Switch = "-std=gnu11")]
+            stdgnu11,
+        }
+
+        [PropertyPage(
+            Category = "Language",
+            DisplayName = "C Language Standard",
+            Description = "Determines the C language standard.")]
+        [EnumeratedValue(Enumeration = typeof(CLanguageStandardEnum))]
+        public string CLanguageStandard
+        {
+            get { return CLanguageStandardValue.ToString(); }
+            set {
+                CLanguageStandardValue = string.IsNullOrEmpty(value)
+                    ? CLanguageStandardEnum.Unspecified
+                    : (CLanguageStandardEnum)Enum.Parse(typeof(CLanguageStandardEnum), value, true);
+            }
+        }
+
+        CLanguageStandardEnum CLanguageStandardValue;
+
+        public enum CppLanguageStandardEnum
+        {
+            // The names in this enum are lowercase to match the ClCompile names for the same thing.
+            Unspecified,
+            [Field(DisplayName = "C++03", Description = "C++03 Language Standard.", Switch = "-std=c++98")]
+            stdcpp98,
+            [Field(DisplayName = "C++11", Description = "C++11 Language Standard.", Switch = "-std=c++11")]
+            stdcpp11,
+            [Field(DisplayName = "C++14", Description = "C++14 Language Standard.", Switch = "-std=c++14")]
+            stdcpp14,
+            [Field(DisplayName = "C++17", Description = "C++17 Language Standard.", Switch = "-std=c++17")]
+            stdcpp17,
+            [Field(DisplayName = "C++03 (GNU Dialect)", Description = "C++03 (GNU Dialect) Language Standard.", Switch = "-std=gnu++98")]
+            stdgnupp98,
+            [Field(DisplayName = "C++11 (GNU Dialect)", Description = "C++11 (GNU Dialect) Language Standard.", Switch = "-std=gnu++11")]
+            stdgnupp11,
+            [Field(DisplayName = "C++14 (GNU Dialect)", Description = "C++14 (GNU Dialect) Language Standard.", Switch = "-std=gnu++14")]
+            stdgnupp14,
+            [Field(DisplayName = "C++17 (GNU Dialect)", Description = "C++17 (GNU Dialect) Language Standard.", Switch = "-std=gnu++17")]
+            stdgnupp17,
+        }
+
+        [PropertyPage(
+            Category = "Language",
+            DisplayName = "C++ Language Standard",
+            Description = "Determines the C++ language standard.")]
+        [EnumeratedValue(Enumeration = typeof(CppLanguageStandardEnum))]
+        public string CppLanguageStandard
+        {
+            get { return CppLanguageStandardValue.ToString(); }
+            set {
+                CppLanguageStandardValue = string.IsNullOrEmpty(value)
+                    ? CppLanguageStandardEnum.Unspecified
+                    : (CppLanguageStandardEnum)Enum.Parse(typeof(CppLanguageStandardEnum), value, true);
+            }
+        }
+
+        CppLanguageStandardEnum CppLanguageStandardValue;
+
         [PropertyPage(
             Category = "Language",
             DisplayName = "LLVM Directory",
@@ -960,10 +1032,10 @@ namespace ClangCompile
         public string OtherFlags { get; set; }
 
         [PropertyPage(
-            Category = "Language",
-            DisplayName = "Use WinObjC standard library",
-            Description = "Uses the WinObjC standard C/C++ library definitions when compiling. This can create some compatibility issues with COM interfaces and Windows-specific source code.")]
-        public Boolean WOCStdLib { get; set; }
+            DisplayName = "Internal Compiler Flags",
+            Visible = false,
+            IncludeInCommandLine = false)]
+        public string InternalCompilerFlags { get; set; }
 
         [PropertyPage(
             DisplayName = "Command Line",
@@ -1121,7 +1193,7 @@ namespace ClangCompile
                         FieldInfo fInfo = enumAttr.Enumeration.GetField((string)pInfo.GetValue(this));
                         FieldAttribute fAttr = (FieldAttribute)Attribute.GetCustomAttribute(fInfo, typeof(FieldAttribute));
 
-                        if (fAttr.Switch == null || fAttr.Switch == "")
+                        if (fAttr == null || string.IsNullOrEmpty(fAttr.Switch))
                         {
                             continue;
                         }
@@ -1224,9 +1296,6 @@ namespace ClangCompile
                 return false;
             }
 
-            // We need to wait until all the mod dates have been set before moving on, or we may get a race condition.
-            object modDateSync = new object();
-            int nModDate = 0;
             bool skip = true;
 
             // Instantiate the writer.
@@ -1260,28 +1329,6 @@ namespace ClangCompile
                 string objFileName = Path.GetFullPath(GetSpecial("objectfilename", ObjectFileName, item));
                 string depFileName = Path.GetFullPath(GetSpecial("dependencyfile", DependencyFile, item));
 
-                WaitCallback waitCallback = new WaitCallback(f =>
-                {
-                    try
-                    {
-                        File.SetLastWriteTime(objFileName, DateTime.Now);
-                        if (File.Exists(depFileName))
-                        {
-                            File.SetLastWriteTime(depFileName, DateTime.Now);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        LogWarning("Caught exception trying to set last modification: {0}", e.ToString());
-                    }
-
-                    lock (modDateSync) {
-                        if (--nModDate == 0) {
-                            Monitor.Pulse(modDateSync);
-                        }
-                    }
-                });
-
                 if (tracker.OutOfDate(objFileName))
                 {
                     skip = false;
@@ -1295,48 +1342,26 @@ namespace ClangCompile
                     continue;
                 }
 
-                if (File.GetLastWriteTime(ProjectFile) < File.GetLastWriteTime(objFileName))
-                {
-                    // Touch the file so MSBuild is happy.
-                    lock (modDateSync) {
-                        nModDate++;
-                    }
+                Dictionary<string, List<string>> cmdMap = ReadTLog(Path.GetFullPath(CommandTLogFile));
+                List<string> cmdLine;
 
-                    ThreadPool.QueueUserWorkItem(waitCallback);
-                    continue;
-                }
-                else
+                if (cmdMap.TryGetValue(inputFileName, out cmdLine))
                 {
-                    Dictionary<string, List<string>> cmdMap = ReadTLog(Path.GetFullPath(CommandTLogFile));
-                    List<string> cmdLine;
-
-                    // If the commandlines are different, rebuild.
-                    if (cmdMap.TryGetValue(inputFileName, out cmdLine))
+                    if (cmdLine.First().Substring(1) == ReplaceOptions(GenerateCommandLineCommands(), item))
                     {
-                        if (cmdLine.First().Substring(1) == ReplaceOptions(GenerateCommandLineCommands(), item))
-                        {
-                            // Touch the file so MSBuild is happy.
-                            lock (modDateSync) {
-                                nModDate++;
-                            }
-
-                            ThreadPool.QueueUserWorkItem(waitCallback);
-                            continue;
-                        }
-                        else
-                        {
-                            tracker.SetUpToDate(objFileName, false);
-                        }
+                        // If the command lines match, move on to the next file.
+                        continue;
+                    }
+                    else
+                    {
+                        // If the commandlines are different, rebuild.
+                        tracker.SetUpToDate(objFileName, false);
+                        // fallthrough
                     }
                 }
 
+                // If we got here, our equivalence checks failed.
                 skip = false;
-            }
-
-            lock (modDateSync) {
-                if (nModDate > 0) {
-                    Monitor.Wait(modDateSync);
-                }
             }
 
             return skip;

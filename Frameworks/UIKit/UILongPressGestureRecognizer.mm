@@ -159,7 +159,7 @@ static TrackedTouch* findTouch(UITouch* touch, std::vector<TrackedTouch>& touche
     for (UITouch* touch in touches) {
         FAIL_FAST_HR_IF(E_UNEXPECTED, [touch phase] != UITouchPhaseMoved);
         TrackedTouch* originalTouch = findTouch(touch, _trackedTouches);
-        if (originalTouch == nil) {
+        if (!originalTouch) {
             continue;
         }
 
@@ -208,7 +208,7 @@ static TrackedTouch* findTouch(UITouch* touch, std::vector<TrackedTouch>& touche
 
     for (UITouch* touch in touches) {
         TrackedTouch* originalTouch = findTouch(touch, _trackedTouches);
-        if (originalTouch == nil) {
+        if (!originalTouch) {
             continue;
         }
 

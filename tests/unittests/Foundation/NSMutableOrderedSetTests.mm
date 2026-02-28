@@ -214,7 +214,7 @@ TEST(NSMutableOrderedSet, GetObjects) {
     ASSERT_NE(nil, orderedSet);
 
     id* objects = (id*)malloc(sizeof(id) * 4);
-    ASSERT_NE(nil, objects);
+    ASSERT_NE(nullptr, objects);
     [orderedSet getObjects:objects range:NSMakeRange(0, 4)];
 
     for (int i = 0; i < 4; i++) {
@@ -228,7 +228,7 @@ TEST(NSMutableOrderedSet, GetObjects2) {
     ASSERT_NE(nil, orderedSet);
 
     id* objects = (id*)malloc(sizeof(id) * 2);
-    ASSERT_NE(nil, objects);
+    ASSERT_NE(nullptr, objects);
     [orderedSet getObjects:objects range:NSMakeRange(1, 2)];
 
     for (int i = 0; i < 2; ++i) {

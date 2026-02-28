@@ -423,7 +423,7 @@ public:
 
     // Move from same lifetime.
     AutoCF(AutoCF<T, TLifetimeTraits>&& other) : _val(other._val) {
-        other._val = nil;
+        other._val = nullptr;
     }
 
     ~AutoCF() {

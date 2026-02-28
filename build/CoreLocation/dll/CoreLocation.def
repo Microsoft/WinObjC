@@ -1,50 +1,50 @@
 LIBRARY CoreLocation
     EXPORTS
         ; CLBeacon.mm
-        _OBJC_CLASS_CLBeacon DATA
-        __objc_class_name_CLBeacon CONSTANT
+        $_OBJC_CLASS_CLBeacon DATA
+        $_OBJC_REF_CLASS_CLBeacon DATA
 
         ; CLBeaconRegion.mm
-        _OBJC_CLASS_CLBeaconRegion DATA
-        __objc_class_name_CLBeaconRegion CONSTANT
+        $_OBJC_CLASS_CLBeaconRegion DATA
+        $_OBJC_REF_CLASS_CLBeaconRegion DATA
 
         ; CLCircularRegion.mm
-        _OBJC_CLASS_CLCircularRegion DATA
-        __objc_class_name_CLCircularRegion CONSTANT
+        $_OBJC_CLASS_CLCircularRegion DATA
+        $_OBJC_REF_CLASS_CLCircularRegion DATA
 
         ; CLFloor.mm
-        _OBJC_CLASS_CLFloor DATA
-        __objc_class_name_CLFloor CONSTANT
+        $_OBJC_CLASS_CLFloor DATA
+        $_OBJC_REF_CLASS_CLFloor DATA
 
         ; CLGeocoder.mm
-        _OBJC_CLASS_CLGeocoder DATA
-        __objc_class_name_CLGeocoder CONSTANT
+        $_OBJC_CLASS_CLGeocoder DATA
+        $_OBJC_REF_CLASS_CLGeocoder DATA
 
         ; CLHeading.mm
-        _OBJC_CLASS_CLHeading DATA
-        __objc_class_name_CLHeading CONSTANT
+        $_OBJC_CLASS_CLHeading DATA
+        $_OBJC_REF_CLASS_CLHeading DATA
 
         ; CLLocation.mm
-        _OBJC_CLASS_CLLocation DATA
-        __objc_class_name_CLLocation CONSTANT
+        $_OBJC_CLASS_CLLocation DATA
+        $_OBJC_REF_CLASS_CLLocation DATA
 
         ; CLLocationManager.mm
         CLLocationDistanceMax DATA
         CLTimeIntervalMax DATA
-        _OBJC_CLASS_CLLocationManager DATA
-        __objc_class_name_CLLocationManager CONSTANT
+        $_OBJC_CLASS_CLLocationManager DATA
+        $_OBJC_REF_CLASS_CLLocationManager DATA
 
         ; CLPlacemark.mm
-        _OBJC_CLASS_CLPlacemark DATA
-        __objc_class_name_CLPlacemark CONSTANT
+        $_OBJC_CLASS_CLPlacemark DATA
+        $_OBJC_REF_CLASS_CLPlacemark DATA
 
         ; CLRegion.mm
-        _OBJC_CLASS_CLRegion DATA
-        __objc_class_name_CLRegion CONSTANT
+        $_OBJC_CLASS_CLRegion DATA
+        $_OBJC_REF_CLASS_CLRegion DATA
 
         ; CLVisit.mm
-        _OBJC_CLASS_CLVisit DATA
-        __objc_class_name_CLVisit CONSTANT
+        $_OBJC_CLASS_CLVisit DATA
+        $_OBJC_REF_CLASS_CLVisit DATA
 
         ; Core Location Constants Reference.mm
         kCLErrorDomain DATA

@@ -30,7 +30,7 @@
 #import <WRLHelpers.h>
 #include <COMIncludes_End.h>
 
-#import <CFCPPBase.h>
+#import <CFCppBase.h>
 #import <CppUtils.h>
 
 static const wchar_t* TAG = L"CGPath";

@@ -34,7 +34,7 @@
     <None Include="ImportedByAnyDependent.targets" />
     <None Include="ImportedByAnyDependent.props" />
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

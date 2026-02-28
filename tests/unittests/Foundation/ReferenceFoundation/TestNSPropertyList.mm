@@ -64,8 +64,8 @@ TEST(NSPropertyList, DecodeMutable) {
     NSData* data = [NSData dataWithContentsOfFile:path];
     ASSERT_NO_THROW(decoded = [NSPropertyListSerialization propertyListFromData:data
                                                                mutabilityOption:NSPropertyListMutableContainers
-                                                                         format:NULL
-                                                               errorDescription:nil]);
+                                                                         format:nullptr
+                                                               errorDescription:nullptr]);
     ASSERT_OBJCNE(decoded, nil);
 
     NSDictionary* dict = (NSMutableDictionary*)decoded;

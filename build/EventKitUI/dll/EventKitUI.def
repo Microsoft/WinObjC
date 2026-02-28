@@ -1,14 +1,14 @@
 LIBRARY EventKitUI
     EXPORTS
         ; EKCalendarChooser.mm
-        _OBJC_CLASS_EKCalendarChooser DATA
-        __objc_class_name_EKCalendarChooser CONSTANT
+        $_OBJC_CLASS_EKCalendarChooser DATA
+        $_OBJC_REF_CLASS_EKCalendarChooser DATA
 
         ; EKEventEditViewController.mm
-        _OBJC_CLASS_EKEventEditViewController DATA
-        __objc_class_name_EKEventEditViewController CONSTANT
+        $_OBJC_CLASS_EKEventEditViewController DATA
+        $_OBJC_REF_CLASS_EKEventEditViewController DATA
 
         ; EKEventViewController.mm
-        _OBJC_CLASS_EKEventViewController DATA
-        __objc_class_name_EKEventViewController CONSTANT
+        $_OBJC_CLASS_EKEventViewController DATA
+        $_OBJC_REF_CLASS_EKEventViewController DATA
 

@@ -1226,7 +1226,7 @@ CF_PRIVATE void __CFStringInitialize(void) {
     static dispatch_once_t initOnce = 0;
     dispatch_once(&initOnce, ^{ __kCFStringTypeID = _CFRuntimeRegisterClass(&__CFStringClass);
     //WINOBJC: Also bridge string class here so that all strings get the is set properly.
-        _CFRuntimeBridgeTypeToClass(__kCFStringTypeID, &_OBJC_CLASS__NSCFString);
+        _CFRuntimeBridgeTypeToClass(__kCFStringTypeID, &$_OBJC_CLASS__NSCFString);
     });
 }
 

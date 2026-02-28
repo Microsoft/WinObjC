@@ -1,56 +1,56 @@
 LIBRARY EventKit
     EXPORTS
         ; EKAlarm.mm
-        _OBJC_CLASS_EKAlarm DATA
-        __objc_class_name_EKAlarm CONSTANT
+        $_OBJC_CLASS_EKAlarm DATA
+        $_OBJC_REF_CLASS_EKAlarm DATA
 
         ; EKCalendar.mm
-        _OBJC_CLASS_EKCalendar DATA
-        __objc_class_name_EKCalendar CONSTANT
+        $_OBJC_CLASS_EKCalendar DATA
+        $_OBJC_REF_CLASS_EKCalendar DATA
 
         ; EKCalendarItem.mm
-        _OBJC_CLASS_EKCalendarItem DATA
-        __objc_class_name_EKCalendarItem CONSTANT
+        $_OBJC_CLASS_EKCalendarItem DATA
+        $_OBJC_REF_CLASS_EKCalendarItem DATA
 
         ; EKEvent.mm
-        _OBJC_CLASS_EKEvent DATA
-        __objc_class_name_EKEvent CONSTANT
+        $_OBJC_CLASS_EKEvent DATA
+        $_OBJC_REF_CLASS_EKEvent DATA
 
         ; EKEventStore.mm
-        _OBJC_CLASS_EKEventStore DATA
-        __objc_class_name_EKEventStore CONSTANT
+        $_OBJC_CLASS_EKEventStore DATA
+        $_OBJC_REF_CLASS_EKEventStore DATA
 
         ; EKObject.mm
-        _OBJC_CLASS_EKObject DATA
-        __objc_class_name_EKObject CONSTANT
+        $_OBJC_CLASS_EKObject DATA
+        $_OBJC_REF_CLASS_EKObject DATA
 
         ; EKParticipant.mm
-        _OBJC_CLASS_EKParticipant DATA
-        __objc_class_name_EKParticipant CONSTANT
+        $_OBJC_CLASS_EKParticipant DATA
+        $_OBJC_REF_CLASS_EKParticipant DATA
 
         ; EKRecurrenceDayOfWeek.mm
-        _OBJC_CLASS_EKRecurrenceDayOfWeek DATA
-        __objc_class_name_EKRecurrenceDayOfWeek CONSTANT
+        $_OBJC_CLASS_EKRecurrenceDayOfWeek DATA
+        $_OBJC_REF_CLASS_EKRecurrenceDayOfWeek DATA
 
         ; EKRecurrenceEnd.mm
-        _OBJC_CLASS_EKRecurrenceEnd DATA
-        __objc_class_name_EKRecurrenceEnd CONSTANT
+        $_OBJC_CLASS_EKRecurrenceEnd DATA
+        $_OBJC_REF_CLASS_EKRecurrenceEnd DATA
 
         ; EKRecurrenceRule.mm
-        _OBJC_CLASS_EKRecurrenceRule DATA
-        __objc_class_name_EKRecurrenceRule CONSTANT
+        $_OBJC_CLASS_EKRecurrenceRule DATA
+        $_OBJC_REF_CLASS_EKRecurrenceRule DATA
 
         ; EKReminder.mm
-        _OBJC_CLASS_EKReminder DATA
-        __objc_class_name_EKReminder CONSTANT
+        $_OBJC_CLASS_EKReminder DATA
+        $_OBJC_REF_CLASS_EKReminder DATA
 
         ; EKSource.mm
-        _OBJC_CLASS_EKSource DATA
-        __objc_class_name_EKSource CONSTANT
+        $_OBJC_CLASS_EKSource DATA
+        $_OBJC_REF_CLASS_EKSource DATA
 
         ; EKStructuredLocation.mm
-        _OBJC_CLASS_EKStructuredLocation DATA
-        __objc_class_name_EKStructuredLocation CONSTANT
+        $_OBJC_CLASS_EKStructuredLocation DATA
+        $_OBJC_REF_CLASS_EKStructuredLocation DATA
 
         ; EventKit Constants.mm
         EKErrorDomain DATA

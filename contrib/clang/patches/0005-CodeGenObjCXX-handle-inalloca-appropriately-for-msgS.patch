@@ -1,0 +1,62 @@
+From a2f004e4f2937ef6be1f4851de7dfb2bd0df0152 Mon Sep 17 00:00:00 2001
+From: Saleem Abdulrasool <compnerd@compnerd.org>
+Date: Wed, 28 Feb 2018 20:16:12 +0000
+Subject: [PATCH 05/19] CodeGenObjCXX: handle inalloca appropriately for
+ msgSend variant
+
+objc_msgSend_stret takes a hidden parameter for the returned structure's
+address for the construction.  When the function signature is rewritten
+for the inalloca passing, the return type is no longer marked as
+indirect but rather inalloca stret.  This enhances the test for the
+indirect return to check for that case as well.  This fixes the
+incorrect return classification for Windows x86.
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@326362 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 896bb7d0d1d9a877403376fa6dd50ea452947300)
+---
+ lib/CodeGen/CGCall.cpp            |  3 ++-
+ test/CodeGenObjCXX/msabi-stret.mm | 18 ++++++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+ create mode 100644 test/CodeGenObjCXX/msabi-stret.mm
+
+diff --git a/lib/CodeGen/CGCall.cpp b/lib/CodeGen/CGCall.cpp
+index 38d7344572..f780fe4880 100644
+--- a/lib/CodeGen/CGCall.cpp
++++ b/lib/CodeGen/CGCall.cpp
+@@ -1479,7 +1479,8 @@ void ClangToLLVMArgMapping::construct(const ASTContext &Context,
+ /***/
+ 
+ bool CodeGenModule::ReturnTypeUsesSRet(const CGFunctionInfo &FI) {
+-  return FI.getReturnInfo().isIndirect();
++  const auto &RI = FI.getReturnInfo();
++  return RI.isIndirect() || (RI.isInAlloca() && RI.getInAllocaSRet());
+ }
+ 
+ bool CodeGenModule::ReturnSlotInterferesWithArgs(const CGFunctionInfo &FI) {
+diff --git a/test/CodeGenObjCXX/msabi-stret.mm b/test/CodeGenObjCXX/msabi-stret.mm
+new file mode 100644
+index 0000000000..765c23887b
+--- /dev/null
++++ b/test/CodeGenObjCXX/msabi-stret.mm
+@@ -0,0 +1,18 @@
++// RUN: %clang_cc1 -triple i686-unknown-windows-msvc -fobjc-runtime=ios-6.0 -Os -S -emit-llvm -o - %s -mdisable-fp-elim | FileCheck %s
++
++struct S {
++  S() = default;
++  S(const S &) {}
++};
++
++@interface I
+++ (S)m:(S)s;
++@end
++
++S f() {
++  return [I m:S()];
++}
++
++// CHECK: declare dllimport void @objc_msgSend_stret(i8*, i8*, ...)
++// CHECK-NOT: declare dllimport void @objc_msgSend(i8*, i8*, ...)
++
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

@@ -29,8 +29,8 @@
 
 typedef NSString* NSRunLoopMode;
 
-FOUNDATION_EXPORT const NSRunLoopMode const NSDefaultRunLoopMode;
-FOUNDATION_EXPORT const NSRunLoopMode const NSRunLoopCommonModes;
+FOUNDATION_EXPORT const NSRunLoopMode NSDefaultRunLoopMode;
+FOUNDATION_EXPORT const NSRunLoopMode NSRunLoopCommonModes;
 
 FOUNDATION_EXPORT_CLASS
 @interface NSRunLoop : NSObject

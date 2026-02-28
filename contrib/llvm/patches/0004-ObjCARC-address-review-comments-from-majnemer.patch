@@ -1,0 +1,50 @@
+From 1272f7c0e8951afd8c3ea261b671d4a52fd08188 Mon Sep 17 00:00:00 2001
+From: Saleem Abdulrasool <compnerd@compnerd.org>
+Date: Mon, 12 Mar 2018 23:48:20 +0000
+Subject: [PATCH 4/5] ObjCARC: address review comments from majnemer
+
+I forgot to incorporate these comments into the original revision.  This
+is just code cleanup addressing the feedback, NFC.
+
+git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@327351 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit ddf9edb4020f234a273fd50b9c6892a8c5fe16dc)
+---
+ lib/Transforms/ObjCARC/ObjCARCOpts.cpp | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/lib/Transforms/ObjCARC/ObjCARCOpts.cpp b/lib/Transforms/ObjCARC/ObjCARCOpts.cpp
+index b5e8e3edc36..049895a7844 100644
+--- a/lib/Transforms/ObjCARC/ObjCARCOpts.cpp
++++ b/lib/Transforms/ObjCARC/ObjCARCOpts.cpp
+@@ -682,15 +682,12 @@ void ObjCARCOpt::OptimizeAutoreleaseRVCall(Function &F,
+ 
+ namespace {
+ Instruction *
+-CloneCallInstForBB(Instruction &I, BasicBlock &BB,
++CloneCallInstForBB(CallInst &CI, BasicBlock &BB,
+                    DenseMap<BasicBlock *, ColorVector> &BlockColors) {
+-  auto *CI = dyn_cast<CallInst>(&I);
+-  assert(CI && "CloneCallInst must receive a CallInst");
+-
+   SmallVector<OperandBundleDef, 1> OpBundles;
+-  for (unsigned I = 0, E = CI->getNumOperandBundles(); I != E; ++I) {
+-    auto Bundle = CI->getOperandBundleAt(I);
+-    // funclets will be reassociated in the future
++  for (unsigned I = 0, E = CI.getNumOperandBundles(); I != E; ++I) {
++    auto Bundle = CI.getOperandBundleAt(I);
++    // Funclets will be reassociated in the future.
+     if (Bundle.getTagID() == LLVMContext::OB_funclet)
+       continue;
+     OpBundles.emplace_back(Bundle);
+@@ -704,7 +701,7 @@ CloneCallInstForBB(Instruction &I, BasicBlock &BB,
+       OpBundles.emplace_back("funclet", EHPad);
+   }
+ 
+-  return CallInst::Create(CI, OpBundles);
++  return CallInst::Create(&CI, OpBundles);
+ }
+ }
+ 
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

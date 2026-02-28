@@ -66,7 +66,7 @@ public:
         ASSERT_TRUE(signaled || [condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]]);
         [condition unlock];
 
-        ASSERT_TRUE(nil != storageFile);
+        ASSERT_NE(nil, storageFile);
 
         WSStorageFile* lambdaStorageFile = storageFile;
 
@@ -93,7 +93,7 @@ public:
         // Lets write some data!!!!
         unsigned char rawDataToWrite[] = { 'a', 'b', 'c' };
         NSData* writeData = [NSData dataWithBytesNoCopy:rawDataToWrite length:_countof(rawDataToWrite) freeWhenDone:NO];
-        ASSERT_TRUE([writeData writeToURL:storageUrl options:0 error:nil]);
+        ASSERT_TRUE([writeData writeToURL:storageUrl options:0 error:nullptr]);
 
         // Ok now lets read it out!!!
         NSData* readData = [NSData dataWithContentsOfURL:storageUrl];
@@ -102,14 +102,14 @@ public:
         // Try writing different data!!!
         unsigned char rawDataToWrite2[] = { 'e', 'f', 'g' };
         writeData = [NSData dataWithBytesNoCopy:rawDataToWrite2 length:_countof(rawDataToWrite2) freeWhenDone:NO];
-        ASSERT_TRUE([writeData writeToURL:storageUrl options:0 error:nil]);
+        ASSERT_TRUE([writeData writeToURL:storageUrl options:0 error:nullptr]);
 
         readData = [NSData dataWithContentsOfURL:storageUrl];
         ASSERT_TRUE([readData isEqual:writeData]);
 
         // Now with appending!
         writeData = [NSData dataWithBytesNoCopy:rawDataToWrite length:_countof(rawDataToWrite) freeWhenDone:NO];
-        ASSERT_TRUE([writeData writeToURL:storageUrl options:NSDataWritingWithoutOverwriting error:nil]);
+        ASSERT_TRUE([writeData writeToURL:storageUrl options:NSDataWritingWithoutOverwriting error:nullptr]);
 
         unsigned char rawDataToValidate[] = { 'e', 'f', 'g', 'a', 'b', 'c' };
         NSData* appendData = [NSData dataWithBytesNoCopy:rawDataToValidate length:_countof(rawDataToValidate) freeWhenDone:NO];

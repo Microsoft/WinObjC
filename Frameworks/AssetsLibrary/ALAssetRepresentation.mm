@@ -54,7 +54,7 @@ NSString* const ALAssetRepresentationDomain = @"ALAssetRepresentation";
 - (instancetype)_initWithAssetURL:(NSURL*)url localPath:(NSString*)path error:(NSError**)error {
     if ((self = [super init])) {
         _urlRep = url;
-        _storageFile = nil;
+        _storageFile = nullptr;
         NSError* tempError = nil;
 
         dispatch_group_t group = dispatch_group_create();
@@ -82,7 +82,7 @@ NSString* const ALAssetRepresentationDomain = @"ALAssetRepresentation";
             [tempError release];
         }
 
-        if (_storageFile == nil) {
+        if (!_storageFile) {
             [self release];
             return nil;
         }

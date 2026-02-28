@@ -40,6 +40,6 @@ void createFileWithContentAndVerify(NSString* fileName, NSString* content) {
 void deleteFile(NSString* name) {
     NSString* fullPath = getPathToFile(name);
     if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
-        [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
+        [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nullptr];
     }
 };

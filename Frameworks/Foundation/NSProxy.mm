@@ -57,14 +57,6 @@
  @Status Interoperable
  @Notes
 */
-- (void)dealloc {
-    object_dispose(self);
-}
-
-/**
- @Status Interoperable
- @Notes
-*/
 - (void)finalize {
 }
 
@@ -292,35 +284,6 @@
  @Status Interoperable
  @Notes
 */
-- (instancetype)retain {
-    intptr_t* refCount = ((intptr_t*)self) - 1;
-    // Note: this should be an atomic read, so that a sufficiently clever
-    // compiler doesn't notice that there's no happens-before relationship
-    // here.
-    if (*refCount >= 0) {
-        __sync_add_and_fetch(refCount, 1);
-    }
-    return self;
-}
-
-/**
- @Status Interoperable
- @Notes
-*/
-- (oneway void)release {
-    intptr_t* refCount = ((intptr_t*)self) - 1;
-    // We allow refcounts to run into the negative, but should only
-    // deallocate once.
-    if (__sync_sub_and_fetch(refCount, 1) == -1) {
-        objc_delete_weak_refs(self);
-        [self dealloc];
-    }
-}
-
-/**
- @Status Interoperable
- @Notes
-*/
 - (instancetype)autorelease {
     [NSAutoreleasePool addObject:self];
     return self;
@@ -328,11 +291,31 @@
 
 /**
  @Status Interoperable
- @Notes
+*/
+- (id)retain {
+    return objc_retain_fast_np(self);
+}
+
+/**
+ @Status Interoperable
+*/
+- (oneway void)release {
+    objc_release_fast_np(self);
+}
+
+/**
+ @Status Interoperable
 */
 - (NSUInteger)retainCount {
-    // account for the implicit retain on object creation
-    return *(((intptr_t*)self) - 1) + 1;
+    return object_getRetainCount_np(self);
+}
+
+/**
+ @Status Interoperable
+ @Notes
+*/
+- (void)dealloc {
+    object_dispose(self);
 }
 
 /**
@@ -356,8 +339,7 @@
  *  the same inheritance level as _ARCCompliantRetainRelease. Subclasses overriding this behaviour
  *  opt out of the fast path, and must implement both retain and release.
  *
- *  To actually be ARC compliant, we need to store our refcount sizeof(intptr_t) bytes before
- *  self->isa, and mimic the runtime's behaviour for direct invocations of retain/release.
+ *  To actually be ARC compliant, we need to use libobjc2's ARC interop functions.
  */
 - (void)_ARCCompliantRetainRelease {
 }

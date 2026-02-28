@@ -461,7 +461,7 @@ static id makeReference(unsigned objectId) {
 */
 + (NSString*)classNameForClass:(Class)aClass {
     auto className = s_clsMap.get(aClass);
-    return className ? *className : nil;
+    return className ? className->get() : nil;
 }
 
 /**
@@ -480,7 +480,7 @@ static id makeReference(unsigned objectId) {
 */
 - (NSString*)classNameForClass:(Class)aClass {
     auto className = _priv->clsMap.get(aClass);
-    return className ? *className : nil;
+    return className ? className->get() : nil;
 }
 
 /**

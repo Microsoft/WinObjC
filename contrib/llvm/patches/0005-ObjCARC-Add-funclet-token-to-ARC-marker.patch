@@ -1,0 +1,175 @@
+From d210cb0a02027ed228d64b11db93e1e3370b3132 Mon Sep 17 00:00:00 2001
+From: Shoaib Meenai <smeenai@fb.com>
+Date: Tue, 20 Mar 2018 20:45:41 +0000
+Subject: [PATCH 5/5] [ObjCARC] Add funclet token to ARC marker
+
+The inline assembly generated for the ARC autorelease elision marker
+must have a funclet token if it's emitted inside a funclet, otherwise
+the inline assembly (and all subsequent code in the funclet) will be
+marked unreachable by WinEHPrepare.
+
+Note that this only applies for the non-O0 case, since at O0, clang
+emits the autorelease elision marker itself rather than deferring to the
+backend. The fix for clang is handled in a separate change.
+
+Differential Revision: https://reviews.llvm.org/D44641
+
+git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@328042 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 287b901befd9a8038ef4690239960d41cd2d0506)
+---
+ lib/Transforms/ObjCARC/ObjCARCContract.cpp         | 35 ++++++++++---
+ test/Transforms/ObjCARC/contract-marker-funclet.ll | 61 ++++++++++++++++++++++
+ 2 files changed, 88 insertions(+), 8 deletions(-)
+ create mode 100644 test/Transforms/ObjCARC/contract-marker-funclet.ll
+
+diff --git a/lib/Transforms/ObjCARC/ObjCARCContract.cpp b/lib/Transforms/ObjCARC/ObjCARCContract.cpp
+index c4e61218f3f..86c7278bab9 100644
+--- a/lib/Transforms/ObjCARC/ObjCARCContract.cpp
++++ b/lib/Transforms/ObjCARC/ObjCARCContract.cpp
+@@ -31,6 +31,7 @@
+ #include "ObjCARC.h"
+ #include "ProvenanceAnalysis.h"
+ #include "llvm/ADT/Statistic.h"
++#include "llvm/Analysis/EHPersonalities.h"
+ #include "llvm/IR/Dominators.h"
+ #include "llvm/IR/InlineAsm.h"
+ #include "llvm/IR/Operator.h"
+@@ -74,11 +75,13 @@ namespace {
+     SmallPtrSet<CallInst *, 8> StoreStrongCalls;
+ 
+     /// Returns true if we eliminated Inst.
+-    bool tryToPeepholeInstruction(Function &F, Instruction *Inst,
+-                                  inst_iterator &Iter,
+-                                  SmallPtrSetImpl<Instruction *> &DepInsts,
+-                                  SmallPtrSetImpl<const BasicBlock *> &Visited,
+-                                  bool &TailOkForStoreStrong);
++    bool
++    tryToPeepholeInstruction(Function &F, Instruction *Inst,
++                             inst_iterator &Iter,
++                             SmallPtrSetImpl<Instruction *> &DepInsts,
++                             SmallPtrSetImpl<const BasicBlock *> &Visited,
++                             bool &TailOkForStoreStrong,
++                             DenseMap<BasicBlock *, ColorVector> &BlockColors);
+ 
+     bool optimizeRetainCall(Function &F, Instruction *Retain);
+ 
+@@ -407,7 +410,8 @@ bool ObjCARCContract::tryToPeepholeInstruction(
+   Function &F, Instruction *Inst, inst_iterator &Iter,
+   SmallPtrSetImpl<Instruction *> &DependingInsts,
+   SmallPtrSetImpl<const BasicBlock *> &Visited,
+-  bool &TailOkForStoreStrongs) {
++  bool &TailOkForStoreStrongs,
++  DenseMap<BasicBlock *, ColorVector> &BlockColors) {
+     // Only these library routines return their argument. In particular,
+     // objc_retainBlock does not necessarily return its argument.
+   ARCInstKind Class = GetBasicARCInstKind(Inst);
+@@ -457,7 +461,17 @@ bool ObjCARCContract::tryToPeepholeInstruction(
+                               /*isVarArg=*/false),
+             RVInstMarker->getString(),
+             /*Constraints=*/"", /*hasSideEffects=*/true);
+-        CallInst::Create(IA, "", Inst);
++
++        SmallVector<OperandBundleDef, 1> OpBundles;
++        if (!BlockColors.empty()) {
++          const ColorVector &CV = BlockColors.find(Inst->getParent())->second;
++          assert(CV.size() == 1 && "non-unique color for block!");
++          Instruction *EHPad = CV.front()->getFirstNonPHI();
++          if (EHPad->isEHPad())
++            OpBundles.emplace_back("funclet", EHPad);
++        }
++
++        CallInst::Create(IA, None, OpBundles, "", Inst);
+       }
+     decline_rv_optimization:
+       return false;
+@@ -518,6 +532,11 @@ bool ObjCARCContract::runOnFunction(Function &F) {
+ 
+   PA.setAA(&getAnalysis<AAResultsWrapperPass>().getAAResults());
+ 
++  DenseMap<BasicBlock *, ColorVector> BlockColors;
++  if (F.hasPersonalityFn() &&
++      isFuncletEHPersonality(classifyEHPersonality(F.getPersonalityFn())))
++    BlockColors = colorEHFunclets(F);
++
+   DEBUG(llvm::dbgs() << "**** ObjCARC Contract ****\n");
+ 
+   // Track whether it's ok to mark objc_storeStrong calls with the "tail"
+@@ -541,7 +560,7 @@ bool ObjCARCContract::runOnFunction(Function &F) {
+     // First try to peephole Inst. If there is nothing further we can do in
+     // terms of undoing objc-arc-expand, process the next inst.
+     if (tryToPeepholeInstruction(F, Inst, I, DependingInstructions, Visited,
+-                                 TailOkForStoreStrongs))
++                                 TailOkForStoreStrongs, BlockColors))
+       continue;
+ 
+     // Otherwise, try to undo objc-arc-expand.
+diff --git a/test/Transforms/ObjCARC/contract-marker-funclet.ll b/test/Transforms/ObjCARC/contract-marker-funclet.ll
+new file mode 100644
+index 00000000000..4e116c47f64
+--- /dev/null
++++ b/test/Transforms/ObjCARC/contract-marker-funclet.ll
+@@ -0,0 +1,61 @@
++; RUN: opt -mtriple=i686-unknown-windows-msvc -objc-arc-contract -S -o - %s | FileCheck %s
++
++; Generated (and lightly modified and cleaned up) from the following source:
++; id f();
++; void g() {
++;   try {
++;     f();
++;   } catch (...) {
++;     f();
++;   }
++; }
++
++define void @"\01?g@@YAXXZ"() personality i8* bitcast (i32 (...)* @__CxxFrameHandler3 to i8*) {
++entry:
++  %call = invoke i8* @"\01?f@@YAPAUobjc_object@@XZ"()
++          to label %invoke.cont unwind label %catch.dispatch
++
++catch.dispatch:                                   ; preds = %entry
++  %0 = catchswitch within none [label %catch] unwind to caller
++
++catch:                                            ; preds = %catch.dispatch
++  %1 = catchpad within %0 [i8* null, i32 64, i8* null]
++  %call1 = call i8* @"\01?f@@YAPAUobjc_object@@XZ"() [ "funclet"(token %1) ]
++  %2 = call i8* @objc_retainAutoreleasedReturnValue(i8* %call1) [ "funclet"(token %1) ]
++  call void @objc_release(i8* %2) [ "funclet"(token %1) ]
++  br label %catch.1
++
++catch.1:                                          ; preds = %catch
++  %call2 = call i8* @"\01?f@@YAPAUobjc_object@@XZ"() [ "funclet"(token %1) ]
++  %3 = call i8* @objc_retainAutoreleasedReturnValue(i8* %call2) [ "funclet"(token %1) ]
++  call void @objc_release(i8* %3) [ "funclet"(token %1) ]
++  catchret from %1 to label %catchret.dest
++
++catchret.dest:                                    ; preds = %catch.1
++  ret void
++
++invoke.cont:                                      ; preds = %entry
++  %4 = call i8* @objc_retainAutoreleasedReturnValue(i8* %call)
++  call void @objc_release(i8* %4)
++  ret void
++}
++
++declare i8* @"\01?f@@YAPAUobjc_object@@XZ"()
++
++declare i32 @__CxxFrameHandler3(...)
++
++declare dllimport i8* @objc_retainAutoreleasedReturnValue(i8*)
++
++declare dllimport void @objc_release(i8*)
++
++!clang.arc.retainAutoreleasedReturnValueMarker = !{!0}
++!0 = !{!"movl\09%ebp, %ebp\09\09// marker for objc_retainAutoreleaseReturnValue"}
++
++; CHECK-LABEL: catch
++; CHECK: call void asm sideeffect "movl{{.*}}%ebp, %ebp{{.*}}", ""() [ "funclet"(token %1) ]
++
++; CHECK-LABEL: catch.1
++; CHECK: call void asm sideeffect "movl{{.*}}%ebp, %ebp{{.*}}", ""() [ "funclet"(token %1) ]
++
++; CHECK-LABEL: invoke.cont
++; CHECK: call void asm sideeffect "movl{{.*}}%ebp, %ebp{{.*}}", ""(){{$}}
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

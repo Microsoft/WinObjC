@@ -36,7 +36,7 @@ NSString* const kCIContextWorkingFormat = @"kCIContextWorkingFormat";
 */
 - (instancetype)init {
     if (self = [super init]) {
-        _cgContext = nil;
+        _cgContext = nullptr;
         _rect = CGRectInfinite;
     }
     return self;

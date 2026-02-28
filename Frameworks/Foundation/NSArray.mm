@@ -303,7 +303,7 @@ BASE_CLASS_REQUIRED_IMPLS(NSArray, NSArrayPrototype, CFArrayGetTypeID);
 - (NSObject*)valueForKey:(NSString*)key {
     if ([key hasPrefix:@"@"]) {
         SEL sel = [_NSKeyValueCodingAggregateFunctions resolveFunction:[key substringFromIndex:1]];
-        if (sel == nil) {
+        if (!sel) {
             return [self valueForUndefinedKey:key];
         }
 

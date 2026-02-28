@@ -5,23 +5,13 @@
     <HasSharedItems>true</HasSharedItems>
     <ItemsProjectGuid>{EE68A240-536D-4557-AB96-D164E93059A1}</ItemsProjectGuid>
     <CopyWinObjCFrameworksCorePackage>false</CopyWinObjCFrameworksCorePackage>
-    <CopyStarboardLibraries>true</CopyStarboardLibraries>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(TargetOsAndVersion)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\tests\Tests.Shared\;$(MSBuildThisFileDirectory)..\..\..\Frameworks\Inlcude\;$(MSBuildThisFileDirectory)..\..\..\Frameworks\Include\;$(MSBuildThisFileDirectory)..\..\..\include\;$(MSBuildThisFileDirectory)..\..\..\include\xplat;$(MSBuildThisFileDirectory)..\..\..\deps\prebuilt\include\;</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>INLINE_TEST_METHOD_MARKUP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <ClangCompile>
-      <AdditionalOptions>-Wno-nullability-completeness %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>INLINE_TEST_METHOD_MARKUP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <IncludePaths>%(IncludePaths);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\tests\Tests.Shared\;$(MSBuildThisFileDirectory)..\..\..\Frameworks\Include\;$(MSBuildThisFileDirectory)..\..\..\include\Platform\$(TargetOsAndVersion);$(MSBuildThisFileDirectory)..\..\..\include\xplat;$(MSBuildThisFileDirectory)..\..\..\include\Platform\$(TargetOsAndVersion);</IncludePaths>
-    </ClangCompile>
-    <ClangCompile Condition="'$(Platform)'=='ARM'">
-      <!-- Remove this once exception handling works on ARM -->
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WINOBJC_DISABLE_TESTS</PreprocessorDefinitions>
+      <IncludePaths>%(IncludePaths);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\tests\Tests.Shared\;$(MSBuildThisFileDirectory)..\..\..\tests\unittests\Tests.Shared\;$(MSBuildThisFileDirectory)..\..\..\Frameworks\Include\;$(MSBuildThisFileDirectory)..\..\..\include\Platform\$(TargetOsAndVersion);$(MSBuildThisFileDirectory)..\..\..\include\xplat;$(MSBuildThisFileDirectory)..\..\..\include\Platform\$(TargetOsAndVersion);</IncludePaths>
     </ClangCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\..\..\deps\prebuilt\$(TargetOsAndVersion)\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

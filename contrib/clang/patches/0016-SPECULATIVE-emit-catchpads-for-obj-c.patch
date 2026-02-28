@@ -1,0 +1,25 @@
+From f38264d29210afecbe476ef0361ccd46478e8d8a Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:29:14 -0800
+Subject: [PATCH 16/19] SPECULATIVE: emit catchpads for obj-c?
+
+---
+ lib/CodeGen/CGException.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/CodeGen/CGException.cpp b/lib/CodeGen/CGException.cpp
+index 66455161d6..97ed07db58 100644
+--- a/lib/CodeGen/CGException.cpp
++++ b/lib/CodeGen/CGException.cpp
+@@ -913,7 +913,7 @@ static void emitCatchPadBlock(CodeGenFunction &CGF, EHCatchScope &CatchScope) {
+ 
+     CGF.Builder.SetInsertPoint(Handler.Block);
+ 
+-    if (EHPersonality::get(CGF).isMSVCXXPersonality()) {
++    if (EHPersonality::get(CGF).isMSVCPersonality()) {
+       CGF.Builder.CreateCatchPad(
+           CatchSwitch, {TypeInfo.RTTI, CGF.Builder.getInt32(TypeInfo.Flags),
+                         llvm::Constant::getNullValue(CGF.VoidPtrTy)});
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

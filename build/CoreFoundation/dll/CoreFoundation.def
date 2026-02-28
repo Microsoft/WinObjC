@@ -2,12 +2,11 @@ LIBRARY CoreFoundation
     EXPORTS
         ; WINOBJC: Bridged CoreFoundationAdditions classes. Exported from CF so that both static instances (eg: CFSTR or kCFBooleanTrue) 
         ; and NS (eg: NSString, NSNumber) instances can make use of it.
-        _OBJC_CLASS__NSCFString DATA
-        __objc_class_name__NSCFString CONSTANT
-        _OBJC_CLASS__NSCFNumber DATA
-        __objc_class_name__NSCFNumber CONSTANT
-        _OBJC_CLASS__NSCFBoolean DATA
-        __objc_class_name__NSCFBoolean CONSTANT
+        $_OBJC_CLASS__NSCFString DATA
+        $_OBJC_CLASS__NSCFNumber DATA
+        $_OBJC_CLASS__NSCFBoolean DATA
+        ; Exposed for other CoreFoundation bridging implementors
+        $_OBJC_CLASS__NSCFType DATA
 
         ; WINOBJC: Additional items added to CF
         OSHostByteOrder

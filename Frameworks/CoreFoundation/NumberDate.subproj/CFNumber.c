@@ -92,7 +92,7 @@ CFTypeID CFBooleanGetTypeID(void) {
         // By bridging here, that _cfisa is set to that of NSCFBoolean
         // Placed in this function as this gets called from CFInitialize, 
         // ensuring this setup before any runtime-created objects can get an incorrect isa
-        _CFRuntimeBridgeTypeToClass(__kCFBooleanTypeID, &_OBJC_CLASS__NSCFBoolean);
+        _CFRuntimeBridgeTypeToClass(__kCFBooleanTypeID, &$_OBJC_CLASS__NSCFBoolean);
 
         _CFRuntimeSetInstanceTypeIDAndIsa(&__kCFBooleanTrue, __kCFBooleanTypeID);
         _CFRuntimeSetInstanceTypeIDAndIsa(&__kCFBooleanFalse, __kCFBooleanTypeID);
@@ -1079,7 +1079,7 @@ CFTypeID CFNumberGetTypeID(void) {
 
 CF_PRIVATE void __CFNumberInitialize(void) {
     // WINOBJC: Also bridge CFNumber to NSCFNumber here so that all values get the isa set properly.
-    _CFRuntimeBridgeTypeToClass(__kCFNumberTypeID, &_OBJC_CLASS__NSCFNumber);
+    _CFRuntimeBridgeTypeToClass(__kCFNumberTypeID, &$_OBJC_CLASS__NSCFNumber);
 
     _CFRuntimeSetInstanceTypeIDAndIsa(&__kCFNumberNaN, __kCFNumberTypeID);
     __CFBitfieldSetValue(__kCFNumberNaN._base._cfinfo[CF_INFO_BITS], 4, 0, kCFNumberFloat64Type);

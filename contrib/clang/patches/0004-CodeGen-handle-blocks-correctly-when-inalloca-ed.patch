@@ -1,0 +1,58 @@
+From b30eb4f3352bd99fb45d1eea9148f29da7876801 Mon Sep 17 00:00:00 2001
+From: Saleem Abdulrasool <compnerd@compnerd.org>
+Date: Wed, 21 Feb 2018 21:47:51 +0000
+Subject: [PATCH 04/19] CodeGen: handle blocks correctly when inalloca'ed
+
+When using blocks with C++ on Windows x86, it is possible to have the
+block literal be pushed into the inalloca'ed parameters.  Teach IRGen to
+handle the case properly by extracting the block literal from the
+inalloca parameter.  This fixes the use of blocks with C++ on Windows
+x86.
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@325724 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 838f6d8d2206e0024052c7dd204da1d7d97ab9fd)
+---
+ lib/CodeGen/CGDecl.cpp             |  7 +++++--
+ test/CodeGenCXX/block-inalloca.cpp | 11 +++++++++++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
+ create mode 100644 test/CodeGenCXX/block-inalloca.cpp
+
+diff --git a/lib/CodeGen/CGDecl.cpp b/lib/CodeGen/CGDecl.cpp
+index 04585a8afb..bdfccaf8ed 100644
+--- a/lib/CodeGen/CGDecl.cpp
++++ b/lib/CodeGen/CGDecl.cpp
+@@ -1791,9 +1791,12 @@ void CodeGenFunction::EmitParmDecl(const VarDecl &D, ParamValue Arg,
+   // Use better IR generation for certain implicit parameters.
+   if (auto IPD = dyn_cast<ImplicitParamDecl>(&D)) {
+     // The only implicit argument a block has is its literal.
+-    // We assume this is always passed directly.
++    // This may be passed as an inalloca'ed value on Windows x86.
+     if (BlockInfo) {
+-      setBlockContextParameter(IPD, ArgNo, Arg.getDirectValue());
++      llvm::Value *V = Arg.isIndirect()
++                           ? Builder.CreateLoad(Arg.getIndirectAddress())
++                           : Arg.getDirectValue();
++      setBlockContextParameter(IPD, ArgNo, V);
+       return;
+     }
+   }
+diff --git a/test/CodeGenCXX/block-inalloca.cpp b/test/CodeGenCXX/block-inalloca.cpp
+new file mode 100644
+index 0000000000..b827dde7ab
+--- /dev/null
++++ b/test/CodeGenCXX/block-inalloca.cpp
+@@ -0,0 +1,11 @@
++// RUN: %clang_cc1 -triple i686-unknown-windows-msvc -fblocks -emit-llvm -o - %s | FileCheck %s
++
++struct S {
++  S(const struct S &) {}
++};
++
++void (^b)(S) = ^(S) {};
++
++// CHECK: [[DESCRIPTOR:%.*]] = getelementptr inbounds <{ i8*, %struct.S, [3 x i8] }>, <{ i8*, %struct.S, [3 x i8] }>* %0, i32 0, i32 0
++// CHECK: load i8*, i8** [[DESCRIPTOR]]
++
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

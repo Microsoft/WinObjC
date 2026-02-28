@@ -95,7 +95,7 @@ HRESULT STDMETHODCALLTYPE DWriteFontBinaryDataCollectionLoader::CreateEnumerator
 
 HRESULT DWriteFontBinaryDataCollectionLoader::AddDatas(CFArrayRef fontDatas, CFArrayRef* errors) {
     // Don't bother creating this array if errors is null
-    CFMutableArrayRef outErrors = errors ? CFArrayCreateMutable(nullptr, 0, &kCFTypeArrayCallBacks) : nil;
+    CFMutableArrayRef outErrors = errors ? CFArrayCreateMutable(nullptr, 0, &kCFTypeArrayCallBacks) : nullptr;
     HRESULT ret = S_OK;
 
     CFIndex count = CFArrayGetCount(fontDatas);
@@ -125,7 +125,7 @@ HRESULT DWriteFontBinaryDataCollectionLoader::AddDatas(CFArrayRef fontDatas, CFA
 
 HRESULT DWriteFontBinaryDataCollectionLoader::RemoveDatas(CFArrayRef fontDatas, CFArrayRef* errors) {
     // Don't bother creating this array if errors is null
-    CFMutableArrayRef outErrors = errors ? CFArrayCreateMutable(nullptr, 0, &kCFTypeArrayCallBacks) : nil;
+    CFMutableArrayRef outErrors = errors ? CFArrayCreateMutable(nullptr, 0, &kCFTypeArrayCallBacks) : nullptr;
     HRESULT ret = S_OK;
 
     CFIndex count = CFArrayGetCount(fontDatas);

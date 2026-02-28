@@ -1,0 +1,91 @@
+From abfd027dc886604edcd3cdb96887467db3daa90a Mon Sep 17 00:00:00 2001
+From: Dustin Howett <duhowett@microsoft.com>
+Date: Fri, 26 Jan 2018 11:50:58 -0800
+Subject: [PATCH 19/19] Sema: in msvc compatibility mode, don't allow
+ forceinline on variadics
+
+The MSVC compiler rejects __forceinline on variadic functions with the
+following warning (at /W4):
+  C4714: function 'void msvc_variadic(int,...)' marked as __forceinline
+  not inlined
+
+This fixes http://bugs.llvm.org/XXXXXX, where a variadic was getting
+inlined into a function of calling convention x86_thiscallcc. The LLVM
+lowering passes could not consume an @llvm.va_start in a thiscall
+function without emitting an assertion.
+---
+ include/clang/Basic/DiagnosticSemaKinds.td |  3 +++
+ lib/Sema/SemaDeclAttr.cpp                  |  6 ++++++
+ test/Sema/ms-forceinline-on-variadic.cpp   | 29 +++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+)
+ create mode 100644 test/Sema/ms-forceinline-on-variadic.cpp
+
+diff --git a/include/clang/Basic/DiagnosticSemaKinds.td b/include/clang/Basic/DiagnosticSemaKinds.td
+index ec624a0cc1..794f6b7561 100644
+--- a/include/clang/Basic/DiagnosticSemaKinds.td
++++ b/include/clang/Basic/DiagnosticSemaKinds.td
+@@ -2690,6 +2690,9 @@ def warn_attribute_ignored_on_inline :
+ def warn_attribute_after_definition_ignored : Warning<
+   "attribute %0 after definition is ignored">,
+    InGroup<IgnoredAttributes>;
++def warn_always_inline_on_variadic : Warning<
++  "inlining attribute %0 ignored on variadic function">,
++   InGroup<IgnoredAttributes>;
+ def warn_unknown_attribute_ignored : Warning<
+   "unknown attribute %0 ignored">, InGroup<UnknownAttributes>;
+ def warn_cxx11_gnu_attribute_on_type : Warning<
+diff --git a/lib/Sema/SemaDeclAttr.cpp b/lib/Sema/SemaDeclAttr.cpp
+index 21fe46ad9d..6235e8884b 100644
+--- a/lib/Sema/SemaDeclAttr.cpp
++++ b/lib/Sema/SemaDeclAttr.cpp
+@@ -3990,6 +3990,12 @@ AlwaysInlineAttr *Sema::mergeAlwaysInlineAttr(Decl *D, SourceRange Range,
+     return nullptr;
+   }
+ 
++  if (Context.getTargetInfo().getCXXABI().isMicrosoft() &&
++      hasFunctionProto(D) && isFunctionOrMethodVariadic(D)) {
++    Diag(Range.getBegin(), diag::warn_always_inline_on_variadic) << Ident;
++    return nullptr;
++  }
++
+   if (D->hasAttr<AlwaysInlineAttr>())
+     return nullptr;
+ 
+diff --git a/test/Sema/ms-forceinline-on-variadic.cpp b/test/Sema/ms-forceinline-on-variadic.cpp
+new file mode 100644
+index 0000000000..e71ed3224a
+--- /dev/null
++++ b/test/Sema/ms-forceinline-on-variadic.cpp
+@@ -0,0 +1,29 @@
++// RUN: %clang_cc1 -emit-llvm -o - -triple i686-windows -verify -fms-extensions %s \
++// RUN:            | FileCheck %s
++//
++// (instruction scheduling crash test)
++// RUN: %clang_cc1 -S -o - -triple i686-windows -fms-extensions %s
++
++inline __attribute__((always_inline)) void attribute_variadic(int f, ...) { } // expected-warning {{inlining attribute 'always_inline' ignored on variadic function}}
++
++__forceinline inline void msvc_variadic(int f, ...) { // expected-warning {{inlining attribute '__forceinline' ignored on variadic function}}
++// CHECK-DAG: define {{.*}} void [[MSVC_VARIADIC:@".*msvc_variadic.*"]](
++    __builtin_va_list ap;
++    __builtin_va_start(ap, f);
++    __builtin_va_end(ap);
++}
++
++struct a {
++    // members are, by default, thiscall; enforce it for the purposes of the test
++    void __thiscall dispatcher();
++};
++
++void __thiscall a::dispatcher() {
++    msvc_variadic(1, 2, 3);
++// CHECK-DAG: define dso_local x86_thiscallcc void @"{{.*dispatcher.*}}"(
++// CHECK-DAG: call void {{.*}} [[MSVC_VARIADIC]]
++}
++
++void t() {
++    a{}.dispatcher();
++}
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

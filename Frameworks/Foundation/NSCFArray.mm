@@ -38,7 +38,7 @@ static CFArrayCallBacks _NSCFArrayCallBacks = {
 PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFArray)
 
 - (instancetype)init {
-    return [self initWithObjects:nil count:0];
+    return [self initWithObjects:nullptr count:0];
 }
 
 - (_Nullable instancetype)initWithObjects:(id _Nonnull const* _Nullable)objects count:(NSUInteger)count {
@@ -53,7 +53,7 @@ PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFArray)
 PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFArray)
 
 - (instancetype)init {
-    return [self initWithObjects:nil count:0];
+    return [self initWithObjects:nullptr count:0];
 }
 
 - (_Nullable instancetype)initWithObjects:(id _Nonnull const* _Nullable)objects count:(NSUInteger)count {

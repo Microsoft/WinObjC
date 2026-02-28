@@ -5,25 +5,25 @@ LIBRARY CoreTelephony
         CTCallStateIncoming DATA
         CTCallStateConnected DATA
         CTCallStateDisconnected DATA
-        _OBJC_CLASS_CTCall DATA
-        __objc_class_name_CTCall CONSTANT
+        $_OBJC_CLASS_CTCall DATA
+        $_OBJC_REF_CLASS_CTCall DATA
 
         ; CTCallCenter.mm
-        _OBJC_CLASS_CTCallCenter DATA
-        __objc_class_name_CTCallCenter CONSTANT
+        $_OBJC_CLASS_CTCallCenter DATA
+        $_OBJC_REF_CLASS_CTCallCenter DATA
 
         ; CTCarrier.mm
-        _OBJC_CLASS_CTCarrier DATA
-        __objc_class_name_CTCarrier CONSTANT
+        $_OBJC_CLASS_CTCarrier DATA
+        $_OBJC_REF_CLASS_CTCarrier DATA
 
         ; CTSubscriber.mm
         CTSubscriberTokenRefreshed DATA
-        _OBJC_CLASS_CTSubscriber DATA
-        __objc_class_name_CTSubscriber CONSTANT
+        $_OBJC_CLASS_CTSubscriber DATA
+        $_OBJC_REF_CLASS_CTSubscriber DATA
 
         ; CTTelephonyNetworkInfo.mm
-        _OBJC_CLASS_CTTelephonyNetworkInfo DATA
-        __objc_class_name_CTTelephonyNetworkInfo CONSTANT
+        $_OBJC_CLASS_CTTelephonyNetworkInfo DATA
+        $_OBJC_REF_CLASS_CTTelephonyNetworkInfo DATA
         CTRadioAccessTechnologyGPRS DATA
         CTRadioAccessTechnologyEdge DATA
         CTRadioAccessTechnologyWCDMA DATA

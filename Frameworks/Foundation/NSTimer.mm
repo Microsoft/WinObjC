@@ -235,7 +235,7 @@ static const wchar_t* TAG = L"NSTimer";
  @Status Interoperable
 */
 - (instancetype)initTimerWithTimeInterval:(double)seconds invocation:(NSInvocation*)target repeats:(BOOL)repeats {
-    if (self = [self initWithTimeInterval:seconds target:nil selector:nil userInfo:nil repeats:repeats]) {
+    if (self = [self initWithTimeInterval:seconds target:nil selector:nullptr userInfo:nil repeats:repeats]) {
         [target retainArguments];
         _timerTarget = [target retain];
     }

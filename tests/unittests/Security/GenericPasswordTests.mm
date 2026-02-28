@@ -20,7 +20,9 @@
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <Security/SecItem.h>
-#import "Frameworks/Security/GenericPasswordItemHandler.h"
+
+// (Security internal)
+#import "GenericPasswordItemHandler.h"
 
 #include "COMIncludes.h"
 #import <wrl/implements.h>

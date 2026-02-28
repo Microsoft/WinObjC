@@ -69,7 +69,7 @@ static NSArray* getTestData() {
     NSData* data = [NSData dataWithContentsOfFile:testFilePath];
     NSError* error = nil;
     id testRoot =
-        [NSPropertyListSerialization propertyListWithData:data options:static_cast<NSPropertyListReadOptions>(0) format:nil error:&error];
+        [NSPropertyListSerialization propertyListWithData:data options:static_cast<NSPropertyListReadOptions>(0) format:nullptr error:&error];
 
     // WINOBJC: Change to macros to remove LoggingNative
     if (!testRoot || error) {

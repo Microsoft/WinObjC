@@ -40,9 +40,9 @@ CFArrayRef CTFontManagerCreateFontDescriptorsFromURL(CFURLRef fileURL) {
 template <typename TLambda>
 static bool __CTFontManagerUpdateWithFont(CFURLRef fontURL, CTFontManagerScope scope, CFErrorRef _Nullable* error, TLambda&& func) {
     woc::unique_cf<CFArrayRef> fontURLs{ CFArrayCreate(nullptr, (const void**)&fontURL, 1, &kCFTypeArrayCallBacks) };
-    CFArrayRef errors = nil;
+    CFArrayRef errors = nullptr;
     bool ret = func(fontURLs.get(), scope, &errors);
-    if (error != nil && errors != nil && CFArrayGetCount(errors) > 0L) {
+    if (error != nullptr && errors != nullptr && CFArrayGetCount(errors) > 0L) {
         *error = (CFErrorRef)CFRetain(CFArrayGetValueAtIndex(errors, 0));
     }
 
@@ -81,11 +81,11 @@ static bool __CTFontManagerUpdateWithGraphicsFont(CGFontRef font, CFErrorRef _Nu
     }
 
     woc::unique_cf<CFArrayRef> fontDatas{ CFArrayCreate(nullptr, (const void**)&data, 1, &kCFTypeArrayCallBacks) };
-    CFArrayRef errors = nil;
+    CFArrayRef errors = nullptr;
 
     // S_FALSE represents partial failure so cannot use SUCCEEDED macro
     bool ret = func(fontDatas.get(), &errors) == S_OK;
-    if (error != nil && errors != nil && CFArrayGetCount(errors) > 0L) {
+    if (error != nullptr && errors != nullptr && CFArrayGetCount(errors) > 0L) {
         *error = (CFErrorRef)CFRetain(CFArrayGetValueAtIndex(errors, 0));
     }
 

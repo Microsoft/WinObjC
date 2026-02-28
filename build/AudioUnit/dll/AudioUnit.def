@@ -1,24 +1,24 @@
 LIBRARY AudioUnit
     EXPORTS
         ; AUAudioUnit.mm
-        _OBJC_CLASS_AUAudioUnit DATA
-        __objc_class_name_AUAudioUnit CONSTANT
+        $_OBJC_CLASS_AUAudioUnit DATA
+        $_OBJC_REF_CLASS_AUAudioUnit DATA
 
         ; AUAudioUnitBus.mm
-        _OBJC_CLASS_AUAudioUnitBus DATA
-        __objc_class_name_AUAudioUnitBus CONSTANT
+        $_OBJC_CLASS_AUAudioUnitBus DATA
+        $_OBJC_REF_CLASS_AUAudioUnitBus DATA
 
         ; AUAudioUnitBusArray.mm
-        _OBJC_CLASS_AUAudioUnitBusArray DATA
-        __objc_class_name_AUAudioUnitBusArray CONSTANT
+        $_OBJC_CLASS_AUAudioUnitBusArray DATA
+        $_OBJC_REF_CLASS_AUAudioUnitBusArray DATA
 
         ; AUAudioUnitPreset.mm
-        _OBJC_CLASS_AUAudioUnitPreset DATA
-        __objc_class_name_AUAudioUnitPreset CONSTANT
+        $_OBJC_CLASS_AUAudioUnitPreset DATA
+        $_OBJC_REF_CLASS_AUAudioUnitPreset DATA
 
         ; AUAudioUnitV2Bridge.mm
-        _OBJC_CLASS_AUAudioUnitV2Bridge DATA
-        __objc_class_name_AUAudioUnitV2Bridge CONSTANT
+        $_OBJC_CLASS_AUAudioUnitV2Bridge DATA
+        $_OBJC_REF_CLASS_AUAudioUnitV2Bridge DATA
 
         ; AudioComponent.mm
         AudioComponentCopyName
@@ -48,20 +48,20 @@ LIBRARY AudioUnit
         AudioUnitScheduleParameters
 
         ; AUParameter.mm
-        _OBJC_CLASS_AUParameter DATA
-        __objc_class_name_AUParameter CONSTANT
+        $_OBJC_CLASS_AUParameter DATA
+        $_OBJC_REF_CLASS_AUParameter DATA
 
         ; AUParameterGroup.mm
-        _OBJC_CLASS_AUParameterGroup DATA
-        __objc_class_name_AUParameterGroup CONSTANT
+        $_OBJC_CLASS_AUParameterGroup DATA
+        $_OBJC_REF_CLASS_AUParameterGroup DATA
 
         ; AUParameterNode.mm
-        _OBJC_CLASS_AUParameterNode DATA
-        __objc_class_name_AUParameterNode CONSTANT
+        $_OBJC_CLASS_AUParameterNode DATA
+        $_OBJC_REF_CLASS_AUParameterNode DATA
 
         ; AUParameterTree.mm
-        _OBJC_CLASS_AUParameterTree DATA
-        __objc_class_name_AUParameterTree CONSTANT
+        $_OBJC_CLASS_AUParameterTree DATA
+        $_OBJC_REF_CLASS_AUParameterTree DATA
 
         ; OutputAudioUnit.mm
         AudioOutputUnitStart

@@ -1,23 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    
   <PropertyGroup>
-      <PackageId>WinObjC.Logging</PackageId>
-      <Title>WinObjC.Logging</Title>
-      <Authors>Microsoft</Authors>
-      <Owners>Microsoft</Owners>
-      <Summary>WinObjC.Logging</Summary>
-      <Description>WinObjC.Logging</Description>
-      <PackageReleaseNotes>
-      </PackageReleaseNotes>
-      <PackageProjectUrl>
-      </PackageProjectUrl>
-      <PackageLicenseUrl>
-      </PackageLicenseUrl>
-      <Copyright>Copyright © Microsoft</Copyright>
-      <PackageTags>WinObjC.Logging</PackageTags>
-      <PackageIconUrl>https://avatars2.githubusercontent.com/u/6154722?v=3&amp;s=200</PackageIconUrl>
-      <IsDevelopmentDependency>true</IsDevelopmentDependency>
+    <PackageId>WinObjC.Logging</PackageId>
+    <Title>WinObjC.Logging</Title>
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <Summary>WinObjC.Logging</Summary>
+    <Description>WinObjC.Logging</Description>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <PackageProjectUrl>https://aka.ms/winobjc</PackageProjectUrl>
+    <PackageLicenseUrl>https://aka.ms/winobjc_license</PackageLicenseUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageTags>WinObjC.Logging</PackageTags>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/6154722?v=3&amp;s=200</PackageIconUrl>
+    <IsDevelopmentDependency>true</IsDevelopmentDependency>
   </PropertyGroup>
-
 </Project>

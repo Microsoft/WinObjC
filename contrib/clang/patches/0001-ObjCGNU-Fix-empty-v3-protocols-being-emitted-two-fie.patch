@@ -1,0 +1,86 @@
+From d6e9025e8d5f50a38dd4baf6002613c40fd29cbb Mon Sep 17 00:00:00 2001
+From: David Chisnall <csdavec@swan.ac.uk>
+Date: Thu, 12 Apr 2018 06:46:15 +0000
+Subject: [PATCH 01/19] ObjCGNU: Fix empty v3 protocols being emitted two
+ fields short
+
+Summary:
+Protocols that were being referenced but could not be fully realized were being emitted without `properties`/`optional_properties`. Since all v3 protocols must be 9 processor words wide, the lack of these fields is catastrophic for the runtime.
+
+As an example, the runtime cannot know [here](https://github.com/gnustep/libobjc2/blob/master/protocol.c#L73) that `properties` and `optional_properties` are invalid.
+
+Reviewers: rjmccall, theraven
+
+Reviewed By: rjmccall, theraven
+
+Subscribers: cfe-commits
+
+Tags: #clang
+
+Differential Revision: https://reviews.llvm.org/D45305
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@329882 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit e4c4700eca75dd5a18392d39542697b9e885f2b4)
+---
+ lib/CodeGen/CGObjCGNU.cpp                | 12 +++++++-----
+ test/CodeGenObjC/gnu-empty-protocol-v3.m | 25 +++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 5 deletions(-)
+ create mode 100644 test/CodeGenObjC/gnu-empty-protocol-v3.m
+
+diff --git a/lib/CodeGen/CGObjCGNU.cpp b/lib/CodeGen/CGObjCGNU.cpp
+index c8b8be7f45..28fda684bd 100644
+--- a/lib/CodeGen/CGObjCGNU.cpp
++++ b/lib/CodeGen/CGObjCGNU.cpp
+@@ -1763,11 +1763,13 @@ CGObjCGNU::GenerateEmptyProtocol(const std::string &ProtocolName) {
+           llvm::ConstantInt::get(Int32Ty, ProtocolVersion), IdTy));
+ 
+   Elements.add(MakeConstantString(ProtocolName, ".objc_protocol_name"));
+-  Elements.add(ProtocolList);
+-  Elements.add(MethodList);
+-  Elements.add(MethodList);
+-  Elements.add(MethodList);
+-  Elements.add(MethodList);
++  Elements.add(ProtocolList); /* .protocol_list */
++  Elements.add(MethodList);   /* .instance_methods */
++  Elements.add(MethodList);   /* .class_methods */
++  Elements.add(MethodList);   /* .optional_instance_methods */
++  Elements.add(MethodList);   /* .optional_class_methods */
++  Elements.add(NULLPtr);      /* .properties */
++  Elements.add(NULLPtr);      /* .optional_properties */
+   return Elements.finishAndCreateGlobal(".objc_protocol",
+                                         CGM.getPointerAlign());
+ }
+diff --git a/test/CodeGenObjC/gnu-empty-protocol-v3.m b/test/CodeGenObjC/gnu-empty-protocol-v3.m
+new file mode 100644
+index 0000000000..cdaf215e6c
+--- /dev/null
++++ b/test/CodeGenObjC/gnu-empty-protocol-v3.m
+@@ -0,0 +1,25 @@
++// RUN: %clang_cc1 -triple i686-pc-linux-gnu -fobjc-runtime=gnustep-1.9 -emit-llvm -o - %s | FileCheck %s
++
++@protocol X;
++
++__attribute__((objc_root_class))
++@interface Z <X>
++@end
++
++@implementation Z
++@end
++
++// CHECK:      @.objc_protocol_list = internal global { i8*, i32, [0 x i8*] } zeroinitializer, align 4
++// CHECK:      @.objc_method_list = internal global { i32, [0 x { i8*, i8* }] } zeroinitializer, align 4
++// CHECK:      @.objc_protocol_name = private unnamed_addr constant [2 x i8] c"X\00", align 1
++// CHECK:      @.objc_protocol = internal global { i8*, i8*, { i8*, i32, [0 x i8*] }*, { i32, [0 x { i8*, i8* }] }*, { i32, [0 x { i8*, i8* }] }*, { i32, [0 x { i8*, i8* }] }*, { i32, [0 x { i8*, i8* }] }*, i8*, i8* } {
++// CHECK-SAME:     i8* inttoptr (i32 3 to i8*),
++// CHECK-SAME:     i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.objc_protocol_name, i32 0, i32 0),
++// CHECK-SAME:     { i8*, i32, [0 x i8*] }* @.objc_protocol_list,
++// CHECK-SAME:     { i32, [0 x { i8*, i8* }] }* @.objc_method_list,
++// CHECK-SAME:     { i32, [0 x { i8*, i8* }] }* @.objc_method_list,
++// CHECK-SAME:     { i32, [0 x { i8*, i8* }] }* @.objc_method_list,
++// CHECK-SAME:     { i32, [0 x { i8*, i8* }] }* @.objc_method_list,
++// CHECK-SAME:     i8* null,
++// CHECK-SAME:     i8* null
++// CHECK-SAME: }, align 4
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

@@ -1,71 +1,71 @@
 LIBRARY CoreMotion
     EXPORTS
         ; CMAccelerometerData.mm
-        _OBJC_CLASS_CMAccelerometerData DATA
-        __objc_class_name_CMAccelerometerData CONSTANT
+        $_OBJC_CLASS_CMAccelerometerData DATA
+        $_OBJC_REF_CLASS_CMAccelerometerData DATA
 
         ; CMAltimeter.mm
-        _OBJC_CLASS_CMAltimeter DATA
-        __objc_class_name_CMAltimeter CONSTANT
+        $_OBJC_CLASS_CMAltimeter DATA
+        $_OBJC_REF_CLASS_CMAltimeter DATA
 
         ; CMAltitudeData.mm
-        _OBJC_CLASS_CMAltitudeData DATA
-        __objc_class_name_CMAltitudeData CONSTANT
+        $_OBJC_CLASS_CMAltitudeData DATA
+        $_OBJC_REF_CLASS_CMAltitudeData DATA
 
         ; CMAttitude.mm
-        _OBJC_CLASS_CMAttitude DATA
-        __objc_class_name_CMAttitude CONSTANT
+        $_OBJC_CLASS_CMAttitude DATA
+        $_OBJC_REF_CLASS_CMAttitude DATA
 
         ; CMDeviceMotion.mm
-        _OBJC_CLASS_CMDeviceMotion DATA
-        __objc_class_name_CMDeviceMotion CONSTANT
+        $_OBJC_CLASS_CMDeviceMotion DATA
+        $_OBJC_REF_CLASS_CMDeviceMotion DATA
 
         ; CMGyroData.mm
-        _OBJC_CLASS_CMGyroData DATA
-        __objc_class_name_CMGyroData CONSTANT
+        $_OBJC_CLASS_CMGyroData DATA
+        $_OBJC_REF_CLASS_CMGyroData DATA
 
         ; CMLogItem.mm
-        _OBJC_CLASS_CMLogItem DATA
-        __objc_class_name_CMLogItem CONSTANT
+        $_OBJC_CLASS_CMLogItem DATA
+        $_OBJC_REF_CLASS_CMLogItem DATA
 
         ; CMMagnetometerData.mm
-        _OBJC_CLASS_CMMagnetometerData DATA
-        __objc_class_name_CMMagnetometerData CONSTANT
+        $_OBJC_CLASS_CMMagnetometerData DATA
+        $_OBJC_REF_CLASS_CMMagnetometerData DATA
 
         ; CMMotionActivity.mm
-        _OBJC_CLASS_CMMotionActivity DATA
-        __objc_class_name_CMMotionActivity CONSTANT
+        $_OBJC_CLASS_CMMotionActivity DATA
+        $_OBJC_REF_CLASS_CMMotionActivity DATA
 
         ; CMMotionActivityManager.mm
-        _OBJC_CLASS_CMMotionActivityManager DATA
-        __objc_class_name_CMMotionActivityManager CONSTANT
+        $_OBJC_CLASS_CMMotionActivityManager DATA
+        $_OBJC_REF_CLASS_CMMotionActivityManager DATA
 
         ; CMMotionManager.mm
         CMErrorDomain DATA
-        _OBJC_CLASS_CMMotionManager DATA
-        __objc_class_name_CMMotionManager CONSTANT
+        $_OBJC_CLASS_CMMotionManager DATA
+        $_OBJC_REF_CLASS_CMMotionManager DATA
 
         ; CMPedometer.mm
-        _OBJC_CLASS_CMPedometer DATA
-        __objc_class_name_CMPedometer CONSTANT
+        $_OBJC_CLASS_CMPedometer DATA
+        $_OBJC_REF_CLASS_CMPedometer DATA
 
         ; CMPedometerData.mm
-        _OBJC_CLASS_CMPedometerData DATA
-        __objc_class_name_CMPedometerData CONSTANT
+        $_OBJC_CLASS_CMPedometerData DATA
+        $_OBJC_REF_CLASS_CMPedometerData DATA
 
         ; CMRecordedAccelerometerData.mm
-        _OBJC_CLASS_CMRecordedAccelerometerData DATA
-        __objc_class_name_CMRecordedAccelerometerData CONSTANT
+        $_OBJC_CLASS_CMRecordedAccelerometerData DATA
+        $_OBJC_REF_CLASS_CMRecordedAccelerometerData DATA
 
         ; CMSensorDataList.mm
-        _OBJC_CLASS_CMSensorDataList DATA
-        __objc_class_name_CMSensorDataList CONSTANT
+        $_OBJC_CLASS_CMSensorDataList DATA
+        $_OBJC_REF_CLASS_CMSensorDataList DATA
 
         ; CMSensorRecorder.mm
-        _OBJC_CLASS_CMSensorRecorder DATA
-        __objc_class_name_CMSensorRecorder CONSTANT
+        $_OBJC_CLASS_CMSensorRecorder DATA
+        $_OBJC_REF_CLASS_CMSensorRecorder DATA
 
         ; CMStepCounter.mm
-        _OBJC_CLASS_CMStepCounter DATA
-        __objc_class_name_CMStepCounter CONSTANT
+        $_OBJC_CLASS_CMStepCounter DATA
+        $_OBJC_REF_CLASS_CMStepCounter DATA
 

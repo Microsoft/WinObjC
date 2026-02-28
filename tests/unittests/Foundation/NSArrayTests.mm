@@ -162,11 +162,11 @@ TEST(NSArray, NSArray_initWithContentsOfFile) {
     ASSERT_NE(0, [cachesPaths count]);
     NSString* path = cachesPaths[0];
     NSString* file = [path stringByAppendingPathComponent:@"array.data"];
-    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nullptr];
     [expectedArray writeToFile:file atomically:NO];
     NSArray* actualArray = [[NSArray alloc] initWithContentsOfFile:file];
     ASSERT_OBJCEQ(expectedArray, actualArray);
-    [[NSFileManager defaultManager] removeItemAtPath:file error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:file error:nullptr];
 }
 
 TEST(NSArray, Enumerate) {

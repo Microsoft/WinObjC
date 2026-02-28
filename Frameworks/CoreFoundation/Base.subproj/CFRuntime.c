@@ -224,7 +224,7 @@ bool (*__CFObjCIsCollectable)(void *) = NULL;
 #if DEPLOYMENT_RUNTIME_SWIFT
 // The constant string class reference is set at link time to _NSCFConstantString
 #else
-// WINOBJC: Winobjc project uses &_OBJC_CLASS__NSCFString instead of any mention of __CFConstantStringClassReference(Ptr)
+// WINOBJC: Winobjc project uses &$_OBJC_CLASS__NSCFString instead of any mention of __CFConstantStringClassReference(Ptr)
 // #if !__CONSTANT_CFSTRINGS__ || DEPLOYMENT_TARGET_EMBEDDED_MINI
 // Compiler uses this symbol name; must match compiler built-in decl, so we use 'int'
 // #if __LP64__
@@ -1139,11 +1139,11 @@ void __CFInitialize(void) {
 #if WINOBJC
         // WINOBJC: Under the WinObjC runtime, all CFTypeRefs are _NSCFTypes or a toll-free bridged type
         for (CFIndex idx = 1; idx < __CFRuntimeClassTableSize; ++idx) {
-            __CFRuntimeObjCClassTable[idx] = (uintptr_t)&_OBJC_CLASS__NSCFType;
+            __CFRuntimeObjCClassTable[idx] = (uintptr_t)&$_OBJC_CLASS__NSCFType;
         }
 
         // WINOBJC: Label NSCFType with the 'bridged object' protocol
-        class_addProtocol(_OBJC_CLASS__NSCFType, __CFRuntimeGetBridgeProtocol());
+        class_addProtocol($_OBJC_CLASS__NSCFType, __CFRuntimeGetBridgeProtocol());
 
 #endif
         

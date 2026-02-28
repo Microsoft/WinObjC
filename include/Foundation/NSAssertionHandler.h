@@ -15,6 +15,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 #import <Foundation/NSObject.h>
 
+#ifndef _WINOBJC_DO_NOT_USE_NSLOG
+#define __WOC_NSLogForAssert(...) NSLog(__VA_ARGS__)
+#else // _WINOBJC_DO_NOT_USE_NSLOG
+#define __WOC_NSLogForAssert(...) NSTraceError(L"NSAssertionHandler", ## __VA_ARGS__)
+#endif // _WINOBJC_DO_NOT_USE_NSLOG
+
 #ifdef NS_BLOCK_ASSERTIONS
 #define _NSAssertBody(condition, desc, ...)
 #define _NSCAssertBody(condition, desc, ...)
@@ -24,7 +30,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
         if (!(condition)) {                                                                                            \
             NSString* description = [NSString stringWithFormat:(desc), ##__VA_ARGS__];                                 \
             NSString* reason = [NSString stringWithFormat:@"*** Assertion failed (%s) : %@", #condition, description]; \
-            NSLog(@"%@", reason);                                                                                      \
+            __WOC_NSLogForAssert(@"%@", reason);                                                                           \
             [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd                                            \
                                                                 object:self                                            \
                                                                   file:[NSString stringWithUTF8String:__FILE__]        \
@@ -37,7 +43,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
         if (!(condition)) {                                                                                                  \
             NSString* description = [NSString stringWithFormat:(desc), ##__VA_ARGS__];                                       \
             NSString* reason = [NSString stringWithFormat:@"*** Assertion failed (%s) : %@", #condition, description];       \
-            NSLog(@"%@", reason);                                                                                            \
+            __WOC_NSLogForAssert(@"%@", reason);                                                                                 \
             [[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] \
                                                                     file:[NSString stringWithUTF8String:__FILE__]            \
                                                               lineNumber:__LINE__                                            \

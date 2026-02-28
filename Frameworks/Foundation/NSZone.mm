@@ -178,21 +178,17 @@ NSZone* NSDefaultMallocZone() {
 }
 
 /**
- @Status Stub
- @Notes
+ @Status Interoperable
 */
 BOOL NSDecrementExtraRefCountWasZero(id object) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return objc_release_fast_no_destroy_np(object);
 }
 
 /**
- @Status Stub
- @Notes
+ @Status Interoperable
 */
 NSUInteger NSExtraRefCount(id object) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return object_getRetainCount_np(object);
 }
 
 /**
@@ -200,7 +196,7 @@ NSUInteger NSExtraRefCount(id object) {
  @Notes
 */
 void NSIncrementExtraRefCount(id object) {
-    UNIMPLEMENTED();
+    objc_retain_fast_np(object);
 }
 
 /**

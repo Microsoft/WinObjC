@@ -153,7 +153,7 @@ void _UIApplicationMainInit(NSString* principalClassName, NSString* delegateClas
                 }
             }
 
-            CTFontManagerRegisterFontsForURLs((CFArrayRef)fontURLs, kCTFontManagerScopeNone, nil);
+            CTFontManagerRegisterFontsForURLs((CFArrayRef)fontURLs, kCTFontManagerScopeNone, nullptr);
         }
     }
 

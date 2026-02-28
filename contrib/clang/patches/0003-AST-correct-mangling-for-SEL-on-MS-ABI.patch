@@ -1,0 +1,120 @@
+From 29f591b2fe72aad588960af364a1cf2d978e3f89 Mon Sep 17 00:00:00 2001
+From: Saleem Abdulrasool <compnerd@compnerd.org>
+Date: Tue, 23 Jan 2018 20:56:52 +0000
+Subject: [PATCH 03/19] AST: correct mangling for SEL on MS ABI
+
+We would previously treat `SEL` as a pointer-only type.  This is not the
+case.  It should be treated similarly to `id` and `Class`.  Add some
+test cases to ensure that it will be properly handled as well.
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@323257 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 79e167042e2855170fe94250993f9fe577b99b09)
+---
+ lib/AST/MicrosoftMangle.cpp            |  1 -
+ test/CodeGenObjCXX/msabi-objc-types.mm | 72 +++++++++++++++++++++++++++++++++-
+ 2 files changed, 71 insertions(+), 2 deletions(-)
+
+diff --git a/lib/AST/MicrosoftMangle.cpp b/lib/AST/MicrosoftMangle.cpp
+index b4e7a82eb0..9ee0bd64c1 100644
+--- a/lib/AST/MicrosoftMangle.cpp
++++ b/lib/AST/MicrosoftMangle.cpp
+@@ -1840,7 +1840,6 @@ void MicrosoftCXXNameMangler::mangleType(const BuiltinType *T, Qualifiers,
+     mangleArtificalTagType(TTK_Struct, "objc_class");
+     break;
+   case BuiltinType::ObjCSel:
+-    Out << "PA";
+     mangleArtificalTagType(TTK_Struct, "objc_selector");
+     break;
+ 
+diff --git a/test/CodeGenObjCXX/msabi-objc-types.mm b/test/CodeGenObjCXX/msabi-objc-types.mm
+index 013a9c84da..84335785ae 100644
+--- a/test/CodeGenObjCXX/msabi-objc-types.mm
++++ b/test/CodeGenObjCXX/msabi-objc-types.mm
+@@ -62,6 +62,30 @@ I &k() { return *kI; }
+ const I &l() { return *kI; }
+ // CHECK-LABEL: "\01?l@@YAABUI@@XZ"
+ 
++void m(const id) {}
++// CHECK-LABEL: "\01?m@@YAXQAUobjc_object@@@Z"
++
++void m(const I *) {}
++// CHECK-LABEL: "\01?m@@YAXPBUI@@@Z"
++
++void n(SEL) {}
++// CHECK-LABEL: "\01?n@@YAXPAUobjc_selector@@@Z"
++
++void n(SEL *) {}
++// CHECK-LABEL: "\01?n@@YAXPAPAUobjc_selector@@@Z"
++
++void n(const SEL *) {}
++// CHECK-LABEL: "\01?n@@YAXPBQAUobjc_selector@@@Z"
++
++void n(SEL &) {}
++// CHECK-LABEL: "\01?n@@YAXAAPAUobjc_selector@@@Z"
++
++void n(const SEL &) {}
++// CHECK-LABEL: "\01?n@@YAXABQAUobjc_selector@@@Z"
++
++void n(SEL &&) {}
++// CHECK-LABEL: "\01?n@@YAX$$QAPAUobjc_selector@@@Z"
++
+ struct __declspec(dllexport) s {
+   struct s &operator=(const struct s &) = delete;
+ 
+@@ -117,6 +141,52 @@ struct __declspec(dllexport) s {
+   // CHECK-LABEL: "\01?m@s@@QAAX$$QAPAUobjc_class@@@Z"
+ 
+   void m(const Class &&) {}
+-  // CHECK-LABEL: "\01?m@s@@QAAX$$QBPAUobjc_class@@@Z"
++  // CHECK-LABEL: "\01?m@s@@QAAX$$QBQAUobjc_class@@@Z"
++
++  void m(SEL) {}
++  // CHECK-LABEL: "\01?m@s@@QAAXPAUobjc_selector@@@Z"
++
++  void m(SEL *) {}
++  // CHECK-LABEL: "\01?m@s@@QAAXPAPAUobjc_selector@@@Z"
++
++  void m(const SEL *) {}
++  // CHECK-LABEL: "\01?m@s@@QAAXPBQAUobjc_selector@@@Z"
++
++  void m(SEL &) {}
++  // CHECK-LABEL: "\01?m@s@@QAAXAAPAUobjc_selector@@@Z"
++
++  void m(const SEL &) {}
++  // CHECK-LABEL: "\01?m@s@@QAAXABQAUobjc_selector@@@Z"
++
++  void m(SEL &&) {}
++  // CHECK-LABEL: "\01?m@s@@QAAX$$QAPAUobjc_selector@@@Z"
++
++  void m(const SEL &&) {}
++  // CHECK-LABEL: "\01?m@s@@QAAX$$QBQAUobjc_selector@@@Z"
++};
++
++template <typename T>
++struct remove_pointer { typedef T type; };
++
++template <typename T>
++struct remove_pointer<T *> {
++  typedef T type;
+ };
+ 
++template <typename T>
++struct t {
++  t() {}
++};
++
++template struct t<id>;
++// CHECK-LABEL: "\01??0?$t@PAUobjc_object@@@@QAA@XZ"
++
++template struct t<remove_pointer<id>::type>;
++// CHECK-LABEL: "\01??0?$t@Uobjc_object@@@@QAA@XZ"
++
++template struct t<SEL>;
++// CHECK-LABEL: "\01??0?$t@PAUobjc_selector@@@@QAA@XZ"
++
++template struct t<remove_pointer<SEL>::type>;
++// CHECK-LABEL: "\01??0?$t@Uobjc_selector@@@@QAA@XZ"
++
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

@@ -202,7 +202,7 @@ static CFCharacterSetRef GetURLAllowedCharacterSet(URLPredefinedCharacterSet all
         result = sURLAllowedCharacterSets[allowedSet];
     }
     else {
-        result = nil;
+        result = NULL; // WINOBJC: nil->NULL
     }
     return ( result );
 }

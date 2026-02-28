@@ -2653,7 +2653,7 @@ static UIInterfaceOrientation findOrientation(UIViewController* self) {
 - (id<UIViewControllerPreviewing>)registerForPreviewingWithDelegate:(id<UIViewControllerPreviewingDelegate>)delegate
                                                          sourceView:(UIView*)sourceView {
     UNIMPLEMENTED();
-    return StubReturn();
+    return nil; /* GH#2862 StubReturn() */
 }
 
 /**
@@ -2661,7 +2661,7 @@ static UIInterfaceOrientation findOrientation(UIViewController* self) {
 */
 - (id<UIViewControllerTransitionCoordinator>)transitionCoordinator {
     UNIMPLEMENTED();
-    return StubReturn();
+    return nil; /* GH#2862 StubReturn() */;
 }
 
 /**

@@ -1,0 +1,62 @@
+From 991ea642e39b5885d197df0157e67c7d732557cd Mon Sep 17 00:00:00 2001
+From: Shoaib Meenai <smeenai@fb.com>
+Date: Fri, 26 Jan 2018 00:15:25 +0000
+Subject: [PATCH 2/5] [CodeGen] Ignore private symbols in llvm.used for COFF
+
+Similar to the existing handling for internal symbols, private symbols
+are also not visible to the linker and should be ignored.
+
+git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@323483 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit f251ca0c6cc8623e3323385944468ad525928c9b)
+(cherry picked from commit 2f22a1f5ee9d34ef5cc5125a7a0305d4e79a0af8)
+---
+ lib/CodeGen/AsmPrinter/AsmPrinter.cpp  | 8 ++++----
+ test/CodeGen/X86/coff-no-dead-strip.ll | 5 ++++-
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/lib/CodeGen/AsmPrinter/AsmPrinter.cpp b/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
+index 4ab21af6077..47e82667983 100644
+--- a/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
++++ b/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
+@@ -1432,10 +1432,10 @@ bool AsmPrinter::doFinalization(Module &M) {
+         for (const Value *Op : A->operands()) {
+           const auto *GV =
+               cast<GlobalValue>(Op->stripPointerCastsNoFollowAliases());
+-          // Global symbols with internal linkage are not visible to the linker,
+-          // and thus would cause an error when the linker tried to preserve the
+-          // symbol due to the `/include:` directive.
+-          if (GV->hasInternalLinkage())
++          // Global symbols with internal or private linkage are not visible to
++          // the linker, and thus would cause an error when the linker tried to
++          // preserve the symbol due to the `/include:` directive.
++          if (GV->hasInternalLinkage() || GV->hasPrivateLinkage())
+             continue;
+ 
+           std::string Flags;
+diff --git a/test/CodeGen/X86/coff-no-dead-strip.ll b/test/CodeGen/X86/coff-no-dead-strip.ll
+index adac90da885..9e33869a251 100644
+--- a/test/CodeGen/X86/coff-no-dead-strip.ll
++++ b/test/CodeGen/X86/coff-no-dead-strip.ll
+@@ -6,15 +6,18 @@
+ @j = weak global i32 0
+ @k = internal global i32 0
+ declare x86_vectorcallcc void @l()
++@m = private global i32 0
+ 
+-@llvm.used = appending global [4 x i8*] [i8* bitcast (i32* @i to i8*), i8* bitcast (i32* @j to i8*), i8* bitcast (i32* @k to i8*), i8* bitcast (void ()* @l to i8*)]
++@llvm.used = appending global [5 x i8*] [i8* bitcast (i32* @i to i8*), i8* bitcast (i32* @j to i8*), i8* bitcast (i32* @k to i8*), i8* bitcast (void ()* @l to i8*), i8* bitcast (i32* @m to i8*)]
+ 
+ ; CHECK: .section .drectve
+ ; CHECK-ULP: .ascii " /INCLUDE:_i"
+ ; CHECK-ULP: .ascii " /INCLUDE:_j"
+ ; CHECK-ULP-NOT: .ascii " /INCLUDE:_k"
++; CHECK-ULP-NOT: .ascii " /INCLUDE:L_m"
+ ; CHECK-NOULP: .ascii " /INCLUDE:i"
+ ; CHECK-NOULP: .ascii " /INCLUDE:j"
+ ; CHECK-NOULP-NOT: .ascii " /INCLUDE:k"
++; CHECK-NOULP-NOT: .ascii " /INCLUDE:.Lm"
+ ; CHECK: .ascii " /INCLUDE:l@@0"
+ 
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

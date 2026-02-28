@@ -4,7 +4,11 @@
     <TargetOsAndVersion Condition="'$(TargetOsAndVersion)' == ''">Universal Windows</TargetOsAndVersion>
   </PropertyGroup>
   <ImportGroup>
-    <Import Project="$(MsBuildThisFileDirectory)msvc\starboard-sdk.targets" Condition="Exists('$(MsBuildThisFileDirectory)msvc\starboard-sdk.targets')" />
+    <Import Project="$(MsBuildThisFileDirectory)assets\ClCompile.Additions.targets" Condition="Exists('$(MsBuildThisFileDirectory)assets\ClCompile.Additions.targets')" />
+    <Import Project="$(MSBuildThisFileDirectory)assets\Islandwood.targets" Condition="Exists('$(MSBuildThisFileDirectory)assets\Islandwood.targets')" />
+    <Import Project="$(MSBuildThisFileDirectory)assets\WinObjC.ObjectiveC.targets" Condition="Exists('$(MSBuildThisFileDirectory)assets\WinObjC.ObjectiveC.targets')" />
+    <Import Project="$(MSBuildThisFileDirectory)assets\WinObjC.Objc2Winmd.targets" Condition="Exists('$(MSBuildThisFileDirectory)assets\WinObjC.Objc2Winmd.targets')" />
+    <Import Project="$(MSBuildThisFileDirectory)assets\WinObjC.Resources.targets" Condition="Exists('$(MSBuildThisFileDirectory)assets\WinObjC.Resources.targets')" />
   </ImportGroup>
 
   <!-- Make sure that the output artifacts are included in the build. This means adding include paths and link libraries for it.

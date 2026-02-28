@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <StarboardLLVMDirectory Condition="'$(StarboardLLVMDirectory)' == ''">$(MSBuildThisFileDirectory)LLVM\</StarboardLLVMDirectory>
+  </PropertyGroup>
+  <PropertyGroup Label="Clang Args">
+    <!-- These triples are used in ClangCompile.InternalCompilerFlags below -->
+    <ClangTargetTriple Condition="'$(Platform)' != 'ARM' and '$(Platform)' != 'X64'">i686-pc-windows-msvc</ClangTargetTriple>
+    <ClangTargetTriple Condition="'$(Platform)' == 'ARM'">thumbv7-pc-windows-msvc</ClangTargetTriple>
+    <ClangTargetTriple Condition="'$(Platform)' == 'X64'">x86_64-pc-windows-msvc</ClangTargetTriple>
+    <!-- For now (VS 15.9), we have to allow the compiler and STL to differ in version -->
+    <ClangSTLVersionWorkaround>-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=</ClangSTLVersionWorkaround>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Label="Defaults">
+    <ClangCompile>
+      <CommandTLogFile Condition="'%(ClangCompile.CommandTLogFile)' == ''">$(TLogLocation)clang.command.1.tlog</CommandTLogFile>
+      <CompileAs Condition="'%(ClangCompile.CompileAs)' == ''">Default</CompileAs>
+      <DebugInformation Condition="'%(ClangCompile.DebugInformation)' == ''">true</DebugInformation>
+      <ExceptionHandling Condition="'%(ClangCompile.ExceptionHandling)' == ''">true</ExceptionHandling>
+      <HeaderMap Condition="'%(ClangCompile.HeaderMap)' == ''">Disabled</HeaderMap>
+      <HeaderMapAddFrameworkEntries Condition="'%(ClangCompile.HeaderMapAddFrameworkEntries)' == ''">true</HeaderMapAddFrameworkEntries>
+      <ExcludedSearchPathSubdirectories Condition="'%(ClangCompile.ExcludedSearchPathsSubdirectories)' == ''">*.nib;*.lproj;*.framework;*.gch;(*);.DS_Store;CVS;.svn;.git;.hg;*.xcodeproj;*.xcode;*.pbproj;*.pbxproj;*.xcassets</ExcludedSearchPathSubdirectories>
+      <ObjectFileName Condition="'%(ClangCompile.ObjectFileName)' == ''">$(IntDir)</ObjectFileName>
+      <ObjectiveCARC Condition="'%(ClangCompile.ObjectiveCARC)' == ''">false</ObjectiveCARC>
+      <ObjectiveCModules Condition="'%(ClangCompile.ObjectiveCModules)' == ''">false</ObjectiveCModules>
+      <ObjectiveCModulesCachePath Condition="'%(ClangCompile.ObjectiveCModulesCachePath)' == ''">$(IntDir)ModuleCache</ObjectiveCModulesCachePath>
+      <OptimizationLevel Condition="'%(ClangCompile.OptimizationLevel)' == ''">Disabled</OptimizationLevel>
+      <RuntimeLibrary Condition="'%(ClangCompile.RuntimeLibrary)' == ''">MultiThreadedDLL</RuntimeLibrary>
+      <ReadTLogFile Condition="'%(ClangCompile.ReadTLogFile)' == ''">$(TLogLocation)clang.read.1.tlog</ReadTLogFile>
+      <InternalSystemIncludePaths>%(InternalSystemIncludePaths);$(IncludePath);</InternalSystemIncludePaths>
+      <InternalForceIncludes Condition="'%(ClangCompile.InternalSystemIncludes)' == ''"></InternalForceIncludes>
+      <SystemHeaderDeps Condition="'%(ClangCompile.SystemHeaderDeps)' == ''">false</SystemHeaderDeps>
+      <MaxClangProcesses Condition="'%(ClangCompile.MaxClangProcesses)' == ''">-1</MaxClangProcesses>
+    </ClangCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup>
+    <ClangCompile>
+      <InternalCompilerFlags>-target $(ClangTargetTriple) -fdiagnostics-format=msvc -fno-caret-diagnostics $(ClangSTLVersionWorkaround)</InternalCompilerFlags>
+      <CommandLineTemplate>-isystem "[LLVMResourceDir]\include" [InternalCompilerFlags] [AllOptions] [AdditionalOptions] [DependencyFile] [ObjectFileName] [Input]</CommandLineTemplate>
+      <AutocompleteCommandLineTemplate>-isystem "[LLVMResourceDir]\include" [InternalCompilerFlags] [AdditionalOptions]</AutocompleteCommandLineTemplate>
+      <ShowOnlyRuleProperties>false</ShowOnlyRuleProperties>
+    </ClangCompile>
+  </ItemDefinitionGroup>
+
+</Project>

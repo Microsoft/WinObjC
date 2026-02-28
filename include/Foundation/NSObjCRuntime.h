@@ -238,7 +238,9 @@ FOUNDATION_EXPORT Protocol* NSProtocolFromString(NSString* namestr);
 #endif
 
 #if (!__has_feature(objc_arc))
+#ifndef __autoreleasing
 #define __autoreleasing
+#endif
 #ifndef __strong
 #define __strong
 #endif

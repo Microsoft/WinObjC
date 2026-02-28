@@ -3,14 +3,11 @@
 
   <Target Name="AddBuiltOutput" BeforeTargets="GetPackageContents" Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
       <ItemGroup>
+          <_AssetFiles Include="$(MSBuildThisFileDirectory)assets\**\*.*"/>
+
           <!-- Inlcude *all* of /include/  and /include_next/ folder.  -->
           <_IncludeFiles Include="$(MSBuildThisFileDirectory)..\include\**\*.*"/>
           <_IncludeFiles Include="$(MSBuildThisFileDirectory)..\include_next\**\*.*"/>
-
-          <!-- Inlcude *all* of /msvc/ folder. Almost certainly overkill at this stage. Things like the .sln     -->
-          <!-- for ClangCompile shouldn't be shipped in the package really but ok for bootstrapping the process. -->
-          <!-- Pare this down in a future version!!! -->
-          <_MSVCFiles Include="$(MSBuildThisFileDirectory)..\msvc\**\*.*"/>
 
           <!-- Include /deps/ folder. -->
           <_DepsFiles Include="$(MSBuildThisFileDirectory)..\deps\**\*.*"/>
@@ -18,8 +15,8 @@
           <!-- Include /bin/ folder. -->
           <_BinFiles Include="$(MSBuildThisFileDirectory)..\bin\**\*.*"/>
 
-          <PackageFile Include="@(_MSVCFiles)">
-              <PackagePath>build\msvc\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+          <PackageFile Include="@(_AssetFiles)">
+              <PackagePath>build\assets\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
           </PackageFile>
           <PackageFile Include="@(_IncludeFiles)">
               <PackagePath>build\include\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>

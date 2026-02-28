@@ -34,8 +34,8 @@ static Class _NSCFString$classForCoder(id self, SEL _cmd) {
     // Now that NSString is loaded, go ahead and reset _NSCFString's superclass
     // to be NSString. This is needed so that any CFString that was created *before*
     // NSString was loaded (namely all the constants in CF) will be properly bridged.
-    Class nscfClass = objc_getClass("_NSCFString");
-    Class nscfMetaClass = objc_getMetaClass("_NSCFString");
+    Class nscfClass = objc_getClass("_NSCFStringSuperclassAnchor");
+    Class nscfMetaClass = objc_getMetaClass("_NSCFStringSuperclassAnchor");
 
     class_setSuperclass(nscfClass, self);
     object_setClass(nscfMetaClass, object_getClass(object_getClass(self)));

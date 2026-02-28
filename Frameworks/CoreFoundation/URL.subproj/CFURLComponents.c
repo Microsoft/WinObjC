@@ -534,7 +534,7 @@ CF_EXPORT CFNumberRef _CFURLComponentsCopyPort(CFURLComponentsRef components) {
             CFRelease(portString);
         }
         else {
-            components->_portComponent = nil;
+            components->_portComponent = NULL; // WINOBJC: nil->NULL
         }
         components->_portComponentValid = true;
     }

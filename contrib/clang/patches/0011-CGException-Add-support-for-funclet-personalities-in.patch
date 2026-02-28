@@ -1,0 +1,54 @@
+From bd81f3d3563e03168cf63fa3540bba4b2757f668 Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:29:47 -0800
+Subject: [PATCH 11/19] [CGException] Add support for funclet personalities in
+ finally
+
+---
+ lib/CodeGen/CGException.cpp | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/lib/CodeGen/CGException.cpp b/lib/CodeGen/CGException.cpp
+index 1978d2757a..a8d207e6e3 100644
+--- a/lib/CodeGen/CGException.cpp
++++ b/lib/CodeGen/CGException.cpp
+@@ -1271,6 +1271,21 @@ void CodeGenFunction::FinallyInfo::exit(CodeGenFunction &CGF) {
+ 
+     llvm::Value *exn = nullptr;
+ 
++    llvm::CatchPadInst *CPI = nullptr;
++    SaveAndRestore<llvm::Instruction *> RestoreCurrentFuncletPad(
++        CGF.CurrentFuncletPad);
++
++    if (EHPersonality::get(CGF).usesFuncletPads()) {
++      // Capture the caught exception off the catchpad into the existing
++      // exn slot
++      CPI = cast<llvm::CatchPadInst>(catchBB->getFirstNonPHI());
++
++      CGF.CurrentFuncletPad = CPI;
++
++      if (SavedExnVar || BeginCatchFn)
++        CPI->setArgOperand(2, CGF.getExceptionSlot().getPointer());
++    }
++
+     // If there's a begin-catch function, call it.
+     if (BeginCatchFn) {
+       exn = CGF.getExceptionFromSlot();
+@@ -1286,7 +1301,13 @@ void CodeGenFunction::FinallyInfo::exit(CodeGenFunction &CGF) {
+     // Tell the cleanups in the finally block that we're do this for EH.
+     CGF.Builder.CreateFlagStore(true, ForEHVar);
+ 
+-    // Thread a jump through the finally cleanup.
++    // Thread a jump through the finally cleanup (and catchret, if required)
++    if (CPI) {
++      llvm::BasicBlock *BB = CGF.createBasicBlock("catchret.dest");
++      CGF.Builder.CreateCatchRet(CPI, BB);
++      CGF.EmitBlock(BB);
++    }
++
+     CGF.EmitBranchThroughCleanup(RethrowDest);
+ 
+     CGF.Builder.restoreIP(savedIP);
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

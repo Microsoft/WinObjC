@@ -1,135 +1,135 @@
 LIBRARY GameKit
     EXPORTS
         ; GKAchievement.mm
-        _OBJC_CLASS_GKAchievement DATA
-        __objc_class_name_GKAchievement CONSTANT
+        $_OBJC_CLASS_GKAchievement DATA
+        $_OBJC_REF_CLASS_GKAchievement DATA
 
         ; GKAchievementChallenge.mm
-        _OBJC_CLASS_GKAchievementChallenge DATA
-        __objc_class_name_GKAchievementChallenge CONSTANT
+        $_OBJC_CLASS_GKAchievementChallenge DATA
+        $_OBJC_REF_CLASS_GKAchievementChallenge DATA
 
         ; GKAchievementDescription.mm
-        _OBJC_CLASS_GKAchievementDescription DATA
-        __objc_class_name_GKAchievementDescription CONSTANT
+        $_OBJC_CLASS_GKAchievementDescription DATA
+        $_OBJC_REF_CLASS_GKAchievementDescription DATA
 
         ; GKAchievementViewController.mm
-        _OBJC_CLASS_GKAchievementViewController DATA
-        __objc_class_name_GKAchievementViewController CONSTANT
+        $_OBJC_CLASS_GKAchievementViewController DATA
+        $_OBJC_REF_CLASS_GKAchievementViewController DATA
 
         ; GKChallenge.mm
-        _OBJC_CLASS_GKChallenge DATA
-        __objc_class_name_GKChallenge CONSTANT
+        $_OBJC_CLASS_GKChallenge DATA
+        $_OBJC_REF_CLASS_GKChallenge DATA
 
         ; GKChallengeEventHandler.mm
-        _OBJC_CLASS_GKChallengeEventHandler DATA
-        __objc_class_name_GKChallengeEventHandler CONSTANT
+        $_OBJC_CLASS_GKChallengeEventHandler DATA
+        $_OBJC_REF_CLASS_GKChallengeEventHandler DATA
 
         ; GKFriendRequestComposeViewController.mm
-        _OBJC_CLASS_GKFriendRequestComposeViewController DATA
-        __objc_class_name_GKFriendRequestComposeViewController CONSTANT
+        $_OBJC_CLASS_GKFriendRequestComposeViewController DATA
+        $_OBJC_REF_CLASS_GKFriendRequestComposeViewController DATA
 
         ; GKGameCenterViewController.mm
-        _OBJC_CLASS_GKGameCenterViewController DATA
-        __objc_class_name_GKGameCenterViewController CONSTANT
+        $_OBJC_CLASS_GKGameCenterViewController DATA
+        $_OBJC_REF_CLASS_GKGameCenterViewController DATA
 
         ; GKInvite.mm
-        _OBJC_CLASS_GKInvite DATA
-        __objc_class_name_GKInvite CONSTANT
+        $_OBJC_CLASS_GKInvite DATA
+        $_OBJC_REF_CLASS_GKInvite DATA
 
         ; GKLeaderboard.mm
-        _OBJC_CLASS_GKLeaderboard DATA
-        __objc_class_name_GKLeaderboard CONSTANT
+        $_OBJC_CLASS_GKLeaderboard DATA
+        $_OBJC_REF_CLASS_GKLeaderboard DATA
 
         ; GKLeaderboardSet.mm
-        _OBJC_CLASS_GKLeaderboardSet DATA
-        __objc_class_name_GKLeaderboardSet CONSTANT
+        $_OBJC_CLASS_GKLeaderboardSet DATA
+        $_OBJC_REF_CLASS_GKLeaderboardSet DATA
 
         ; GKLeaderboardViewController.mm
-        _OBJC_CLASS_GKLeaderboardViewController DATA
-        __objc_class_name_GKLeaderboardViewController CONSTANT
+        $_OBJC_CLASS_GKLeaderboardViewController DATA
+        $_OBJC_REF_CLASS_GKLeaderboardViewController DATA
 
         ; GKLocalPlayer.mm
-        _OBJC_CLASS_GKLocalPlayer DATA
-        __objc_class_name_GKLocalPlayer CONSTANT
+        $_OBJC_CLASS_GKLocalPlayer DATA
+        $_OBJC_REF_CLASS_GKLocalPlayer DATA
 
         ; GKMatch.mm
-        _OBJC_CLASS_GKMatch DATA
-        __objc_class_name_GKMatch CONSTANT
+        $_OBJC_CLASS_GKMatch DATA
+        $_OBJC_REF_CLASS_GKMatch DATA
 
         ; GKMatchmaker.mm
-        _OBJC_CLASS_GKMatchmaker DATA
-        __objc_class_name_GKMatchmaker CONSTANT
+        $_OBJC_CLASS_GKMatchmaker DATA
+        $_OBJC_REF_CLASS_GKMatchmaker DATA
 
         ; GKMatchmakerViewController.mm
-        _OBJC_CLASS_GKMatchmakerViewController DATA
-        __objc_class_name_GKMatchmakerViewController CONSTANT
+        $_OBJC_CLASS_GKMatchmakerViewController DATA
+        $_OBJC_REF_CLASS_GKMatchmakerViewController DATA
 
         ; GKMatchRequest.mm
-        _OBJC_CLASS_GKMatchRequest DATA
-        __objc_class_name_GKMatchRequest CONSTANT
+        $_OBJC_CLASS_GKMatchRequest DATA
+        $_OBJC_REF_CLASS_GKMatchRequest DATA
 
         ; GKNotificationBanner.mm
-        _OBJC_CLASS_GKNotificationBanner DATA
-        __objc_class_name_GKNotificationBanner CONSTANT
+        $_OBJC_CLASS_GKNotificationBanner DATA
+        $_OBJC_REF_CLASS_GKNotificationBanner DATA
 
         ; GKPeerPickerController.mm
-        _OBJC_CLASS_GKPeerPickerController DATA
-        __objc_class_name_GKPeerPickerController CONSTANT
+        $_OBJC_CLASS_GKPeerPickerController DATA
+        $_OBJC_REF_CLASS_GKPeerPickerController DATA
 
         ; GKPlayer.mm
-        _OBJC_CLASS_GKPlayer DATA
-        __objc_class_name_GKPlayer CONSTANT
+        $_OBJC_CLASS_GKPlayer DATA
+        $_OBJC_REF_CLASS_GKPlayer DATA
 
         ; GKSavedGame.mm
-        _OBJC_CLASS_GKSavedGame DATA
-        __objc_class_name_GKSavedGame CONSTANT
+        $_OBJC_CLASS_GKSavedGame DATA
+        $_OBJC_REF_CLASS_GKSavedGame DATA
 
         ; GKScore.mm
-        _OBJC_CLASS_GKScore DATA
-        __objc_class_name_GKScore CONSTANT
+        $_OBJC_CLASS_GKScore DATA
+        $_OBJC_REF_CLASS_GKScore DATA
 
         ; GKScoreChallenge.mm
-        _OBJC_CLASS_GKScoreChallenge DATA
-        __objc_class_name_GKScoreChallenge CONSTANT
+        $_OBJC_CLASS_GKScoreChallenge DATA
+        $_OBJC_REF_CLASS_GKScoreChallenge DATA
 
         ; GKSession.mm
         GKSessionErrorDomain DATA
-        _OBJC_CLASS_GKSession DATA
-        __objc_class_name_GKSession CONSTANT
+        $_OBJC_CLASS_GKSession DATA
+        $_OBJC_REF_CLASS_GKSession DATA
 
         ; GKTurnBasedEventHandler.mm
-        _OBJC_CLASS_GKTurnBasedEventHandler DATA
-        __objc_class_name_GKTurnBasedEventHandler CONSTANT
+        $_OBJC_CLASS_GKTurnBasedEventHandler DATA
+        $_OBJC_REF_CLASS_GKTurnBasedEventHandler DATA
 
         ; GKTurnBasedExchange.mm
         GKExchangeTimeoutDefault DATA
         GKExchangeTimeoutNone DATA
-        _OBJC_CLASS_GKTurnBasedExchange DATA
-        __objc_class_name_GKTurnBasedExchange CONSTANT
+        $_OBJC_CLASS_GKTurnBasedExchange DATA
+        $_OBJC_REF_CLASS_GKTurnBasedExchange DATA
 
         ; GKTurnBasedExchangeReply.mm
-        _OBJC_CLASS_GKTurnBasedExchangeReply DATA
-        __objc_class_name_GKTurnBasedExchangeReply CONSTANT
+        $_OBJC_CLASS_GKTurnBasedExchangeReply DATA
+        $_OBJC_REF_CLASS_GKTurnBasedExchangeReply DATA
 
         ; GKTurnBasedMatch.mm
         GKTurnTimeoutDefault DATA
         GKTurnTimeoutNone DATA
-        _OBJC_CLASS_GKTurnBasedMatch DATA
-        __objc_class_name_GKTurnBasedMatch CONSTANT
+        $_OBJC_CLASS_GKTurnBasedMatch DATA
+        $_OBJC_REF_CLASS_GKTurnBasedMatch DATA
 
         ; GKTurnBasedMatchmakerViewController.mm
-        _OBJC_CLASS_GKTurnBasedMatchmakerViewController DATA
-        __objc_class_name_GKTurnBasedMatchmakerViewController CONSTANT
+        $_OBJC_CLASS_GKTurnBasedMatchmakerViewController DATA
+        $_OBJC_REF_CLASS_GKTurnBasedMatchmakerViewController DATA
 
         ; GKTurnBasedParticipant.mm
-        _OBJC_CLASS_GKTurnBasedParticipant DATA
-        __objc_class_name_GKTurnBasedParticipant CONSTANT
+        $_OBJC_CLASS_GKTurnBasedParticipant DATA
+        $_OBJC_REF_CLASS_GKTurnBasedParticipant DATA
 
         ; GKVoiceChat.mm
-        _OBJC_CLASS_GKVoiceChat DATA
-        __objc_class_name_GKVoiceChat CONSTANT
+        $_OBJC_CLASS_GKVoiceChat DATA
+        $_OBJC_REF_CLASS_GKVoiceChat DATA
 
         ; GKVoiceChatService.mm
-        _OBJC_CLASS_GKVoiceChatService DATA
-        __objc_class_name_GKVoiceChatService CONSTANT
+        $_OBJC_CLASS_GKVoiceChatService DATA
+        $_OBJC_REF_CLASS_GKVoiceChatService DATA
 

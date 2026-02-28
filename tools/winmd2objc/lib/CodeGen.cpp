@@ -1254,7 +1254,17 @@ struct GeneratorVisitor : public Visitor {
                     parameters += (typeInfo.isIInspectableType() ? param.Name + L"OutUnmarshaled.GetAddressOf()" :
                                                                    L"&" + param.Name + L"OutUnmarshaled");
                 } else {
-                    parameters += typeInfo.convertFnWrl(param.Name, false);
+                    if (typeInfo.isValueType && param.Type->PointerKind == ElementPointerKind::ByRef) {
+                        // Specifically, Windows::Foundation::IGuidHelperStatics::Equals(GUID*, GUID*)
+                        // takes these "value types" as pointers.
+
+                        // Allocate a local to pass them by reference.
+                        temps += L"    " + typeInfo.wrlFullName() + L" __" + param.Name + L"_temp = " +
+                                 typeInfo.convertFnWrl(param.Name, false) + L";\n";
+                        parameters += L"&__" + param.Name + L"_temp";
+                    } else {
+                        parameters += typeInfo.convertFnWrl(param.Name, false);
+                    }
                 }
             }
         }
@@ -2027,7 +2037,7 @@ struct GeneratorVisitor : public Visitor {
         fwprintf(outHeader, L"#pragma comment(lib, \"%s\")\n", libFileName.c_str());
         fwprintf(outHeader, L"#endif\n");
         fwprintf(outHeader, L"#endif\n");
-        fwprintf(outHeader, L"#include <UWP/interopBase.h>\n\n");
+        fwprintf(outHeader, L"#include <UWP/InteropBase.h>\n\n");
         fwprintf(outImpl, L"// %s\n// Generated from winmd2objc\n\n", implFileName.c_str());
         fwprintf(outImpl, L"#include <COMIncludes.h>\n");
         // Unfortunately Windows.h has a macro for GetCurrentTime and WinRT has a function in WindowsUIXamlMediaAnimation called that..
@@ -2326,7 +2336,7 @@ wstring generateNugetProject(const map<wstring, pair<wstring, vector<shared_ptr<
     }
 
     referenceBlock += LR"~(
-    <PackageReference Include="Nuget.Build.Packaging" Version="0.1.186" />
+    <PackageReference Include="Nuget.Build.Packaging" Version="0.2.3" />
     <PackageReference Include="WinObjC.Packaging" Version="*" />
 )~";
     referenceBlock += LR"~(  </ItemGroup>)~";
@@ -2428,7 +2438,7 @@ void generateVCXProj(const pair<wstring, pair<wstring, vector<shared_ptr<NameSpa
     // clang-format off
     wstring packageReferences = LR"~(
   <ItemGroup>
-    <PackageReference Include="Nuget.Build.Packaging" Version="0.1.186" />
+    <PackageReference Include="Nuget.Build.Packaging" Version="0.2.3" />
     <PackageReference Include="WinObjC.Language" Version="*" />
     <PackageReference Include="WinObjC.Frameworks.UWP.Core" Version="*" />)~";
     for (auto& nugetInfo : nugetDependencies) {
@@ -2469,8 +2479,8 @@ void generateVCXProj(const pair<wstring, pair<wstring, vector<shared_ptr<NameSpa
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationType>Windows Store</ApplicationType>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.16299.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <IncludeOutputsInPackage>false</IncludeOutputsInPackage>
     <TargetFramework>uap10.0</TargetFramework>
@@ -2639,7 +2649,7 @@ void generateVCXProj(const pair<wstring, pair<wstring, vector<shared_ptr<NameSpa
 
     FILE* vcxproj = nullptr;
     if (_wfopen_s(&vcxproj, (projectDirectoryPath + L"\\" + module.first + L".vcxproj").c_str(), L"w")) {
-        wprintf(L"Failed to open vcxproj file\n");
+        wprintf(L"Failed to open vcxproj file: %s\\%s.vcxproj\n", projectDirectoryPath.c_str(), module.first.c_str());
         exit(1);
     }
 
@@ -2800,8 +2810,8 @@ void generateDefExports(const vector<shared_ptr<NameSpace>>& namespaces, const w
         }
 
         auto mappedName = mapNamespacedType(e);
-        fwprintf(defs, L"     _OBJC_CLASS_%s    DATA\n", mappedName.c_str());
-        fwprintf(defs, L"     __objc_class_name_%s    CONSTANT\n", mappedName.c_str());
+        fwprintf(defs, L"     $_OBJC_CLASS_%s     DATA\n", mappedName.c_str());
+        fwprintf(defs, L"     $_OBJC_REF_CLASS_%s DATA\n", mappedName.c_str());
     }
     fclose(defs);
 }

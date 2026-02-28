@@ -2,6 +2,6 @@ LIBRARY LocalAuthentication
     EXPORTS
         ; LAContext.mm
         LAErrorDomain DATA
-        _OBJC_CLASS_LAContext DATA
-        __objc_class_name_LAContext CONSTANT
+        $_OBJC_CLASS_LAContext DATA
+        $_OBJC_REF_CLASS_LAContext DATA
 

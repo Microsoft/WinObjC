@@ -15,7 +15,7 @@
 //
 //******************************************************************************
 
-#import "../Include/Starboard.h"
+#import "../include/Starboard.h"
 
 
 extern "C" void AccelerateThrowFatal(const char* msg) {

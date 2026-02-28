@@ -51,7 +51,7 @@
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat</IncludePaths>
       <AdditionalOptions>"-DCFNETWORK_IMPEXP= " %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -62,7 +62,7 @@
       <IncludePaths>$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat</IncludePaths>
       <AdditionalOptions>"-DCFNETWORK_IMPEXP= " %(AdditionalOptions)</AdditionalOptions>
       <OptimizationLevel>Full</OptimizationLevel>
-      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
@@ -72,7 +72,7 @@
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat</IncludePaths>
       <AdditionalOptions>"-DCFNETWORK_IMPEXP= " %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
@@ -83,7 +83,7 @@
       <IncludePaths>$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat</IncludePaths>
       <AdditionalOptions>"-DCFNETWORK_IMPEXP= " %(AdditionalOptions)</AdditionalOptions>
       <OptimizationLevel>Full</OptimizationLevel>
-      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIL_IGNORE_OBJC_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ImportGroup Label="ExtensionTargets">

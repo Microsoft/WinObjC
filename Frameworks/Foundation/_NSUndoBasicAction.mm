@@ -30,7 +30,7 @@
 - (id)_initWithTarget:(id)target selector:(SEL)aSelector object:(id)anObject modes:(NSArray<NSString*>*)runLoopModes {
     if (self = [super init]) {
         _undoAction = aSelector;
-        _target = objc_storeWeak(&_target, target);
+        objc_storeWeak(&_target, target);
         _object = anObject;
         _modes = [runLoopModes copy];
     }
@@ -51,7 +51,7 @@
 }
 
 - (BOOL)targets:(id)target {
-    return _target == target;
+    return objc_loadWeak(&_target) == target;
 }
 
 - (void)removeAllWithTarget:(id)target {

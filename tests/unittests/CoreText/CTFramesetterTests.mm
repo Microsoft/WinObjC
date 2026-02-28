@@ -40,24 +40,24 @@ TEST(CTFramesetter, GetTypesetter) {
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
     CTTypesetterRef typesetter = CTFramesetterGetTypesetter(framesetter);
-    EXPECT_NE(nil, typesetter);
+    EXPECT_NE(nullptr, typesetter);
 
     string = (__bridge CFAttributedStringRef)getAttributedString(@"foobar");
     framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
     typesetter = CTFramesetterGetTypesetter(framesetter);
-    EXPECT_NE(nil, typesetter);
+    EXPECT_NE(nullptr, typesetter);
 
     string = (__bridge CFAttributedStringRef)getAttributedString(@"视窗");
     framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
     typesetter = CTFramesetterGetTypesetter(framesetter);
-    EXPECT_NE(nil, typesetter);
+    EXPECT_NE(nullptr, typesetter);
 }
 
 TEST(CTFramesetter, SuggestFrameSizeWithConstraints) {
     CFRange fitRange = { 0 };
-    CGSize size = CTFramesetterSuggestFrameSizeWithConstraints(nil, CFRangeMake(0, 0), nil, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
+    CGSize size = CTFramesetterSuggestFrameSizeWithConstraints(nullptr, CFRangeMake(0, 0), nullptr, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
     EXPECT_NEAR(0.0f, size.height, c_errorDelta);
     EXPECT_NEAR(0.0f, size.width, c_errorDelta);
     EXPECT_EQ(0, fitRange.location);
@@ -66,7 +66,7 @@ TEST(CTFramesetter, SuggestFrameSizeWithConstraints) {
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)getAttributedString(@"");
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
-    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
+    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nullptr, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
     EXPECT_NEAR(0.0f, size.height, c_errorDelta);
     EXPECT_NEAR(0.0f, size.width, c_errorDelta);
     EXPECT_EQ(0, fitRange.location);
@@ -75,19 +75,19 @@ TEST(CTFramesetter, SuggestFrameSizeWithConstraints) {
     string = (__bridge CFAttributedStringRef)getAttributedString(@"ABCD");
     framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
-    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
+    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nullptr, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
     EXPECT_LT(size.height, FLT_MAX);
     EXPECT_LT(size.width, FLT_MAX);
     EXPECT_EQ(0, fitRange.location);
     EXPECT_EQ(4, fitRange.length);
 
-    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 3), nil, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
+    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 3), nullptr, CGSizeMake(FLT_MAX, FLT_MAX), &fitRange);
     EXPECT_LT(size.height, FLT_MAX);
     EXPECT_LT(size.width, FLT_MAX);
     EXPECT_EQ(0, fitRange.location);
     EXPECT_EQ(3, fitRange.length);
 
-    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, CGSizeMake(50, 50), &fitRange);
+    size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nullptr, CGSizeMake(50, 50), &fitRange);
     EXPECT_LE(size.height, 50);
     EXPECT_LE(size.width, 50);
     EXPECT_EQ(0, fitRange.location);
@@ -99,7 +99,7 @@ TEST(CTFramesetter, ShouldNotThrowWhenCreatingFrameWithEmptyLines) {
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(string);
     CFAutorelease(framesetter);
     CGPathRef path = CGPathCreateWithRect(CGRectMake(0, 0, FLT_MAX, FLT_MAX), nullptr);
-    CTFrameRef frame = nil;
+    CTFrameRef frame = nullptr;
     EXPECT_NO_THROW(frame = CTFramesetterCreateFrame(framesetter, {}, path, nullptr));
     EXPECT_EQ(5L, CFArrayGetCount(CTFrameGetLines(frame)));
     CFRelease(frame);
@@ -114,16 +114,16 @@ TEST(CTFramesetter, ShouldBeAbleToCreateMultipleFramesFromSameFramesetter) {
     CFAutorelease(framesetter);
     CGPathRef path = CGPathCreateWithRect(CGRectMake(0, 0, FLT_MAX, FLT_MAX), nullptr);
     CTFrameRef firstFrame = CTFramesetterCreateFrame(framesetter, { 0, 5 }, path, nullptr);
-    EXPECT_NE(nil, firstFrame);
+    EXPECT_NE(nullptr, firstFrame);
 
     CTFrameRef secondFrame = CTFramesetterCreateFrame(framesetter, { 1, 8 }, path, nullptr);
-    EXPECT_NE(nil, secondFrame);
+    EXPECT_NE(nullptr, secondFrame);
 
     CTFrameRef thirdFrame = CTFramesetterCreateFrame(framesetter, { 8, 2 }, path, nullptr);
-    EXPECT_NE(nil, thirdFrame);
+    EXPECT_NE(nullptr, thirdFrame);
 
     CTFrameRef fullFrame = CTFramesetterCreateFrame(framesetter, {}, path, nullptr);
-    EXPECT_NE(nil, fullFrame);
+    EXPECT_NE(nullptr, fullFrame);
     CFRelease(firstFrame);
     CFRelease(secondFrame);
     CFRelease(thirdFrame);
@@ -136,5 +136,5 @@ TEST(CTFramesetter, ShouldNotCreatePastEndOfString) {
     woc::unique_cf<CTFramesetterRef> framesetter{ CTFramesetterCreateWithAttributedString(string) };
     woc::unique_cf<CGPathRef> path{ CGPathCreateWithRect(CGRectMake(0, 0, FLT_MAX, FLT_MAX), nullptr) };
     woc::unique_cf<CTFrameRef> firstFrame{ CTFramesetterCreateFrame(framesetter.get(), { 5, 0 }, path.get(), nullptr) };
-    EXPECT_NE(firstFrame.get(), nil);
+    EXPECT_NE(firstFrame.get(), nullptr);
 }

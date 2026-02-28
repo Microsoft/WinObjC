@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:transformCallback="Microsoft.Cpp.Dev10.ConvertPropertyCallback">
+  <Rule
+    Name="Islandwood"
+    PageTemplate="tool"
+    DisplayName="Islandwood"
+    Order="199">
+
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" />		
+    </Rule.DataSource>
+
+    <Rule.Categories>
+      <Category
+        Name="Libraries"
+        DisplayName="Libraries" />
+      <Category
+        Name="Linking"
+        DisplayName="Linking" />
+    </Rule.Categories>
+
+    <BoolProperty
+      Category="Linking"
+      DisplayName="Use /WHOLEARCHIVE for Objective-C libraries"
+      Description="Specifies if the project should consume every object from a static library containing Objective-C."
+      Name="StarboardLinkWholeArchive" />
+      
+    <BoolProperty
+      Category="Libraries"
+      DisplayName="Export public headers"
+      Description="Export public headers"
+      Name="ExportPublicHeaders" />
+
+  </Rule>
+
+  <Rule
+    Name="Clang (WinObjC)"
+    PageTemplate="tool"
+    DisplayName="Clang (WinObjC)"
+    Order="201">
+
+    <Rule.DataSource>
+      <DataSource
+        Persistence="ProjectFile"
+        ItemType="ClangCompile" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+        Name="Language"
+        DisplayName="Language" />
+    </Rule.Categories>
+    <BoolProperty
+      Category="Language"
+      DisplayName="Use WinObjC standard library"
+      Description="Uses the WinObjC standard C/C++ library definitions when compiling. This can create some compatibility issues with COM interfaces and Windows-specific source code."
+      Name="WOCStdLib" />
+  </Rule>
+ </ProjectSchemaDefinitions>

@@ -19,11 +19,7 @@
 #import <complex>
 
 struct ArbitrarilyComplexStruct {
-#ifdef _M_ARM
-    float32x4_t i;
-#else
-    __m128 i;
-#endif
+    double i;
     std::complex<double> c;
 };
 
@@ -47,7 +43,7 @@ TEST(NSValue, specializedInstanceIsStillAnNSValue) {
 
 TEST(NSValue, arbitraryStructCanBeStored) {
     using namespace std::complex_literals;
-    ArbitrarilyComplexStruct acs{ { 3.14 }, 1.9i };
+    ArbitrarilyComplexStruct acs{ 3.14, 1.9i };
 
     id val = [NSValue valueWithBytes:&acs objCType:@encode(ArbitrarilyComplexStruct)];
     ASSERT_OBJCNE(nil, val);
@@ -55,7 +51,7 @@ TEST(NSValue, arbitraryStructCanBeStored) {
 
 TEST(NSValue, arbitraryStructCanBeRetrieved) {
     using namespace std::complex_literals;
-    ArbitrarilyComplexStruct acs{ { 3.14 }, 1.9i };
+    ArbitrarilyComplexStruct acs{ 3.14, 1.9i };
 
     id val = [NSValue valueWithBytes:&acs objCType:@encode(ArbitrarilyComplexStruct)];
     ArbitrarilyComplexStruct acs2{};
@@ -64,10 +60,9 @@ TEST(NSValue, arbitraryStructCanBeRetrieved) {
     ASSERT_OBJCEQ(val, val2);
 }
 
-// OSX cannot encode __m128 so the serialization will fail
-OSX_DISABLED_TEST(NSValue, arbitraryStructCanBeSerializedAndDeserialized) {
+TEST(NSValue, arbitraryStructCanBeSerializedAndDeserialized) {
     using namespace std::complex_literals;
-    ArbitrarilyComplexStruct acs{ { 3.14 }, 1.9i };
+    ArbitrarilyComplexStruct acs{ 3.14, 1.9i };
 
     id val = [NSValue valueWithBytes:&acs objCType:@encode(ArbitrarilyComplexStruct)];
     id data = [NSKeyedArchiver archivedDataWithRootObject:val];

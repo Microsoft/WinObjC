@@ -51,13 +51,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\RTObjCInterop\dll\RTObjCInterop.vcxproj" />
+  </ItemGroup>
+
   <!-- NuProj Project References. Ensure that these only get evaluated once by checking that this isn't the second time through this project -->
   <ItemGroup Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\WinObjC.Frameworks.Core\WinObjC.Frameworks.Core.nuproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\WinObjC.Frameworks.Core\WinObjC.Frameworks.Core.nuproj">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Import Project="$(NuGetAuthoringPath)\NuGet.Packaging.Authoring.targets" Condition="Exists('$(NuGetAuthoringPath)\NuGet.Packaging.Authoring.targets')" />

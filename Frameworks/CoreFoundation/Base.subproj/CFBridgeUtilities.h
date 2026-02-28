@@ -33,11 +33,11 @@ CF_PRIVATE uintptr_t __CFISAForTypeID(CFTypeID typeID);
 // NSCFString thus requires explicit handling below
 // The reference platform uses a special compiler option not available to us to
 // get __CFConstantStringClassReferencePtr filled out with the correct "Class". Since this isn't
-// an option here, use &_OBJC_CLASS__NSCFString instead.
+// an option here, use &$_OBJC_CLASS__NSCFString instead.
 // CF_EXPORT void * __CFConstantStringClassReferencePtrPtr;
 // CF_EXPORT void *__CFConstantStringClassReferencePtr[];
-CF_EXPORT Class _OBJC_CLASS__NSCFString;
-CF_EXPORT Class _OBJC_CLASS__NSCFType;
+CF_EXPORT Class $_OBJC_CLASS__NSCFString;
+CF_EXPORT Class $_OBJC_CLASS__NSCFType;
 
 // For bridged classes, which under certain circumstances, dispatch a function from C side to Objective-C side
 #define CF_OBJC_FUNCDISPATCHV(type, ret, obj, ...)         \
@@ -57,9 +57,9 @@ CF_EXPORT Class _OBJC_CLASS__NSCFType;
     /* Any isa means ObjC but make sure it isn't a bridge */ \
     ((((CFRuntimeBase*)(obj))->_cfisa != 0) && \
     /* Special handling for CFType  */ \
-    (((CFRuntimeBase*)(obj))->_cfisa != (uintptr_t)(&_OBJC_CLASS__NSCFType)) && \
+    (((CFRuntimeBase*)(obj))->_cfisa != (uintptr_t)(&$_OBJC_CLASS__NSCFType)) && \
     /* Special handling for String (see above) */ \
-    (((CFRuntimeBase*)(obj))->_cfisa != (uintptr_t)(&_OBJC_CLASS__NSCFString)) &&  \
+    (((CFRuntimeBase*)(obj))->_cfisa != (uintptr_t)(&$_OBJC_CLASS__NSCFString)) &&  \
     /* Make sure that obj isn't the concrete impl, otherwise FUNCDISPATCHV would infinitely recurse */ \
     (__CFISAForTypeID(typeID) != ((CFRuntimeBase*)(obj))->_cfisa) &&  \
     /* Make sure obj isn't a subclass (should only be KVO of the concrete bridged impl) */ \

@@ -42,7 +42,7 @@ static CFDictionaryValueCallBacks _NSCFDictionaryValueCallBacks = {
 PROTOTYPE_CLASS_REQUIRED_IMPLS(NSCFDictionary)
 
 - (_Nullable instancetype)init {
-    return [self initWithObjects:nil forKeys:nil count:0];
+    return [self initWithObjects:nullptr forKeys:nullptr count:0];
 }
 
 - (_Nullable instancetype)initWithObjects:(const id*)vals forKeys:(const id<NSCopying> _Nonnull[])keys count:(NSUInteger)count {

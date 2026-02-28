@@ -1,0 +1,261 @@
+From 3acd2faeb6403d92badf7e742d296eeeaff30ba8 Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:28:26 -0800
+Subject: [PATCH 17/19] [ObjC] Add a skeletal Microsoft Objective-C ABI, based
+ on GNUstep
+
+---
+ include/clang/Basic/ObjCRuntime.h | 33 +++++++++++++++++++++++++--------
+ lib/Basic/ObjCRuntime.cpp         |  4 ++++
+ lib/CodeGen/CGException.cpp       |  6 ++++++
+ lib/CodeGen/CGObjCGNU.cpp         | 13 +++++++++++--
+ lib/CodeGen/CGObjCMac.cpp         |  1 +
+ lib/CodeGen/CodeGenModule.cpp     |  1 +
+ lib/Frontend/InitPreprocessor.cpp |  2 ++
+ 7 files changed, 50 insertions(+), 10 deletions(-)
+
+diff --git a/include/clang/Basic/ObjCRuntime.h b/include/clang/Basic/ObjCRuntime.h
+index 8dc259c7ab..1eb792adcf 100644
+--- a/include/clang/Basic/ObjCRuntime.h
++++ b/include/clang/Basic/ObjCRuntime.h
+@@ -53,7 +53,11 @@ public:
+     GNUstep,
+ 
+     /// 'objfw' is the Objective-C runtime included in ObjFW
+-    ObjFW
++    ObjFW,
++
++    /// 'microsoft' is the Objective-C runtime used by the Microsoft WinObjC
++    /// project. It is based on the modern non-fragile GNUstep runtime.
++    Microsoft
+   };
+ 
+ private:
+@@ -79,13 +83,16 @@ public:
+   /// "non-fragile" ABI?
+   bool isNonFragile() const {
+     switch (getKind()) {
+-    case FragileMacOSX: return false;
+-    case GCC: return false;
+-    case MacOSX: return true;
+-    case GNUstep: return true;
+-    case ObjFW: return true;
+-    case iOS: return true;
+-    case WatchOS: return true;
++    case FragileMacOSX:
++    case GCC:
++      return false;
++    case MacOSX:
++    case GNUstep:
++    case ObjFW:
++    case Microsoft:
++    case iOS:
++    case WatchOS:
++      return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -108,6 +115,8 @@ public:
+              (getVersion() >= VersionTuple(10, 0)) &&
+              (getVersion() < VersionTuple(10, 6)))
+         return Arch != llvm::Triple::x86_64;
++    else if (getKind() == Microsoft)
++        return false;
+     // Except for deployment target of 10.5 or less,
+     // Mac runtimes use legacy dispatch everywhere now.
+     return true;
+@@ -124,6 +133,7 @@ public:
+     case GCC:
+     case GNUstep:
+     case ObjFW:
++    case Microsoft:
+       return true;
+     }
+     llvm_unreachable("bad kind");
+@@ -148,6 +158,7 @@ public:
+     case GCC: return false;
+     case GNUstep: return true;
+     case ObjFW: return true;
++    case Microsoft: return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -167,6 +178,7 @@ public:
+     case GCC: return false;
+     case GNUstep: return getVersion() >= VersionTuple(1, 6);
+     case ObjFW: return true;
++    case Microsoft: return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -217,6 +229,7 @@ public:
+     case GCC: return true;
+     case GNUstep: return true;
+     case ObjFW: return true;
++    case Microsoft: return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -240,6 +253,7 @@ public:
+     case WatchOS:
+     case GNUstep:
+     case ObjFW:
++    case Microsoft:
+       return false;
+     }
+     llvm_unreachable("bad kind");
+@@ -263,6 +277,7 @@ public:
+     case GCC: return false;
+     case GNUstep: return false;
+     case ObjFW: return false;
++    case Microsoft: return false;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -277,6 +292,7 @@ public:
+     case GCC: return true;
+     case GNUstep: return true;
+     case ObjFW: return true;
++    case Microsoft: return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+@@ -291,6 +307,7 @@ public:
+     case GCC: return true;
+     case GNUstep: return true;
+     case ObjFW: return true;
++    case Microsoft: return true;
+     }
+     llvm_unreachable("bad kind");
+   }
+diff --git a/lib/Basic/ObjCRuntime.cpp b/lib/Basic/ObjCRuntime.cpp
+index 133c66945d..cf118906b1 100644
+--- a/lib/Basic/ObjCRuntime.cpp
++++ b/lib/Basic/ObjCRuntime.cpp
+@@ -34,6 +34,7 @@ raw_ostream &clang::operator<<(raw_ostream &out, const ObjCRuntime &value) {
+   case ObjCRuntime::GNUstep: out << "gnustep"; break;
+   case ObjCRuntime::GCC: out << "gcc"; break;
+   case ObjCRuntime::ObjFW: out << "objfw"; break;
++  case ObjCRuntime::Microsoft: out << "microsoft"; break;
+   }
+   if (value.getVersion() > VersionTuple(0)) {
+     out << '-' << value.getVersion();
+@@ -75,6 +76,9 @@ bool ObjCRuntime::tryParse(StringRef input) {
+   } else if (runtimeName == "objfw") {
+     kind = ObjCRuntime::ObjFW;
+     Version = VersionTuple(0, 8);
++  } else if (runtimeName == "microsoft") {
++    kind = ObjCRuntime::Microsoft;
++    Version = VersionTuple(1, 9);
+   } else {
+     return true;
+   }
+diff --git a/lib/CodeGen/CGException.cpp b/lib/CodeGen/CGException.cpp
+index 97ed07db58..f75fd8eae7 100644
+--- a/lib/CodeGen/CGException.cpp
++++ b/lib/CodeGen/CGException.cpp
+@@ -141,6 +141,8 @@ static const EHPersonality &getObjCPersonality(const llvm::Triple &T,
+     if (L.SEHExceptions)
+       return EHPersonality::GNU_ObjC_SEH;
+     return EHPersonality::GNU_ObjC;
++  case ObjCRuntime::Microsoft:
++    return EHPersonality::MSVC_CxxFrameHandler3;
+   }
+   llvm_unreachable("bad runtime kind");
+ }
+@@ -180,6 +182,10 @@ static const EHPersonality &getObjCXXPersonality(const llvm::Triple &T,
+   case ObjCRuntime::GCC:
+   case ObjCRuntime::ObjFW:
+     return getObjCPersonality(T, L);
++
++  // Microsoft's ABI supports Objective-C exceptions through CxxFrameHandler
++  case ObjCRuntime::Microsoft:
++    return EHPersonality::MSVC_CxxFrameHandler3;
+   }
+   llvm_unreachable("bad runtime kind");
+ }
+diff --git a/lib/CodeGen/CGObjCGNU.cpp b/lib/CodeGen/CGObjCGNU.cpp
+index cb37382ec0..ce9e27e90d 100644
+--- a/lib/CodeGen/CGObjCGNU.cpp
++++ b/lib/CodeGen/CGObjCGNU.cpp
+@@ -93,7 +93,7 @@ public:
+ 
+ /// GNU Objective-C runtime code generation.  This class implements the parts of
+ /// Objective-C support that are specific to the GNU family of runtimes (GCC,
+-/// GNUstep and ObjFW).
++/// GNUstep, ObjFW and Microsoft).
+ class CGObjCGNU : public CGObjCRuntime {
+ protected:
+   /// The LLVM module into which output is inserted
+@@ -709,7 +709,7 @@ class CGObjCGNUstep : public CGObjCGNU {
+     }
+ 
+   public:
+-    CGObjCGNUstep(CodeGenModule &Mod) : CGObjCGNU(Mod, 9, 3) {
++    CGObjCGNUstep(CodeGenModule &Mod, unsigned int runtimeABIVersion = 9) : CGObjCGNU(Mod, runtimeABIVersion, 3) {
+       const ObjCRuntime &R = CGM.getLangOpts().ObjCRuntime;
+ 
+       llvm::StructType *SlotStructTy =
+@@ -868,6 +868,12 @@ public:
+                               PtrToObjCSuperTy, SelectorTy);
+   }
+ };
++
++class CGObjCMicrosoft: public CGObjCGNUstep {
++public:
++  CGObjCMicrosoft(CodeGenModule &Mod): CGObjCGNUstep(Mod, 9) {
++  }
++};
+ } // end anonymous namespace
+ 
+ /// Emits a reference to a dummy variable which is emitted with each class.
+@@ -2941,6 +2947,9 @@ clang::CodeGen::CreateGNUObjCRuntime(CodeGenModule &CGM) {
+   case ObjCRuntime::ObjFW:
+     return new CGObjCObjFW(CGM);
+ 
++  case ObjCRuntime::Microsoft:
++    return new CGObjCMicrosoft(CGM);
++
+   case ObjCRuntime::FragileMacOSX:
+   case ObjCRuntime::MacOSX:
+   case ObjCRuntime::iOS:
+diff --git a/lib/CodeGen/CGObjCMac.cpp b/lib/CodeGen/CGObjCMac.cpp
+index ef4e6cd4f0..bd9e587fe2 100644
+--- a/lib/CodeGen/CGObjCMac.cpp
++++ b/lib/CodeGen/CGObjCMac.cpp
+@@ -7606,6 +7606,7 @@ CodeGen::CreateMacObjCRuntime(CodeGen::CodeGenModule &CGM) {
+   case ObjCRuntime::GNUstep:
+   case ObjCRuntime::GCC:
+   case ObjCRuntime::ObjFW:
++  case ObjCRuntime::Microsoft:
+     llvm_unreachable("these runtimes are not Mac runtimes");
+   }
+   llvm_unreachable("bad runtime");
+diff --git a/lib/CodeGen/CodeGenModule.cpp b/lib/CodeGen/CodeGenModule.cpp
+index 2172486682..af3df0b9d5 100644
+--- a/lib/CodeGen/CodeGenModule.cpp
++++ b/lib/CodeGen/CodeGenModule.cpp
+@@ -180,6 +180,7 @@ void CodeGenModule::createObjCRuntime() {
+   case ObjCRuntime::GNUstep:
+   case ObjCRuntime::GCC:
+   case ObjCRuntime::ObjFW:
++  case ObjCRuntime::Microsoft:
+     ObjCRuntime.reset(CreateGNUObjCRuntime(*this));
+     return;
+ 
+diff --git a/lib/Frontend/InitPreprocessor.cpp b/lib/Frontend/InitPreprocessor.cpp
+index 321d963827..da3be39ef8 100644
+--- a/lib/Frontend/InitPreprocessor.cpp
++++ b/lib/Frontend/InitPreprocessor.cpp
+@@ -641,6 +641,8 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
+       Builder.defineMacro("__OBJFW_RUNTIME_ABI__",
+                           Twine(tuple.getMajor() * 10000 + minor * 100 +
+                                 subminor));
++    } else if (LangOpts.ObjCRuntime.getKind() == ObjCRuntime::Microsoft) {
++      Builder.defineMacro("__MICROSOFT_OBJC_RUNTIME_ABI__");
+     }
+ 
+     Builder.defineMacro("IBOutlet", "__attribute__((iboutlet))");
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

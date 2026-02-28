@@ -141,7 +141,7 @@ TEST(CTRun, GetAttributes) {
     CFArrayRef runsArray = CTLineGetGlyphRuns(line);
     CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runsArray, 0);
 
-    EXPECT_EQ(nil, CTRunGetAttributes(nullptr));
+    EXPECT_EQ(nullptr, CTRunGetAttributes(nullptr));
 
     CFDictionaryRef dictionary = CTRunGetAttributes(run);
     UIFont* font = (UIFont*)CFDictionaryGetValue(dictionary, NSFontAttributeName);

@@ -1,20 +1,20 @@
 LIBRARY HomeKit
     EXPORTS
         ; HMAccessory.mm
-        _OBJC_CLASS_HMAccessory DATA
-        __objc_class_name_HMAccessory CONSTANT
+        $_OBJC_CLASS_HMAccessory DATA
+        $_OBJC_REF_CLASS_HMAccessory DATA
 
         ; HMAccessoryBrowser.mm
-        _OBJC_CLASS_HMAccessoryBrowser DATA
-        __objc_class_name_HMAccessoryBrowser CONSTANT
+        $_OBJC_CLASS_HMAccessoryBrowser DATA
+        $_OBJC_REF_CLASS_HMAccessoryBrowser DATA
 
         ; HMAction.mm
-        _OBJC_CLASS_HMAction DATA
-        __objc_class_name_HMAction CONSTANT
+        $_OBJC_CLASS_HMAction DATA
+        $_OBJC_REF_CLASS_HMAction DATA
 
         ; HMActionSet.mm
-        _OBJC_CLASS_HMActionSet DATA
-        __objc_class_name_HMActionSet CONSTANT
+        $_OBJC_CLASS_HMActionSet DATA
+        $_OBJC_REF_CLASS_HMActionSet DATA
 
         ; HMCharacteristic.mm
         HMCharacteristicPropertySupportsEventNotification DATA
@@ -54,8 +54,8 @@ LIBRARY HomeKit
         HMCharacteristicTypeLockMechanismLastKnownAction DATA
         HMCharacteristicTypeLockManagementControlPoint DATA
         HMCharacteristicTypeLockManagementAutoSecureTimeout DATA
-        _OBJC_CLASS_HMCharacteristic DATA
-        __objc_class_name_HMCharacteristic CONSTANT
+        $_OBJC_CLASS_HMCharacteristic DATA
+        $_OBJC_REF_CLASS_HMCharacteristic DATA
 
         ; HMCharacteristicMetadata.mm
         HMCharacteristicMetadataUnitsCelsius DATA
@@ -74,25 +74,25 @@ LIBRARY HomeKit
         HMCharacteristicMetadataFormatUInt64 DATA
         HMCharacteristicMetadataFormatData DATA
         HMCharacteristicMetadataFormatTLV8 DATA
-        _OBJC_CLASS_HMCharacteristicMetadata DATA
-        __objc_class_name_HMCharacteristicMetadata CONSTANT
+        $_OBJC_CLASS_HMCharacteristicMetadata DATA
+        $_OBJC_REF_CLASS_HMCharacteristicMetadata DATA
 
         ; HMCharacteristicWriteAction.mm
-        _OBJC_CLASS_HMCharacteristicWriteAction DATA
-        __objc_class_name_HMCharacteristicWriteAction CONSTANT
+        $_OBJC_CLASS_HMCharacteristicWriteAction DATA
+        $_OBJC_REF_CLASS_HMCharacteristicWriteAction DATA
 
         ; HMHome.mm
         HMUserFailedAccessoriesKey DATA
-        _OBJC_CLASS_HMHome DATA
-        __objc_class_name_HMHome CONSTANT
+        $_OBJC_CLASS_HMHome DATA
+        $_OBJC_REF_CLASS_HMHome DATA
 
         ; HMHomeManager.mm
-        _OBJC_CLASS_HMHomeManager DATA
-        __objc_class_name_HMHomeManager CONSTANT
+        $_OBJC_CLASS_HMHomeManager DATA
+        $_OBJC_REF_CLASS_HMHomeManager DATA
 
         ; HMRoom.mm
-        _OBJC_CLASS_HMRoom DATA
-        __objc_class_name_HMRoom CONSTANT
+        $_OBJC_CLASS_HMRoom DATA
+        $_OBJC_REF_CLASS_HMRoom DATA
 
         ; HMService.mm
         HMServiceTypeLightbulb DATA
@@ -104,28 +104,28 @@ LIBRARY HomeKit
         HMServiceTypeOutlet DATA
         HMServiceTypeLockMechanism DATA
         HMServiceTypeLockManagement DATA
-        _OBJC_CLASS_HMService DATA
-        __objc_class_name_HMService CONSTANT
+        $_OBJC_CLASS_HMService DATA
+        $_OBJC_REF_CLASS_HMService DATA
 
         ; HMServiceGroup.mm
-        _OBJC_CLASS_HMServiceGroup DATA
-        __objc_class_name_HMServiceGroup CONSTANT
+        $_OBJC_CLASS_HMServiceGroup DATA
+        $_OBJC_REF_CLASS_HMServiceGroup DATA
 
         ; HMTimerTrigger.mm
-        _OBJC_CLASS_HMTimerTrigger DATA
-        __objc_class_name_HMTimerTrigger CONSTANT
+        $_OBJC_CLASS_HMTimerTrigger DATA
+        $_OBJC_REF_CLASS_HMTimerTrigger DATA
 
         ; HMTrigger.mm
-        _OBJC_CLASS_HMTrigger DATA
-        __objc_class_name_HMTrigger CONSTANT
+        $_OBJC_CLASS_HMTrigger DATA
+        $_OBJC_REF_CLASS_HMTrigger DATA
 
         ; HMUser.mm
-        _OBJC_CLASS_HMUser DATA
-        __objc_class_name_HMUser CONSTANT
+        $_OBJC_CLASS_HMUser DATA
+        $_OBJC_REF_CLASS_HMUser DATA
 
         ; HMZone.mm
-        _OBJC_CLASS_HMZone DATA
-        __objc_class_name_HMZone CONSTANT
+        $_OBJC_CLASS_HMZone DATA
+        $_OBJC_REF_CLASS_HMZone DATA
 
         ; HomeKitConstants.mm
         HMErrorDomain DATA

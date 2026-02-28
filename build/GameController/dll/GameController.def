@@ -7,42 +7,42 @@ LIBRARY GameController
         NSDataFromGCExtendedGamepadSnapShotDataV100
 
         ; GCController.mm
-        _OBJC_CLASS_GCController DATA
-        __objc_class_name_GCController CONSTANT
+        $_OBJC_CLASS_GCController DATA
+        $_OBJC_REF_CLASS_GCController DATA
 
         ; GCControllerAxisInput.mm
-        _OBJC_CLASS_GCControllerAxisInput DATA
-        __objc_class_name_GCControllerAxisInput CONSTANT
+        $_OBJC_CLASS_GCControllerAxisInput DATA
+        $_OBJC_REF_CLASS_GCControllerAxisInput DATA
 
         ; GCControllerButtonInput.mm
-        _OBJC_CLASS_GCControllerButtonInput DATA
-        __objc_class_name_GCControllerButtonInput CONSTANT
+        $_OBJC_CLASS_GCControllerButtonInput DATA
+        $_OBJC_REF_CLASS_GCControllerButtonInput DATA
 
         ; GCControllerDirectionPad.mm
-        _OBJC_CLASS_GCControllerDirectionPad DATA
-        __objc_class_name_GCControllerDirectionPad CONSTANT
+        $_OBJC_CLASS_GCControllerDirectionPad DATA
+        $_OBJC_REF_CLASS_GCControllerDirectionPad DATA
 
         ; GCControllerElement.mm
-        _OBJC_CLASS_GCControllerElement DATA
-        __objc_class_name_GCControllerElement CONSTANT
+        $_OBJC_CLASS_GCControllerElement DATA
+        $_OBJC_REF_CLASS_GCControllerElement DATA
 
         ; GCExtendedGamepad.mm
-        _OBJC_CLASS_GCExtendedGamepad DATA
-        __objc_class_name_GCExtendedGamepad CONSTANT
+        $_OBJC_CLASS_GCExtendedGamepad DATA
+        $_OBJC_REF_CLASS_GCExtendedGamepad DATA
 
         ; GCExtendedGamepadSnapshot.mm
-        _OBJC_CLASS_GCExtendedGamepadSnapshot DATA
-        __objc_class_name_GCExtendedGamepadSnapshot CONSTANT
+        $_OBJC_CLASS_GCExtendedGamepadSnapshot DATA
+        $_OBJC_REF_CLASS_GCExtendedGamepadSnapshot DATA
 
         ; GCGamepad.mm
-        _OBJC_CLASS_GCGamepad DATA
-        __objc_class_name_GCGamepad CONSTANT
+        $_OBJC_CLASS_GCGamepad DATA
+        $_OBJC_REF_CLASS_GCGamepad DATA
 
         ; GCGamepadSnapshot.mm
-        _OBJC_CLASS_GCGamepadSnapshot DATA
-        __objc_class_name_GCGamepadSnapshot CONSTANT
+        $_OBJC_CLASS_GCGamepadSnapshot DATA
+        $_OBJC_REF_CLASS_GCGamepadSnapshot DATA
 
         ; GCMotion.mm
-        _OBJC_CLASS_GCMotion DATA
-        __objc_class_name_GCMotion CONSTANT
+        $_OBJC_CLASS_GCMotion DATA
+        $_OBJC_REF_CLASS_GCMotion DATA
 

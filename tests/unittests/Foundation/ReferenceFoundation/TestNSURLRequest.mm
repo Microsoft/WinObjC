@@ -103,7 +103,7 @@ TEST(NSURLRequest, Copy) {
     mutableRequest.HTTPMethod = @"POST";
     [mutableRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
 
-    auto requestCopy1 = ([[mutableRequest copy] isKindOfClass:[NSURLRequest class]] ? (NSURLRequest*)[mutableRequest copy] : nil);
+    NSURLRequest* requestCopy1 = ([[mutableRequest copy] isKindOfClass:[NSURLRequest class]] ? (NSURLRequest*)[mutableRequest copy] : nil);
     ASSERT_OBJCNE(requestCopy1, nil);
 
     // Check that all attributes are copied and that the original ones are
@@ -131,7 +131,7 @@ TEST(NSURLRequest, Copy) {
     ASSERT_OBJCEQ(requestCopy1.allHTTPHeaderFields[@"Accept"], @"application/json");
 
     // Check that we can copy the copy:
-    auto requestCopy2 = ([[requestCopy1 copy] isKindOfClass:[NSURLRequest class]] ? (NSURLRequest*)[requestCopy1 copy] : nil);
+    NSURLRequest* requestCopy2 = ([[requestCopy1 copy] isKindOfClass:[NSURLRequest class]] ? (NSURLRequest*)[requestCopy1 copy] : nil);
     ASSERT_OBJCNE(requestCopy2, nil);
 
     ASSERT_OBJCEQ(requestCopy2.mainDocumentURL, urlA);
@@ -151,7 +151,7 @@ TEST(NSURLRequest, MutableCopy_1) {
     originalRequest.HTTPMethod = @"POST";
     [originalRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
 
-    auto requestCopy =
+    NSMutableURLRequest* requestCopy =
         ([[originalRequest mutableCopy] isKindOfClass:[NSMutableURLRequest class]] ? (NSMutableURLRequest*)[originalRequest mutableCopy] :
                                                                                      nil);
     ASSERT_OBJCNE(requestCopy, nil);
@@ -180,7 +180,7 @@ TEST(NSURLRequest, MutableCopy_2) {
     originalRequest.HTTPMethod = @"POST";
     [originalRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
 
-    auto requestCopy =
+    NSMutableURLRequest* requestCopy =
         ([[originalRequest mutableCopy] isKindOfClass:[NSMutableURLRequest class]] ? (NSMutableURLRequest*)[originalRequest mutableCopy] :
                                                                                      nil);
     ASSERT_OBJCNE(requestCopy, nil);
@@ -202,7 +202,7 @@ TEST(NSURLRequest, MutableCopy_3) {
     NSURL* urlA = [NSURL URLWithString:@"http://swift.org"];
     NSURLRequest* originalRequest = [NSURLRequest requestWithURL:urlA];
 
-    auto requestCopy =
+    NSMutableURLRequest* requestCopy =
         ([[originalRequest mutableCopy] isKindOfClass:[NSMutableURLRequest class]] ? (NSMutableURLRequest*)[originalRequest mutableCopy] :
                                                                                      nil);
     ASSERT_OBJCNE(requestCopy, nil);

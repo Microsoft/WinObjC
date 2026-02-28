@@ -123,14 +123,14 @@ TEST(CTLine, CTLineCreateWithAttributedString) {
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)attrString;
 
     CTLineRef line = CTLineCreateWithAttributedString(string);
-    EXPECT_NE(line, nil);
+    EXPECT_NE(line, nullptr);
 
     EXPECT_EQ(0, CTLineGetStringRange(line).location);
     EXPECT_EQ(5, CTLineGetStringRange(line).length);
     EXPECT_EQ(5, CTLineGetGlyphCount(line));
     CFArrayRef runs = CTLineGetGlyphRuns(line);
 
-    EXPECT_NE(runs, nil);
+    EXPECT_NE(runs, nullptr);
     EXPECT_EQ_MSG(2, CFArrayGetCount(runs), "CTLine should create multiple runs when attributed string has multiple attribute ranges");
     EXPECT_EQ(3, CTRunGetGlyphCount(static_cast<CTRunRef>(CFArrayGetValueAtIndex(runs, 0))));
     EXPECT_EQ(2, CTRunGetGlyphCount(static_cast<CTRunRef>(CFArrayGetValueAtIndex(runs, 1))));
@@ -164,18 +164,18 @@ TEST(CTLine, CTLineCreateWithAttributedString) {
 
     string = (__bridge CFAttributedStringRef)getAttributedString(@"");
     line = CTLineCreateWithAttributedString(string);
-    EXPECT_NE(line, nil);
+    EXPECT_NE(line, nullptr);
     EXPECT_EQ(0, CTLineGetStringRange(line).location);
     EXPECT_EQ(0, CTLineGetStringRange(line).length);
     EXPECT_EQ(0, CTLineGetGlyphCount(line));
 
     runs = CTLineGetGlyphRuns(line);
-    EXPECT_NE(runs, nil);
+    EXPECT_NE(runs, nullptr);
     EXPECT_EQ(0, CFArrayGetCount(runs));
     CFRelease(line);
 
-    line = CTLineCreateWithAttributedString(nil);
-    EXPECT_EQ(line, nil);
+    line = CTLineCreateWithAttributedString(nullptr);
+    EXPECT_EQ(line, nullptr);
 }
 
 TEST(CTLine, CreateTruncatedLineNoTruncationToken) {
@@ -277,7 +277,7 @@ TEST(CTLine, CreateTruncatedLineTruncationToken) {
 }
 
 TEST(CTLine, CTLineGetGlyphCount) {
-    EXPECT_EQ(0, CTLineGetGlyphCount(nil));
+    EXPECT_EQ(0, CTLineGetGlyphCount(nullptr));
 
     CFAttributedStringRef string = (__bridge CFAttributedStringRef)getAttributedString(@"");
     CTLineRef line = CTLineCreateWithAttributedString(string);

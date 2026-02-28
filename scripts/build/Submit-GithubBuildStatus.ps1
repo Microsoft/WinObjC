@@ -97,6 +97,13 @@ $statusHeaders = @{
 }
 
 If ($PSCmdlet.ShouldProcess($latestSha1, "GitHub Build Status")) {
+	Try {
+		Add-Type -Assembly System.Net
+		[System.Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+	} Catch {
+		Write-Warning "Failed to set TLS level: $_"
+	}
+
 	Invoke-WebRequest -Body (ConvertTo-JSON $newStatus) -ContentType "application/json" -Headers $statusHeaders -Method Post -Uri $statusURL | Out-Null
 } Else {
 	Write-Host "Would submit build status:"

@@ -33,7 +33,7 @@
 - (id)initWithFunctionName:(NSString*)name arguments:(NSArray*)args {
     if (self = [super initWithExpressionType:NSFunctionExpressionType]) {
         _selector = NSSelectorFromString(name);
-        if (_selector == nil) {
+        if (!_selector) {
             [self release];
             return nil;
         }

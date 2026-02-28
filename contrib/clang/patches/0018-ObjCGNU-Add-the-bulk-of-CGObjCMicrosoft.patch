@@ -1,0 +1,203 @@
+From 5e6667ae8e00f3303d551c75a09c8cb9050504e0 Mon Sep 17 00:00:00 2001
+From: "Dustin L. Howett" <duhowett@microsoft.com>
+Date: Sun, 21 Jan 2018 23:40:53 -0800
+Subject: [PATCH 18/19] [ObjCGNU] Add the bulk of CGObjCMicrosoft
+
+---
+ lib/CodeGen/CGObjCGNU.cpp | 156 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 156 insertions(+)
+
+diff --git a/lib/CodeGen/CGObjCGNU.cpp b/lib/CodeGen/CGObjCGNU.cpp
+index ce9e27e90d..be88fa507d 100644
+--- a/lib/CodeGen/CGObjCGNU.cpp
++++ b/lib/CodeGen/CGObjCGNU.cpp
+@@ -18,6 +18,7 @@
+ #include "CGCleanup.h"
+ #include "CodeGenFunction.h"
+ #include "CodeGenModule.h"
++#include "CGCXXABI.h"
+ #include "clang/CodeGen/ConstantInitBuilder.h"
+ #include "clang/AST/ASTContext.h"
+ #include "clang/AST/Decl.h"
+@@ -74,6 +75,13 @@ public:
+ 
+   llvm::FunctionType *getType() { return FTy; }
+ 
++  void reset() {
++      CGM = nullptr;
++      FunctionName = nullptr;
++      Function = nullptr;
++      FTy = nullptr;
++  }
++
+   /// Overloaded cast operator, allows the class to be implicitly cast to an
+   /// LLVM constant.
+   operator llvm::Constant *() {
+@@ -870,9 +878,25 @@ public:
+ };
+ 
+ class CGObjCMicrosoft: public CGObjCGNUstep {
++protected:
++  llvm::Value *GetClassNamed(CodeGenFunction &CGF, const std::string &Name,
++                             bool isWeak) override;
++
+ public:
+   CGObjCMicrosoft(CodeGenModule &Mod): CGObjCGNUstep(Mod, 9) {
++    EnterCatchFn.reset();
++    ExitCatchFn.reset();
++    llvm::Type *VoidTy = llvm::Type::getVoidTy(VMContext);
++    ExceptionReThrowFn.init(&CGM, "objc_exception_rethrow", VoidTy, IdTy);
+   }
++
++  llvm::Constant *GetEHType(QualType T) override;
++
++  void EmitThrowStmt(CodeGenFunction &CGF,
++                     const ObjCAtThrowStmt &S,
++                     bool ClearInsertionPoint=true) override;
++
++  llvm::Function *ModuleInitFunction() override;
+ };
+ } // end anonymous namespace
+ 
+@@ -2935,6 +2959,138 @@ llvm::Value *CGObjCGNU::EmitIvarOffset(CodeGenFunction &CGF,
+   return llvm::ConstantInt::get(PtrDiffTy, Offset, /*isSigned*/true);
+ }
+ 
++llvm::Value *CGObjCMicrosoft::GetClassNamed(CodeGenFunction &CGF,
++                                            const std::string &Name,
++                                            bool isWeak) {
++  if (isWeak)
++    return CGObjCGNUstep::GetClassNamed(CGF, Name, isWeak);
++
++  std::string SymbolName = "_OBJC_CLASS_" + Name;
++  llvm::GlobalVariable *ClassSymbol = TheModule.getGlobalVariable(SymbolName);
++  if (!ClassSymbol) {
++    ClassSymbol = new llvm::GlobalVariable(TheModule, LongTy, false,
++                                           llvm::GlobalValue::ExternalLinkage,
++                                           nullptr, SymbolName);
++    ClassSymbol->setDLLStorageClass(llvm::GlobalValue::DLLImportStorageClass);
++  }
++  return ClassSymbol;
++}
++
++llvm::Constant *CGObjCMicrosoft::GetEHType(QualType T) {
++    return CGM.getCXXABI().getAddrOfRTTIDescriptor(T);
++}
++
++void CGObjCMicrosoft::EmitThrowStmt(CodeGenFunction &CGF,
++                                    const ObjCAtThrowStmt &S,
++                                    bool ClearInsertionPoint) {
++  if (const Expr *ThrowExpr = S.getThrowExpr()) {
++    llvm::Value *Exception = CGF.EmitObjCThrowOperand(ThrowExpr);
++    Exception = CGF.Builder.CreateBitCast(Exception, IdTy);
++    CGF.EmitRuntimeCallOrInvoke(ExceptionThrowFn, Exception)
++      .setDoesNotReturn();
++  } else {
++    CGF.EmitRuntimeCallOrInvoke(ExceptionReThrowFn, NULLPtr)
++      .setDoesNotReturn();
++  }
++
++  CGF.Builder.CreateUnreachable();
++  if (ClearInsertionPoint)
++    CGF.Builder.ClearInsertionPoint();
++}
++
++llvm::Function *CGObjCMicrosoft::ModuleInitFunction() {
++  // Each module contains a number of Objective-C descriptor pointers emitted
++  // into the .objcrt$mx section. Modern loading hinges on us declaring pointers
++  // to COMDAT-foldable data in .objcrt$ma and .objcrt$mz, which the linker will
++  // sort respectively before and after .objcrt$mx. At the same time, we emit a
++  // linkonce ODR function that calls __objc_load_modules(void**, void**)
++  // and a pointer to it in the .CRT$XCL (library initialization) section.
++  //
++  // This lets us load and resolve every class before any user initializers run,
++  // and guarantees that by the time +load is called, every class in the
++  // executable has been initialized.
++  llvm::GlobalVariable *module = MakeModuleDescriptor();
++  if (module == nullptr) {
++    return nullptr;
++  }
++
++  llvm::GlobalVariable* moduleGuardStart = new llvm::GlobalVariable(
++      TheModule, PtrTy, /*isConstant=*/true,
++      llvm::GlobalValue::PrivateLinkage,
++      NULLPtr,
++      "\01.objc_module_guard_start");
++
++  llvm::GlobalVariable* moduleGuardEnd = new llvm::GlobalVariable(
++      TheModule, PtrTy, /*isConstant=*/true,
++      llvm::GlobalValue::PrivateLinkage,
++      NULLPtr,
++      "\01.objc_module_guard_end");
++
++  llvm::GlobalVariable* modulePtr = new llvm::GlobalVariable(
++      TheModule, PtrTy, /*isConstant=*/true,
++      llvm::GlobalValue::InternalLinkage,
++      llvm::ConstantExpr::getBitCast(module, PtrTy),
++	  "\01.objc_module_ptr");
++
++  llvm::Type *VoidTy = llvm::Type::getVoidTy(VMContext);
++  llvm::Function *initFunction = llvm::Function::Create(
++      llvm::FunctionType::get(VoidTy, false),
++      llvm::GlobalValue::PrivateLinkage, "",
++      &TheModule);
++
++  llvm::BasicBlock *entryBB =
++      llvm::BasicBlock::Create(VMContext, "entry", initFunction);
++  CGBuilderTy builder(CGM, VMContext);
++  builder.SetInsertPoint(entryBB);
++
++  llvm::FunctionType *loadFunctionTy = llvm::FunctionType::get(
++      builder.getVoidTy(),
++      {moduleGuardStart->getType(), moduleGuardEnd->getType()},
++      true);
++  llvm::Constant *loadModules = CGM.CreateRuntimeFunction(
++      loadFunctionTy,
++      "__objc_load_modules");
++
++  builder.CreateCall(loadModules, {moduleGuardStart, moduleGuardEnd});
++  builder.CreateRetVoid();
++
++  llvm::Type* initFunctionPtrTy =
++      llvm::PointerType::getUnqual(initFunction->getType());
++  llvm::GlobalVariable* initFunctionPtr = new llvm::GlobalVariable(
++      TheModule, initFunctionPtrTy, /*isConstant=*/true,
++      llvm::GlobalValue::LinkOnceODRLinkage,
++      llvm::ConstantExpr::getBitCast(initFunction, initFunctionPtrTy),
++      "\01.objc_init_from_module_list.xcl");
++
++  // prevent /OPT:REF from stripping the actual module pointer: we
++  // require it to exist so .objc_init_from_module_list has something to
++  // do.
++  CGM.addUsedGlobal(modulePtr);
++
++  // prevent /OPT:REF from stripping the module initializer.
++  CGM.addUsedGlobal(initFunctionPtr);
++
++  if (CGM.getTriple().isOSBinFormatCOFF()) {
++    moduleGuardStart->setSection(".objcrt$ma");
++    moduleGuardEnd->setSection(".objcrt$mz");
++    modulePtr->setSection(".objcrt$mx");
++    // Emit the initializer pointer into the CRT's "library initialization"
++    // section. It should be called before all user static initialization.
++    initFunctionPtr->setSection(".CRT$XCL");
++  }
++
++  if (CGM.supportsCOMDAT()) {
++    llvm::Comdat *COMDATKey =
++        TheModule.getOrInsertComdat(initFunctionPtr->getName());
++    moduleGuardStart->setComdat(COMDATKey);
++    moduleGuardEnd->setComdat(COMDATKey);
++    initFunction->setComdat(COMDATKey);
++    initFunctionPtr->setComdat(COMDATKey);
++  }
++
++  return nullptr;
++}
++
+ CGObjCRuntime *
+ clang::CodeGen::CreateGNUObjCRuntime(CodeGenModule &CGM) {
+   switch (CGM.getLangOpts().ObjCRuntime.getKind()) {
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

@@ -1,0 +1,172 @@
+From 3d6ecd30b098c5fbc72dbbc660b81245e245fb3f Mon Sep 17 00:00:00 2001
+From: Saleem Abdulrasool <compnerd@compnerd.org>
+Date: Sat, 20 Jan 2018 00:28:02 +0000
+Subject: [PATCH 1/5] CodeGen: handle llvm.used properly for COFF
+
+`llvm.used` contains a list of pointers to named values which the
+compiler, assembler, and linker are required to treat as if there is a
+reference that they cannot see.  Ensure that the symbols are preserved
+by adding an explicit `-include` reference to the linker command.
+
+git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@323017 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 860652c3f8ca993d51ee7304abb0a5a3c5368f79)
+(cherry picked from commit 6297e1168ca7111f2f3dfa944e14856b98ee51b1)
+---
+ include/llvm/CodeGen/TargetLoweringObjectFile.h    |  3 ++
+ .../llvm/CodeGen/TargetLoweringObjectFileImpl.h    |  3 ++
+ include/llvm/IR/Mangler.h                          |  3 ++
+ lib/CodeGen/AsmPrinter/AsmPrinter.cpp              | 32 ++++++++++++++++++++++
+ lib/CodeGen/TargetLoweringObjectFileImpl.cpp       |  5 ++++
+ lib/IR/Mangler.cpp                                 | 10 +++++++
+ test/CodeGen/X86/coff-no-dead-strip.ll             | 20 ++++++++++++++
+ 7 files changed, 76 insertions(+)
+ create mode 100644 test/CodeGen/X86/coff-no-dead-strip.ll
+
+diff --git a/include/llvm/CodeGen/TargetLoweringObjectFile.h b/include/llvm/CodeGen/TargetLoweringObjectFile.h
+index fe77c295412..9877072012d 100644
+--- a/include/llvm/CodeGen/TargetLoweringObjectFile.h
++++ b/include/llvm/CodeGen/TargetLoweringObjectFile.h
+@@ -183,6 +183,9 @@ public:
+   virtual void emitLinkerFlagsForGlobal(raw_ostream &OS,
+                                         const GlobalValue *GV) const {}
+ 
++  virtual void emitLinkerFlagsForUsed(raw_ostream &OS,
++                                      const GlobalValue *GV) const {}
++
+ protected:
+   virtual MCSection *SelectSectionForGlobal(const GlobalObject *GO,
+                                             SectionKind Kind,
+diff --git a/include/llvm/CodeGen/TargetLoweringObjectFileImpl.h b/include/llvm/CodeGen/TargetLoweringObjectFileImpl.h
+index 69de9f8cb35..8ccb51c2af6 100644
+--- a/include/llvm/CodeGen/TargetLoweringObjectFileImpl.h
++++ b/include/llvm/CodeGen/TargetLoweringObjectFileImpl.h
+@@ -163,6 +163,9 @@ public:
+ 
+   void emitLinkerFlagsForGlobal(raw_ostream &OS,
+                                 const GlobalValue *GV) const override;
++
++  void emitLinkerFlagsForUsed(raw_ostream &OS,
++                              const GlobalValue *GV) const override;
+ };
+ 
+ class TargetLoweringObjectFileWasm : public TargetLoweringObjectFile {
+diff --git a/include/llvm/IR/Mangler.h b/include/llvm/IR/Mangler.h
+index 56ee21392cc..0261c00f524 100644
+--- a/include/llvm/IR/Mangler.h
++++ b/include/llvm/IR/Mangler.h
+@@ -50,6 +50,9 @@ public:
+ void emitLinkerFlagsForGlobalCOFF(raw_ostream &OS, const GlobalValue *GV,
+                                   const Triple &TT, Mangler &Mangler);
+ 
++void emitLinkerFlagsForUsedCOFF(raw_ostream &OS, const GlobalValue *GV,
++                                const Triple &T, Mangler &M);
++
+ } // End llvm namespace
+ 
+ #endif
+diff --git a/lib/CodeGen/AsmPrinter/AsmPrinter.cpp b/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
+index d7995447592..4ab21af6077 100644
+--- a/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
++++ b/lib/CodeGen/AsmPrinter/AsmPrinter.cpp
+@@ -1421,6 +1421,38 @@ bool AsmPrinter::doFinalization(Module &M) {
+     if (MCSection *S = MAI->getNonexecutableStackSection(OutContext))
+       OutStreamer->SwitchSection(S);
+ 
++  if (TM.getTargetTriple().isOSBinFormatCOFF()) {
++    // Emit /INCLUDE: flags for each used global as necessary.
++    if (const auto *LU = M.getNamedGlobal("llvm.used")) {
++      assert(LU->hasInitializer() &&
++             "expected llvm.used to have an initializer");
++      assert(isa<ArrayType>(LU->getValueType()) &&
++             "expected llvm.used to be an array type");
++      if (const auto *A = cast<ConstantArray>(LU->getInitializer())) {
++        for (const Value *Op : A->operands()) {
++          const auto *GV =
++              cast<GlobalValue>(Op->stripPointerCastsNoFollowAliases());
++          // Global symbols with internal linkage are not visible to the linker,
++          // and thus would cause an error when the linker tried to preserve the
++          // symbol due to the `/include:` directive.
++          if (GV->hasInternalLinkage())
++            continue;
++
++          std::string Flags;
++          raw_string_ostream OS(Flags);
++          TLOF.emitLinkerFlagsForUsed(OS, GV);
++          OS.flush();
++
++          if (!Flags.empty()) {
++            OutStreamer->SwitchSection(TLOF.getDrectveSection());
++            OutStreamer->EmitBytes(Flags);
++          }
++          Flags.clear();
++        }
++      }
++    }
++  }
++
+   // Allow the target to emit any magic that it wants at the end of the file,
+   // after everything else has gone out.
+   EmitEndOfAsmFile(M);
+diff --git a/lib/CodeGen/TargetLoweringObjectFileImpl.cpp b/lib/CodeGen/TargetLoweringObjectFileImpl.cpp
+index 24d4baa31e1..0f6f2d7d84b 100644
+--- a/lib/CodeGen/TargetLoweringObjectFileImpl.cpp
++++ b/lib/CodeGen/TargetLoweringObjectFileImpl.cpp
+@@ -1250,6 +1250,11 @@ void TargetLoweringObjectFileCOFF::emitLinkerFlagsForGlobal(
+   emitLinkerFlagsForGlobalCOFF(OS, GV, getTargetTriple(), getMangler());
+ }
+ 
++void TargetLoweringObjectFileCOFF::emitLinkerFlagsForUsed(
++    raw_ostream &OS, const GlobalValue *GV) const {
++  emitLinkerFlagsForUsedCOFF(OS, GV, getTargetTriple(), getMangler());
++}
++
+ //===----------------------------------------------------------------------===//
+ //                                  Wasm
+ //===----------------------------------------------------------------------===//
+diff --git a/lib/IR/Mangler.cpp b/lib/IR/Mangler.cpp
+index 03723bfd2dd..7adcc59f571 100644
+--- a/lib/IR/Mangler.cpp
++++ b/lib/IR/Mangler.cpp
+@@ -204,3 +204,13 @@ void llvm::emitLinkerFlagsForGlobalCOFF(raw_ostream &OS, const GlobalValue *GV,
+       OS << ",data";
+   }
+ }
++
++void llvm::emitLinkerFlagsForUsedCOFF(raw_ostream &OS, const GlobalValue *GV,
++                                      const Triple &T, Mangler &M) {
++  if (!T.isKnownWindowsMSVCEnvironment())
++    return;
++
++  OS << " /INCLUDE:";
++  M.getNameWithPrefix(OS, GV, false);
++}
++
+diff --git a/test/CodeGen/X86/coff-no-dead-strip.ll b/test/CodeGen/X86/coff-no-dead-strip.ll
+new file mode 100644
+index 00000000000..adac90da885
+--- /dev/null
++++ b/test/CodeGen/X86/coff-no-dead-strip.ll
+@@ -0,0 +1,20 @@
++; RUN: llc -mtriple i686-windows-msvc -filetype asm -o - %s | FileCheck %s -check-prefix CHECK -check-prefix CHECK-ULP
++; RUN: llc -mtriple x86_64-windows-msvc -filetype asm -o - %s | FileCheck %s -check-prefix CHECK -check-prefix CHECK-NOULP
++; RUN: llc -mtriple thumbv7-windows-msvc -filetype asm -o - %s | FileCheck %s -check-prefix CHECK -check-prefix CHECK-NOULP
++
++@i = global i32 0
++@j = weak global i32 0
++@k = internal global i32 0
++declare x86_vectorcallcc void @l()
++
++@llvm.used = appending global [4 x i8*] [i8* bitcast (i32* @i to i8*), i8* bitcast (i32* @j to i8*), i8* bitcast (i32* @k to i8*), i8* bitcast (void ()* @l to i8*)]
++
++; CHECK: .section .drectve
++; CHECK-ULP: .ascii " /INCLUDE:_i"
++; CHECK-ULP: .ascii " /INCLUDE:_j"
++; CHECK-ULP-NOT: .ascii " /INCLUDE:_k"
++; CHECK-NOULP: .ascii " /INCLUDE:i"
++; CHECK-NOULP: .ascii " /INCLUDE:j"
++; CHECK-NOULP-NOT: .ascii " /INCLUDE:k"
++; CHECK: .ascii " /INCLUDE:l@@0"
++
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

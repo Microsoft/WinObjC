@@ -113,7 +113,7 @@ static inline const wchar_t* __GetUserDefaultLocaleName(wchar_t* buf, size_t buf
 CFStringRef _CFStringFromLocalizedString(IDWriteLocalizedStrings* localizedString, CFStringRef* actualLanguage) {
     if (localizedString == NULL) {
         TraceError(TAG, L"The input parameter is invalid!");
-        return nil;
+        return nullptr;
     }
 
     wchar_t localeBuffer[LOCALE_NAME_MAX_LENGTH];

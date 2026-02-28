@@ -312,7 +312,7 @@
     </ClCompile>
     <ClangCompile>
       <AdditionalOptions>-DSTARBOARD_PORT=1 %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=return-type -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -326,7 +326,7 @@
     <ClangCompile>
       <AdditionalOptions>-DSTARBOARD_PORT=1 %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=return-type -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
       <OptimizationLevel>Full</OptimizationLevel>
-      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
@@ -338,7 +338,7 @@
     </ClCompile>
     <ClangCompile>
       <AdditionalOptions>-DSTARBOARD_PORT=1 %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=return-type -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
@@ -352,7 +352,7 @@
     <ClangCompile>
       <AdditionalOptions>-DSTARBOARD_PORT=1 %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=return-type -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
       <OptimizationLevel>Full</OptimizationLevel>
-      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NO_STUBS;NSBUILDINGFOUNDATION;FOUNDATION_IMPEXP="";OBJC_HOOK="extern __declspec(dllimport)";DEPLOYMENT_TARGET_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ImportGroup Label="ExtensionTargets">

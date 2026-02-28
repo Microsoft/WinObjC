@@ -1,6 +1,6 @@
 LIBRARY QuickLook
     EXPORTS
         ; QLPreviewController.mm
-        _OBJC_CLASS_QLPreviewController DATA
-        __objc_class_name_QLPreviewController CONSTANT
+        $_OBJC_CLASS_QLPreviewController DATA
+        $_OBJC_REF_CLASS_QLPreviewController DATA
 

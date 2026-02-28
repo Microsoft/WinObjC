@@ -70,7 +70,7 @@ TEST(UIBezierPath, GetDashPattern) {
         EXPECT_EQ(outPattern[i], pattern[i]);
     }
 
-    [path setLineDash:nil count:0 phase:0];
+    [path setLineDash:nullptr count:0 phase:0];
     [path getLineDash:outPattern count:&count phase:&phase];
     EXPECT_EQ(count, 0);
     EXPECT_EQ(phase, 0.0f);

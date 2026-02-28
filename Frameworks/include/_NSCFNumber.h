@@ -20,7 +20,10 @@
 #pragma region _NSCFNumber
 
 // _NSCFTemporaryRootObject will be replaced with NSNumber at Foundation load time
-@interface _NSCFNumber : _NSCFTemporaryRootObject
+@interface _NSCFNumberSuperclassAnchor : _NSCFTemporaryRootObject
+@end
+
+@interface _NSCFNumber : _NSCFNumberSuperclassAnchor
 
 - (_Nonnull instancetype)retain;
 - (oneway void)release;
@@ -56,9 +59,8 @@
 
 #pragma region _NSCFBoolean
 
-// _NSCFTemporaryRootObject will be replaced with NSNumber at Foundation load time
 // Subclass for bools only
-@interface _NSCFBoolean : _NSCFTemporaryRootObject
+@interface _NSCFBoolean : _NSCFNumberSuperclassAnchor
 
 - (_Nonnull instancetype)retain;
 - (oneway void)release;

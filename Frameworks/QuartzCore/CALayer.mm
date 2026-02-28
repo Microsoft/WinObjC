@@ -341,7 +341,7 @@ CGContextRef CreateLayerContentsBitmapContext32(int width, int height, float sca
  @Status Interoperable
 */
 - (instancetype)init {
-    return [self _initWithXamlElement:nil];
+    return [self _initWithXamlElement:nullptr];
 }
 
 /**
@@ -431,7 +431,7 @@ CGContextRef CreateLayerContentsBitmapContext32(int width, int height, float sca
     }
 
     if (priv->contents == NULL) {
-        if (priv->_backgroundColor != nil) {
+        if (priv->_backgroundColor != nullptr) {
             CGContextSetFillColorWithColor(ctx, priv->_backgroundColor);
             CGContextFillRect(ctx, destRect);
         }
@@ -537,7 +537,7 @@ CGContextRef CreateLayerContentsBitmapContext32(int width, int height, float sca
                 CreateLayerContentsBitmapContext32(width, height, priv->contentsScale)) };
             _CGContextPushBeginDraw(drawContext);
 
-            if (priv->_backgroundColor != nil && CGColorGetPattern(priv->_backgroundColor) != nullptr) {
+            if (priv->_backgroundColor != nullptr && CGColorGetPattern(priv->_backgroundColor) != nullptr) {
                 CGContextSaveGState(drawContext);
                 CGContextSetFillColorWithColor(drawContext, priv->_backgroundColor);
 
@@ -1566,7 +1566,7 @@ static void doRecursiveAction(CALayer* layer, NSString* actionName) {
  @Status Interoperable
 */
 - (void)setBackgroundColor:(CGColorRef)color {
-    if (color != nil) {
+    if (color != nullptr) {
         const CGFloat* colorComp = CGColorGetComponents(color);
         priv->backgroundColor = { colorComp[0], colorComp[1], colorComp[2], colorComp[3] };
     } else {
@@ -2130,7 +2130,7 @@ static void doRecursiveAction(CALayer* layer, NSString* actionName) {
 */
 - (CGPathRef)shadowPath {
     UNIMPLEMENTED();
-    return nil;
+    return nullptr;
 }
 
 /**

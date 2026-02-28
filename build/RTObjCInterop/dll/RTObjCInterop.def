@@ -1,0 +1,51 @@
+LIBRARY RTObjCInterop
+    EXPORTS
+    rt_dynamic_cast
+    fastEnumArrayImpl
+    fastEnumIteratorImpl
+    SizeByEnumeration
+    getPropertyValueArrayInfo
+    convertNSDictionaryToPropertySet
+    convertNSErrorToPropertySet
+    convertPropertySetToNSDictionary
+    propertyValueCreator
+    convertNSDateToWinRT
+    convertWinRTToNSDate
+    convertNSURLToWinRTStorageFile
+    convertNSURLToWinRTUri
+    convertWinRTStorageFileToNSURL
+    convertWinRTUriToNSURL
+    convertNSNumberToPropertyValue
+    convertNSStringToPropertyValue
+    $_OBJC_CLASS_RTObject    DATA
+    $_OBJC_CLASS_WFGUID    DATA
+    $_OBJC_CLASS_RTKeyValuePair    DATA
+    $_OBJC_CLASS_ListenerMgr    DATA
+    $_OBJC_CLASS_RTProxiedNSArray    DATA
+    $_OBJC_CLASS_RTProxiedNSArrayFull    DATA
+    $_OBJC_CLASS_RTProxiedNSMutableArray    DATA
+    $_OBJC_CLASS_RTProxiedNSMutableArrayFull    DATA
+    $_OBJC_CLASS_RTProxiedIterableNSArray    DATA
+    $_OBJC_CLASS_RTProxiedIterableNSArrayFull    DATA
+    $_OBJC_CLASS_RTProxiedNSDictionaryKeyEnumerator    DATA
+    $_OBJC_CLASS_RTProxiedNSDictionary    DATA
+    $_OBJC_CLASS_RTProxiedNSMutableDictionary    DATA
+    $_OBJC_CLASS_RTProxiedKeyValuePair    DATA
+    $_OBJC_CLASS_RTProxiedObservableNSMutableArray    DATA
+    $_OBJC_CLASS_RTProxiedObservableNSMutableDictionary    DATA
+    $_OBJC_REF_CLASS_RTObject    DATA
+    $_OBJC_REF_CLASS_WFGUID    DATA
+    $_OBJC_REF_CLASS_RTKeyValuePair    DATA
+    $_OBJC_REF_CLASS_ListenerMgr    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSArray    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSArrayFull    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSMutableArray    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSMutableArrayFull    DATA
+    $_OBJC_REF_CLASS_RTProxiedIterableNSArray    DATA
+    $_OBJC_REF_CLASS_RTProxiedIterableNSArrayFull    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSDictionaryKeyEnumerator    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSDictionary    DATA
+    $_OBJC_REF_CLASS_RTProxiedNSMutableDictionary    DATA
+    $_OBJC_REF_CLASS_RTProxiedKeyValuePair    DATA
+    $_OBJC_REF_CLASS_RTProxiedObservableNSMutableArray    DATA
+    $_OBJC_REF_CLASS_RTProxiedObservableNSMutableDictionary    DATA

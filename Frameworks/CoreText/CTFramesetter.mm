@@ -47,7 +47,7 @@ CTFramesetterRef CTFramesetterCreateWithAttributedString(CFAttributedStringRef s
  @Notes frameAttributes parameter ignored
 */
 CTFrameRef CTFramesetterCreateFrame(CTFramesetterRef framesetter, CFRange range, CGPathRef path, CFDictionaryRef frameAttributes) {
-    RETURN_NULL_IF(framesetter == nil || path == nullptr);
+    RETURN_NULL_IF(!framesetter || !path);
 
     CGRect frameRect = CGPathGetBoundingBox(path);
 

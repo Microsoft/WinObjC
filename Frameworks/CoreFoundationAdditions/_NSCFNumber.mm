@@ -34,6 +34,9 @@ enum { kCFNumberSInt128Type = 17 };
 
 #pragma region _NSCFNumber
 
+@implementation _NSCFNumberSuperclassAnchor
+@end
+
 @implementation _NSCFNumber
 
 - (id)retain {

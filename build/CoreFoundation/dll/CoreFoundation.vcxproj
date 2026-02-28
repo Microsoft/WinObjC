@@ -41,14 +41,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{81F30AF6-EAC3-4DFA-929A-C25D69E8080B}</ProjectGuid>
     <RootNamespace>CoreFoundation</RootNamespace>
-    <DefaultLanguage>en-US</DefaultLanguage>
     <AppContainerApplication>true</AppContainerApplication>
-    <ApplicationType>Windows Store</ApplicationType>
-    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <StarboardBasePath>$(MSBuildThisFileDirectory)..\..\..</StarboardBasePath>
     <OutputName>CoreFoundation</OutputName>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.10586.0</WindowsTargetPlatformMinVersion>
     <BuildingFrameworksCore>true</BuildingFrameworksCore>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
@@ -58,95 +53,33 @@
     <LinkWithCFNetwork>false</LinkWithCFNetwork>
     <LinkWithCoreFoundation>false</LinkWithCoreFoundation>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
-  </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(StarboardBasePath)\msvc\sdk-build.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <GenerateManifest>false</GenerateManifest>
-    <IgnoreImportLibrary>false</IgnoreImportLibrary>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(TargetOsAndVersion)\</OutDir>
-    <TargetName>$(OutputName)</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <GenerateManifest>false</GenerateManifest>
-    <IgnoreImportLibrary>false</IgnoreImportLibrary>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(TargetOsAndVersion)\</OutDir>
-    <TargetName>$(OutputName)</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <GenerateManifest>false</GenerateManifest>
-    <IgnoreImportLibrary>false</IgnoreImportLibrary>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(TargetOsAndVersion)\</OutDir>
-    <TargetName>$(OutputName)</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <GenerateManifest>false</GenerateManifest>
-    <IgnoreImportLibrary>false</IgnoreImportLibrary>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(TargetOsAndVersion)\</OutDir>
-    <TargetName>$(OutputName)</TargetName>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>CoreFoundation.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>mincore.lib;libxml2.lib;icudt.lib;icuin.lib;icuuc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
     </Link>
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\deps\prebuilt\include;$(StarboardBasePath)\deps\prebuilt\include\icu;$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat;$(StarboardBasePath)\include\WOCStdLib;$(StarboardBasePath)\Frameworks\CoreFoundation\Base.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\AppServices.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Collections.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Error.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Locale.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\NumberDate.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Parsing.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Plugin.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Preferences.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\RunLoop.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Stream.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\String.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\StringEncodings.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\URL.SubProj;</IncludePaths>
       <AdditionalOptions>-DSTARBOARD_PORT=1 -DCF_BUILDING_CF=1 -DTARGET_OS_WIN32=1 -DDEPLOYMENT_TARGET_WINDOWS=1 -DHAVE_STRUCT_TIMESPEC=1 -DINCLUDE_OBJC=1 -DUNICODE -DDISPATCH_NO_LEGACY=1 -D__XSI_VISIBLE=500 -DTARGET_IPHONE_SIMULATOR=0 -D__CONSTANT_CFSTRINGS__=1  %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <SystemHeaderDeps>true</SystemHeaderDeps>
       <PrefixHeader>$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\Base.Subproj\CoreFoundation_Prefix.h</PrefixHeader>
       <CompileAs>CompileAsObjCpp</CompileAs>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>CoreFoundation.def</ModuleDefinitionFile>
       <AdditionalDependencies>mincore.lib;libxml2.lib;icudt.lib;icuin.lib;icuuc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
@@ -154,53 +87,33 @@
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\deps\prebuilt\include;$(StarboardBasePath)\deps\prebuilt\include\icu;$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat;$(StarboardBasePath)\include\WOCStdLib;$(StarboardBasePath)\Frameworks\CoreFoundation\Base.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\AppServices.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Collections.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Error.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Locale.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\NumberDate.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Parsing.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Plugin.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Preferences.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\RunLoop.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Stream.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\String.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\StringEncodings.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\URL.SubProj;</IncludePaths>
       <AdditionalOptions>-DSTARBOARD_PORT=1 -DCF_BUILDING_CF=1 -DTARGET_OS_WIN32=1 -DDEPLOYMENT_TARGET_WINDOWS=1 -DHAVE_STRUCT_TIMESPEC=1 -DINCLUDE_OBJC=1 -DUNICODE -DDISPATCH_NO_LEGACY=1 -D__XSI_VISIBLE=500 -DTARGET_IPHONE_SIMULATOR=0 -D__CONSTANT_CFSTRINGS__=1  %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <SystemHeaderDeps>true</SystemHeaderDeps>
       <PrefixHeader>$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\Base.Subproj\CoreFoundation_Prefix.h</PrefixHeader>
       <CompileAs>CompileAsObjCpp</CompileAs>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>CoreFoundation.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>mincore.lib;libxml2.lib;icudt.lib;icuin.lib;icuuc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
     </Link>
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\deps\prebuilt\include;$(StarboardBasePath)\deps\prebuilt\include\icu;$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat;$(StarboardBasePath)\include\WOCStdLib;$(StarboardBasePath)\Frameworks\CoreFoundation\Base.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\AppServices.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Collections.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Error.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Locale.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\NumberDate.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Parsing.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Plugin.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Preferences.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\RunLoop.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Stream.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\String.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\StringEncodings.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\URL.SubProj;</IncludePaths>
       <AdditionalOptions>-DSTARBOARD_PORT=1 -DCF_BUILDING_CF=1 -DTARGET_OS_WIN32=1 -DDEPLOYMENT_TARGET_WINDOWS=1 -DHAVE_STRUCT_TIMESPEC=1 -DINCLUDE_OBJC=1 -DUNICODE -DDISPATCH_NO_LEGACY=1 -D__XSI_VISIBLE=500 -DTARGET_IPHONE_SIMULATOR=0 -D__CONSTANT_CFSTRINGS__=1  %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <SystemHeaderDeps>true</SystemHeaderDeps>
       <PrefixHeader>$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\Base.Subproj\CoreFoundation_Prefix.h</PrefixHeader>
       <CompileAs>CompileAsObjCpp</CompileAs>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>CoreFoundation.def</ModuleDefinitionFile>
       <AdditionalDependencies>mincore.lib;libxml2.lib;icudt.lib;icuin.lib;icuuc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
@@ -208,8 +121,6 @@
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\deps\prebuilt\include;$(StarboardBasePath)\deps\prebuilt\include\icu;$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat;$(StarboardBasePath)\include\WOCStdLib;$(StarboardBasePath)\Frameworks\CoreFoundation\Base.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\AppServices.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Collections.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Error.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Locale.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\NumberDate.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Parsing.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Plugin.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Preferences.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\RunLoop.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\Stream.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\String.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\StringEncodings.SubProj;$(StarboardBasePath)\Frameworks\CoreFoundation\URL.SubProj;</IncludePaths>
       <AdditionalOptions>-DSTARBOARD_PORT=1 -DCF_BUILDING_CF=1 -DTARGET_OS_WIN32=1 -DDEPLOYMENT_TARGET_WINDOWS=1 -DHAVE_STRUCT_TIMESPEC=1 -DINCLUDE_OBJC=1 -DUNICODE -DDISPATCH_NO_LEGACY=1 -D__XSI_VISIBLE=500 -DTARGET_IPHONE_SIMULATOR=0 -D__CONSTANT_CFSTRINGS__=1  %(AdditionalOptions) -Wno-error -Werror=incomplete-implementation -Werror=objc-protocol-property-synthesis -Werror=protocol</AdditionalOptions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <SystemHeaderDeps>true</SystemHeaderDeps>
       <PrefixHeader>$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\Base.Subproj\CoreFoundation_Prefix.h</PrefixHeader>
       <CompileAs>CompileAsObjCpp</CompileAs>
     </ClangCompile>

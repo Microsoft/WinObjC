@@ -106,7 +106,13 @@ BENCHMARK_F(KVO, RemoveObservers)
 
 class ObserveChange : public ::benchmark::BenchmarkCaseBase {
     StrongId<TestKVOObject> _testKVOObject;
-    StrongId<NSMutableArray<TestKVOObserver*>> _testObservers;
+    // GH#2862
+    // https://bugs.llvm.org/show_bug.cgi?id=25343
+    // New template rules in Clang >= 6.0.0 combined with a _lack_ of
+    // new mangling rules for Objective-C generics causes this to emit
+    // a spurious "definition with same mangled name as another definition"
+    // in SmartTypes.h.
+    StrongId<NSMutableArray/*<TestKVOObserver*>*/> _testObservers;
 
 public:
     void PreRun() {

@@ -75,7 +75,7 @@ TEST(NSPointerFunctions, StructPersonality) {
 TEST(NSPointerFunctions, OpaquePersonality) {
     NSPointerFunctions* functions = [NSPointerFunctions pointerFunctionsWithOptions:NSPointerFunctionsOpaquePersonality];
 
-    const void* ptr1;
+    const void* ptr1 = (void*)0x3;
     const void* ptr2 = ptr1;
     const void* ptr3 = (void*)((long)ptr1 + 1);
 

@@ -25,6 +25,9 @@
 - (void)_raiseBoundsExceptionForSelector:(SEL)selector andRange:(NSRange)range;
 @end
 
+@implementation _NSCFStringSuperclassAnchor
+@end
+
 // ignore bridge cast warnings here. _NSCFString will be a subclass of NSString. It just
 // doesn't realize it yet.
 #pragma clang diagnostic push

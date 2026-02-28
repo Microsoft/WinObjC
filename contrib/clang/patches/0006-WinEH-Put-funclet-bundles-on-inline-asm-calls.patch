@@ -1,0 +1,159 @@
+From afb9c839ab8357aabea04af29831a4f0741bd385 Mon Sep 17 00:00:00 2001
+From: Reid Kleckner <rnk@google.com>
+Date: Fri, 9 Feb 2018 00:16:41 +0000
+Subject: [PATCH 06/19] [WinEH] Put funclet bundles on inline asm calls
+
+Summary:
+Fixes PR36247, which is where WinEHPrepare replaces inline asm in
+funclets with unreachable.
+
+Make getBundlesForFunclet return by value to simplify some call sites.
+
+Reviewers: smeenai, majnemer
+
+Subscribers: eraman, cfe-commits
+
+Differential Revision: https://reviews.llvm.org/D43033
+
+git-svn-id: https://llvm.org/svn/llvm-project/cfe/trunk@324689 91177308-0d34-0410-b5e6-96231b3b80d8
+(cherry picked from commit 37031df06d0b18c853128a87d7648c625ca3a6e9)
+---
+ lib/CodeGen/CGCall.cpp                         | 29 +++++++++++++-------------
+ lib/CodeGen/CGStmt.cpp                         |  3 ++-
+ lib/CodeGen/CodeGenFunction.h                  |  3 +++
+ test/CodeGenCXX/microsoft-abi-eh-inlineasm.cpp | 18 ++++++++++++++++
+ 4 files changed, 37 insertions(+), 16 deletions(-)
+ create mode 100644 test/CodeGenCXX/microsoft-abi-eh-inlineasm.cpp
+
+diff --git a/lib/CodeGen/CGCall.cpp b/lib/CodeGen/CGCall.cpp
+index f780fe4880..15b19db965 100644
+--- a/lib/CodeGen/CGCall.cpp
++++ b/lib/CodeGen/CGCall.cpp
+@@ -3609,20 +3609,21 @@ CodeGenFunction::EmitRuntimeCall(llvm::Value *callee,
+ 
+ // Calls which may throw must have operand bundles indicating which funclet
+ // they are nested within.
+-static void
+-getBundlesForFunclet(llvm::Value *Callee, llvm::Instruction *CurrentFuncletPad,
+-                     SmallVectorImpl<llvm::OperandBundleDef> &BundleList) {
++SmallVector<llvm::OperandBundleDef, 1>
++CodeGenFunction::getBundlesForFunclet(llvm::Value *Callee) {
++  SmallVector<llvm::OperandBundleDef, 1> BundleList;
+   // There is no need for a funclet operand bundle if we aren't inside a
+   // funclet.
+   if (!CurrentFuncletPad)
+-    return;
++    return BundleList;
+ 
+   // Skip intrinsics which cannot throw.
+   auto *CalleeFn = dyn_cast<llvm::Function>(Callee->stripPointerCasts());
+   if (CalleeFn && CalleeFn->isIntrinsic() && CalleeFn->doesNotThrow())
+-    return;
++    return BundleList;
+ 
+   BundleList.emplace_back("funclet", CurrentFuncletPad);
++  return BundleList;
+ }
+ 
+ /// Emits a simple call (never an invoke) to the given runtime function.
+@@ -3630,10 +3631,8 @@ llvm::CallInst *
+ CodeGenFunction::EmitRuntimeCall(llvm::Value *callee,
+                                  ArrayRef<llvm::Value*> args,
+                                  const llvm::Twine &name) {
+-  SmallVector<llvm::OperandBundleDef, 1> BundleList;
+-  getBundlesForFunclet(callee, CurrentFuncletPad, BundleList);
+-
+-  llvm::CallInst *call = Builder.CreateCall(callee, args, BundleList, name);
++  llvm::CallInst *call =
++      Builder.CreateCall(callee, args, getBundlesForFunclet(callee), name);
+   call->setCallingConv(getRuntimeCC());
+   return call;
+ }
+@@ -3641,8 +3640,8 @@ CodeGenFunction::EmitRuntimeCall(llvm::Value *callee,
+ /// Emits a call or invoke to the given noreturn runtime function.
+ void CodeGenFunction::EmitNoreturnRuntimeCallOrInvoke(llvm::Value *callee,
+                                                ArrayRef<llvm::Value*> args) {
+-  SmallVector<llvm::OperandBundleDef, 1> BundleList;
+-  getBundlesForFunclet(callee, CurrentFuncletPad, BundleList);
++  SmallVector<llvm::OperandBundleDef, 1> BundleList =
++      getBundlesForFunclet(callee);
+ 
+   if (getInvokeDest()) {
+     llvm::InvokeInst *invoke = 
+@@ -3685,8 +3684,8 @@ CodeGenFunction::EmitCallOrInvoke(llvm::Value *Callee,
+                                   ArrayRef<llvm::Value *> Args,
+                                   const Twine &Name) {
+   llvm::BasicBlock *InvokeDest = getInvokeDest();
+-  SmallVector<llvm::OperandBundleDef, 1> BundleList;
+-  getBundlesForFunclet(Callee, CurrentFuncletPad, BundleList);
++  SmallVector<llvm::OperandBundleDef, 1> BundleList =
++      getBundlesForFunclet(Callee);
+ 
+   llvm::Instruction *Inst;
+   if (!InvokeDest)
+@@ -4194,8 +4193,8 @@ RValue CodeGenFunction::EmitCall(const CGFunctionInfo &CallInfo,
+   }
+   llvm::BasicBlock *InvokeDest = CannotThrow ? nullptr : getInvokeDest();
+ 
+-  SmallVector<llvm::OperandBundleDef, 1> BundleList;
+-  getBundlesForFunclet(CalleePtr, CurrentFuncletPad, BundleList);
++  SmallVector<llvm::OperandBundleDef, 1> BundleList =
++      getBundlesForFunclet(CalleePtr);
+ 
+   // Emit the actual call/invoke instruction.
+   llvm::CallSite CS;
+diff --git a/lib/CodeGen/CGStmt.cpp b/lib/CodeGen/CGStmt.cpp
+index 97e35e2b6e..96842cdb73 100644
+--- a/lib/CodeGen/CGStmt.cpp
++++ b/lib/CodeGen/CGStmt.cpp
+@@ -2131,7 +2131,8 @@ void CodeGenFunction::EmitAsmStmt(const AsmStmt &S) {
+   llvm::InlineAsm *IA =
+     llvm::InlineAsm::get(FTy, AsmString, Constraints, HasSideEffect,
+                          /* IsAlignStack */ false, AsmDialect);
+-  llvm::CallInst *Result = Builder.CreateCall(IA, Args);
++  llvm::CallInst *Result =
++      Builder.CreateCall(IA, Args, getBundlesForFunclet(IA));
+   Result->addAttribute(llvm::AttributeList::FunctionIndex,
+                        llvm::Attribute::NoUnwind);
+ 
+diff --git a/lib/CodeGen/CodeGenFunction.h b/lib/CodeGen/CodeGenFunction.h
+index 3e89586be3..7d3a39d097 100644
+--- a/lib/CodeGen/CodeGenFunction.h
++++ b/lib/CodeGen/CodeGenFunction.h
+@@ -3343,6 +3343,9 @@ public:
+                                           ArrayRef<llvm::Value*> args,
+                                           const Twine &name = "");
+ 
++  SmallVector<llvm::OperandBundleDef, 1>
++  getBundlesForFunclet(llvm::Value *Callee);
++
+   llvm::CallSite EmitCallOrInvoke(llvm::Value *Callee,
+                                   ArrayRef<llvm::Value *> Args,
+                                   const Twine &Name = "");
+diff --git a/test/CodeGenCXX/microsoft-abi-eh-inlineasm.cpp b/test/CodeGenCXX/microsoft-abi-eh-inlineasm.cpp
+new file mode 100644
+index 0000000000..9d9bff75fd
+--- /dev/null
++++ b/test/CodeGenCXX/microsoft-abi-eh-inlineasm.cpp
+@@ -0,0 +1,18 @@
++// RUN: %clang_cc1 -std=c++11 -emit-llvm %s -o - -triple=x86_64-pc-windows-msvc \
++// RUN:     -fexceptions -fcxx-exceptions | FileCheck %s
++
++// Make sure calls to inline asm have funclet bundles.
++
++extern "C" void might_throw();
++extern "C" void foo() {
++  try {
++    might_throw();
++  } catch (int) {
++    __asm__("nop");
++  }
++}
++
++// CHECK-LABEL: define void @foo()
++// CHECK: invoke void @might_throw()
++// CHECK: %[[CATCHPAD:[^ ]*]] = catchpad within
++// CHECK: call void asm sideeffect "nop", {{.*}} [ "funclet"(token %[[CATCHPAD]]) ]
+-- 
+2.16.2.gvfs.1.31.g9bf6eec
+

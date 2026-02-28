@@ -28,7 +28,7 @@ TEST(NSURLCredential, credentialWithUser) {
     EXPECT_OBJCEQ_MSG(pass, [credential password], "FAILED: password is not valid");
     EXPECT_EQ_MSG(NSURLCredentialPersistenceForSession, [credential persistence], "FAILED: persistence is not valid");
     EXPECT_EQ_MSG(YES, [credential hasPassword], "FAILED: hasPassword is not the expected value");
-    EXPECT_EQ_MSG(nil, [credential identity], "FAILED: identity not null");
+    EXPECT_EQ_MSG(nullptr, [credential identity], "FAILED: identity not null");
     EXPECT_EQ_MSG(nil, [credential certificates], "FAILED: certificates not null");
 }
 
@@ -53,5 +53,5 @@ TEST(NSURLCredential, credentialForTrust) {
     EXPECT_EQ_MSG(nil, [credential password], "FAILED: password is not null");
     EXPECT_EQ_MSG(NSURLCredentialPersistenceForSession, [credential persistence], "FAILED: persistence is not valid");
     EXPECT_EQ_MSG(NO, [credential hasPassword], "FAILED: hasPassword is not the expected value");
-    EXPECT_EQ_MSG(nil, [credential identity], "FAILED: identity not null");
+    EXPECT_EQ_MSG(nullptr, [credential identity], "FAILED: identity not null");
 }

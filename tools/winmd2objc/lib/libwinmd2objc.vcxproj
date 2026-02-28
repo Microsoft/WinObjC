@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.props" Condition="Exists('..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.props')" />
+  <Import Project="..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.props" Condition="Exists('..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -24,7 +24,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ConsoleApplication1337</RootNamespace>
     <ProjectName>libwinmd2objc</ProjectName>
-    <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -202,13 +201,13 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.targets" Condition="Exists('..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.targets')" />
+    <Import Project="..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.targets" Condition="Exists('..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.props'))" />
-    <Error Condition="!Exists('..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NuGet.Build.Packaging.0.1.253\build\NuGet.Build.Packaging.targets'))" />
+    <Error Condition="!Exists('..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.props'))" />
+    <Error Condition="!Exists('..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NuGet.Build.Packaging.0.2.3\build\NuGet.Build.Packaging.targets'))" />
   </Target>
 </Project>

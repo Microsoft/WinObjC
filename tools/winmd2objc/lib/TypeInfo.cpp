@@ -225,8 +225,8 @@ ReturnHandler handleReturnType(const shared_ptr<MemberInfo>& memberInfo, const S
             // We need to call the success/failure callbacks as part of our footer (after the function is called):
             ret.footer =
                 L"\n\
-    auto successRc = makeBlockHolder(success);\n\
-    auto failureRc = makeBlockHolder(failure);\n\
+    decltype(success) successRc = [success copy];\n\
+    decltype(failure) failureRc = [failure copy];\n\
     auto completionHandler =  ::Microsoft::WRL::Callback<\n\
         ::Microsoft::WRL::Implements<::Microsoft::WRL::RuntimeClassFlags<\n\
             ::Microsoft::WRL::WinRtClassicComMix>,\n\
@@ -262,6 +262,7 @@ ReturnHandler handleReturnType(const shared_ptr<MemberInfo>& memberInfo, const S
                     failureRc([NSError errorWithDomain:@\"Async\" code:(int)status userInfo:nil]);\n\
                 }\n\
             }\n\
+            [successRc release]; [failureRc release];\n\
             return S_OK;\n\
         }\n\
     });\n\
@@ -301,7 +302,7 @@ ReturnHandler handleReturnType(const shared_ptr<MemberInfo>& memberInfo, const S
             ret.footer =
                 L"\n\
     if (progress) {\n\
-        auto progressRc = makeBlockHolder(progress);\n\
+        decltype(progress) progressRc = [progress copy];\n\
         auto progressHandler = ::Microsoft::WRL::Callback<\n\
         ::Microsoft::WRL::Implements<::Microsoft::WRL::RuntimeClassFlags<\n\
             ::Microsoft::WRL::WinRtClassicComMix>,\n\
@@ -314,13 +315,14 @@ ReturnHandler handleReturnType(const shared_ptr<MemberInfo>& memberInfo, const S
                 progressRc(" +
                 progressInfo.toObjc->call(progressInfo, L"status") +
                 L");\n \
+                    [progressRc release];\n\
                     return S_OK;\n\
             }\n\
         });\n\
         unmarshalledReturn->put_Progress(progressHandler.Get());\n\
     }\n\
-    auto successRc = makeBlockHolder(success);\n\
-    auto failureRc = makeBlockHolder(failure);\n\
+    decltype(success) successRc = [success copy];\n\
+    decltype(failure) failureRc = [failure copy];\n\
     auto completionHandler = ::Microsoft::WRL::Callback<\n\
         ::Microsoft::WRL::Implements<::Microsoft::WRL::RuntimeClassFlags<\n\
             ::Microsoft::WRL::WinRtClassicComMix>,\n\
@@ -355,6 +357,7 @@ ReturnHandler handleReturnType(const shared_ptr<MemberInfo>& memberInfo, const S
             } else {\n\
                 if (failureRc) { failureRc([NSError errorWithDomain:@\"Async\" code:(int)status userInfo:nil]); }\n\
             }\n\
+            [successRc release]; [failureRc release];\n\
             return S_OK;\n\
         }\n\
     });\n\

@@ -287,8 +287,8 @@ public:
     }
 
 private:
-    Method _originalNSBundleMethod = nil;
-    Method _swizzledNSBundleMethod = nil;
+    Method _originalNSBundleMethod = nullptr;
+    Method _swizzledNSBundleMethod = nullptr;
 
     void _mockNSBundle() {
         ASSERT_TRUE(!_originalNSBundleMethod && !_swizzledNSBundleMethod);
@@ -300,13 +300,13 @@ private:
     void _unMockNSBundle() {
         if (_originalNSBundleMethod) {
             method_exchangeImplementations(_swizzledNSBundleMethod, _originalNSBundleMethod);
-            _originalNSBundleMethod = nil;
-            _swizzledNSBundleMethod = nil;
+            _originalNSBundleMethod = nullptr;
+            _swizzledNSBundleMethod = nullptr;
         }
     }
 
-    Method _originalUIStoryboardMethod = nil;
-    Method _swizzledUIStoryboardMethod = nil;
+    Method _originalUIStoryboardMethod = nullptr;
+    Method _swizzledUIStoryboardMethod = nullptr;
 
     void _mockUIStoryboard() {
         ASSERT_TRUE(!_originalUIStoryboardMethod && !_swizzledUIStoryboardMethod);
@@ -320,8 +320,8 @@ private:
     void _unMockUIStoryboard() {
         if (_originalUIStoryboardMethod) {
             class_replaceMethod([UIStoryboard class], @selector(storyboardWithName:bundle:), method_getImplementation(_originalUIStoryboardMethod), method_getTypeEncoding(_originalUIStoryboardMethod));
-            _originalUIStoryboardMethod = nil;
-            _swizzledUIStoryboardMethod = nil;
+            _originalUIStoryboardMethod = nullptr;
+            _swizzledUIStoryboardMethod = nullptr;
         }
     }
 };

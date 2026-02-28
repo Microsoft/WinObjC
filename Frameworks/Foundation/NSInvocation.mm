@@ -114,7 +114,7 @@ static constexpr unsigned int NSINVOCATION_SMALL_RETURN_VALUE_SIZE = 16;
  @Status Interoperable
 */
 - (SEL)selector {
-    SEL selector = nil;
+    SEL selector = nullptr;
     [self getArgument:&selector atIndex:1];
     return selector;
 }

@@ -521,7 +521,7 @@ BASE_CLASS_REQUIRED_IMPLS(NSCalendar, NSCalendarPrototype, CFCalendarGetTypeID);
 - (NSDate*)startOfDayForDate:(NSDate*)date {
     NSDate* returnDate = nil;
 
-    [self rangeOfUnit:NSCalendarUnitDay startDate:&returnDate interval:nil forDate:date];
+    [self rangeOfUnit:NSCalendarUnitDay startDate:&returnDate interval:nullptr forDate:date];
 
     return returnDate;
 }
@@ -723,7 +723,7 @@ BASE_CLASS_REQUIRED_IMPLS(NSCalendar, NSCalendarPrototype, CFCalendarGetTypeID);
     // Create a temporary date that exists just before the expected requested date
     NSDate* tempDate;
 
-    [self rangeOfUnit:NSCalendarUnitDay startDate:&tempDate interval:nil forDate:date];
+    [self rangeOfUnit:NSCalendarUnitDay startDate:&tempDate interval:nullptr forDate:date];
 
     // Find an exact date that matches this requested time
     NSDate* result = [self nextDateAfterDate:tempDate matchingComponents:comps options:options];

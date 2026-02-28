@@ -177,7 +177,6 @@
       <AdditionalIncludeDirectories>$(StarboardBasePath)\include;$(StarboardBasePath)\deps\3rdparty;%(AdditionalIncludeDirectories);$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include\xplat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EIGEN_MPL2_ONLY;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>"-DACCELERATE_IMPEXP= " %(AdditionalOptions)</AdditionalOptions>
-      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <ClangCompile>
       <IncludePaths>$(StarboardBasePath)\deps\prebuilt\include;$(StarboardBasePath)\deps\prebuilt\include\icu;$(StarboardBasePath)\Frameworks\include;$(StarboardBasePath)\include;$(StarboardBasePath)\include\xplat;%(IncludePaths)</IncludePaths>

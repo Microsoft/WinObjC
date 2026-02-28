@@ -511,7 +511,7 @@ BASE_CLASS_REQUIRED_IMPLS(NSSet, NSSetPrototype, CFSetGetTypeID);
 - (NSObject*)valueForKey:(NSString*)key {
     if ([key hasPrefix:@"@"]) {
         SEL sel = [_NSKeyValueCodingAggregateFunctions resolveFunction:[key substringFromIndex:1]];
-        if (sel == nil) {
+        if (!sel) {
             return [self valueForUndefinedKey:key];
         }
 

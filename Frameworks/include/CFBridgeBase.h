@@ -60,7 +60,7 @@ struct CFBridgeBase : CFBridgeBaseState {
     template <typename... Args>
     static Bridge* alloc(Class cls, Args&&... args) {
         // Do static validation here since this code must be hit and the full Bridge type isn't realized in the class's scope:
-        static_assert(offsetof(Bridge, isa) == 0, "Isa must be first element: Make sure there are no virtuals or multiple inheritance!");
+        static_assert(__builtin_offsetof(Bridge, isa) == 0, "Isa must be first element: Make sure there are no virtuals or multiple inheritance!");
         static_assert(std::is_base_of<CFBridgeBase<Bridge>, Bridge>::value, "CFBridgeBase<Bridge> must be the base of Bridge!");
 
         static const size_t nsObjectSize = class_getInstanceSize([NSObject class]);

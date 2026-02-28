@@ -38,11 +38,9 @@
     <Description>WinObjC.Language</Description>
     <PackageReleaseNotes>
     </PackageReleaseNotes>
-    <PackageProjectUrl>
-    </PackageProjectUrl>
-    <PackageLicenseUrl>
-    </PackageLicenseUrl>
-    <Copyright>Copyright © Microsoft</Copyright>
+    <PackageProjectUrl>https://aka.ms/winobjc</PackageProjectUrl>
+    <PackageLicenseUrl>https://aka.ms/winobjc_license</PackageLicenseUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageTags>WinObjC.Language</PackageTags>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/6154722?v=3&amp;s=200</PackageIconUrl>
     <IsDevelopmentDependency>true</IsDevelopmentDependency>
@@ -65,27 +63,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt">
-      <IncludeInPackage>true</IncludeInPackage>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AssetCatalogBuilder\AssetCatalogBuilder.csproj" />
-    <ProjectReference Include="..\ClangCompileTask\ClangCompile.csproj" />
-    <ProjectReference Include="..\PropSchemaGen\PropSchemaGen.csproj" />
-    <ProjectReference Include="..\vsimporter\hmapmaker\hmapmaker.vcxproj" />
     <ProjectReference Include="..\vsimporter\sb-expandvars\sb-expandvars.vcxproj" />
     <ProjectReference Include="..\vsimporter\xib2nib\xib2nib.vcxproj" />
     <ProjectReference Include="..\WOCStdLib\dll\WOCStdLib.vcxproj" />
     <ProjectReference Include="..\xib2xaml\xamltools\xamltools.csproj" />
     <ProjectReference Include="..\xib2xaml\xib2xaml\xib2xaml.csproj" />
+    <ProjectReference Include="..\WinObjCRT\dll\WinObjCRT.vcxproj" />
   </ItemGroup>
-
   <!-- NuProj Project References. Ensure that these only get evaluated once by checking that this isn't the second time through this project -->
   <ItemGroup Condition="'$(SkipGetPackageContentsForOtherPlatforms)' != 'true'">
-    <ProjectReference Include="..\WinObjC.Logging\WinObjC.Logging.nuproj" />
+    <ProjectReference Include="..\WinObjC.Logging\WinObjC.Logging.nuproj">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
+    <ProjectReference Include="..\WinObjC.Compiler\WinObjC.Compiler.nuproj">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
   </ItemGroup>
-
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Import Project="$(NuGetAuthoringPath)\NuGet.Packaging.Authoring.targets" Condition="Exists('$(NuGetAuthoringPath)\NuGet.Packaging.Authoring.targets')" />
   <Import Project="WinObjC.Language.Packaging.targets" />

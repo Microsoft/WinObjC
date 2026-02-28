@@ -153,7 +153,7 @@ CTLineRef CTLineCreateTruncatedLine(CTLineRef sourceLine, double width, CTLineTr
 
     // get the truncationToken width, use it to calculate the exact width that should be extracted from the sourceLine.
     CGFloat truncationTokenWidth;
-    if (truncationToken == nil) {
+    if (truncationToken == nullptr) {
         truncationTokenWidth = 0.0f;
     } else {
         truncationTokenWidth = truncationToken->_width;
@@ -169,7 +169,7 @@ CTLineRef CTLineCreateTruncatedLine(CTLineRef sourceLine, double width, CTLineTr
 
     // widthToExtract is the width that will be extracted from the sourceLine and merged with truncationToken finally
     double widthToExtract;
-    if (truncationToken == nil) {
+    if (truncationToken == nullptr) {
         widthToExtract = width;
     } else {
         widthToExtract = width - truncationTokenWidth;
@@ -178,7 +178,7 @@ CTLineRef CTLineCreateTruncatedLine(CTLineRef sourceLine, double width, CTLineTr
     // get an CFMutableAttributedString string from truncationToken by looping across its runs and extracting the run attribuets.
     auto stringFromToken = woc::MakeStrongCF<CFMutableAttributedStringRef>(CFAttributedStringCreateMutable(kCFAllocatorDefault, 0));
     CFArrayRef tokenRuns = CTLineGetGlyphRuns(truncationToken);
-    if (tokenRuns != nil) {
+    if (tokenRuns != nullptr) {
         CFIndex numberOfRuns = CFArrayGetCount(tokenRuns);
         for (int i = 0; i < numberOfRuns; ++i) {
             CTRunRef run = static_cast<CTRunRef>(CFArrayGetValueAtIndex(tokenRuns, i));
@@ -187,9 +187,9 @@ CTLineRef CTLineCreateTruncatedLine(CTLineRef sourceLine, double width, CTLineTr
         }
     }
 
-    CFMutableAttributedStringRef finalString = nil;
-    CFMutableAttributedStringRef truncatedStringFromLeft = nil;
-    CFMutableAttributedStringRef truncatedStringFromRight = nil;
+    CFMutableAttributedStringRef finalString = nullptr;
+    CFMutableAttributedStringRef truncatedStringFromLeft = nullptr;
+    CFMutableAttributedStringRef truncatedStringFromRight = nullptr;
 
     switch (truncationType) {
         case kCTLineTruncationStart:
@@ -214,7 +214,7 @@ CTLineRef CTLineCreateTruncatedLine(CTLineRef sourceLine, double width, CTLineTr
 
             break;
         default:
-            return nil;
+            return nullptr;
     }
     return CTLineCreateWithAttributedString(static_cast<CFAttributedStringRef>(finalString));
 }

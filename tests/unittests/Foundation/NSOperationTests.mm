@@ -717,7 +717,7 @@ TEST(NSOperation, MainQueue) {
     EXPECT_EQ(quality, mainQueue.qualityOfService);
 
     // mainQueue has an unchangeable underlying queue
-    ASSERT_NO_THROW([mainQueue setUnderlyingQueue:nil]);
+    ASSERT_NO_THROW([mainQueue setUnderlyingQueue:nullptr]);
     ASSERT_EQ([mainQueue underlyingQueue], dispatch_get_main_queue());
     ASSERT_NO_THROW([mainQueue setUnderlyingQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)]);
     ASSERT_EQ([mainQueue underlyingQueue], dispatch_get_main_queue());
@@ -1171,11 +1171,11 @@ TEST(NSOperation, WaitUntilAllOperationsAreFinished) {
 TEST(NSOperation, UnderlyingQueue_QualityOfService) {
     NSOperationQueue* queue = [[NSOperationQueue new] autorelease];
 
-    ASSERT_EQ(nil, queue.underlyingQueue);
+    ASSERT_EQ(nullptr, queue.underlyingQueue);
 
     // Should not change underlyingQueue
     queue.qualityOfService = NSQualityOfServiceBackground;
-    ASSERT_EQ(nil, queue.underlyingQueue);
+    ASSERT_EQ(nullptr, queue.underlyingQueue);
 
     // Should not change quality of service
     dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);

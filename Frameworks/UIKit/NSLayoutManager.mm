@@ -642,7 +642,7 @@ static NSRange NSRangeFromCFRange(CFRange range) {
                                range:(NSRange)editRange
                       changeInLength:(NSInteger)deltaLen
                     invalidatedRange:(NSRange)invalidRange {
-    _frame.reset(nil);
+    _frame.reset(nullptr);
     [self invalidateDisplayForCharacterRange:invalidRange];
 }
 

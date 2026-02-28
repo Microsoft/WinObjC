@@ -6,29 +6,29 @@ LIBRARY MediaPlayer
         MPVolumeSettingsAlertIsVisible
 
         ; MPChangePlaybackRateCommand.mm
-        _OBJC_CLASS_MPChangePlaybackRateCommand DATA
-        __objc_class_name_MPChangePlaybackRateCommand CONSTANT
+        $_OBJC_CLASS_MPChangePlaybackRateCommand DATA
+        $_OBJC_REF_CLASS_MPChangePlaybackRateCommand DATA
 
         ; MPChangePlaybackRateCommandEvent.mm
-        _OBJC_CLASS_MPChangePlaybackRateCommandEvent DATA
-        __objc_class_name_MPChangePlaybackRateCommandEvent CONSTANT
+        $_OBJC_CLASS_MPChangePlaybackRateCommandEvent DATA
+        $_OBJC_REF_CLASS_MPChangePlaybackRateCommandEvent DATA
 
         ; MPContentItem.mm
-        _OBJC_CLASS_MPContentItem DATA
-        __objc_class_name_MPContentItem CONSTANT
+        $_OBJC_CLASS_MPContentItem DATA
+        $_OBJC_REF_CLASS_MPContentItem DATA
 
         ; MPFeedbackCommand.mm
-        _OBJC_CLASS_MPFeedbackCommand DATA
-        __objc_class_name_MPFeedbackCommand CONSTANT
+        $_OBJC_CLASS_MPFeedbackCommand DATA
+        $_OBJC_REF_CLASS_MPFeedbackCommand DATA
 
         ; MPFeedbackCommandEvent.mm
-        _OBJC_CLASS_MPFeedbackCommandEvent DATA
-        __objc_class_name_MPFeedbackCommandEvent CONSTANT
+        $_OBJC_CLASS_MPFeedbackCommandEvent DATA
+        $_OBJC_REF_CLASS_MPFeedbackCommandEvent DATA
 
         ; MPMediaEntity.mm
         MPMediaEntityPropertyPersistentID DATA
-        _OBJC_CLASS_MPMediaEntity DATA
-        __objc_class_name_MPMediaEntity CONSTANT
+        $_OBJC_CLASS_MPMediaEntity DATA
+        $_OBJC_REF_CLASS_MPMediaEntity DATA
 
         ; MPMediaItem.mm
         MPMediaItemPropertyPersistentID DATA
@@ -65,64 +65,64 @@ LIBRARY MediaPlayer
         MPMediaItemPropertyLastPlayedDate DATA
         MPMediaItemPropertyUserGrouping DATA
         MPMediaItemPropertyBookmarkTime DATA
-        _OBJC_CLASS_MPMediaItem DATA
-        __objc_class_name_MPMediaItem CONSTANT
+        $_OBJC_CLASS_MPMediaItem DATA
+        $_OBJC_REF_CLASS_MPMediaItem DATA
 
         ; MPMediaItemArtwork.mm
-        _OBJC_CLASS_MPMediaItemArtwork DATA
-        __objc_class_name_MPMediaItemArtwork CONSTANT
+        $_OBJC_CLASS_MPMediaItemArtwork DATA
+        $_OBJC_REF_CLASS_MPMediaItemArtwork DATA
 
         ; MPMediaItemCollection.mm
-        _OBJC_CLASS_MPMediaItemCollection DATA
-        __objc_class_name_MPMediaItemCollection CONSTANT
+        $_OBJC_CLASS_MPMediaItemCollection DATA
+        $_OBJC_REF_CLASS_MPMediaItemCollection DATA
 
         ; MPMediaLibrary.mm
-        _OBJC_CLASS_MPMediaLibrary DATA
-        __objc_class_name_MPMediaLibrary CONSTANT
+        $_OBJC_CLASS_MPMediaLibrary DATA
+        $_OBJC_REF_CLASS_MPMediaLibrary DATA
 
         ; MPMediaPickerController.mm
-        _OBJC_CLASS_MPMediaPickerController DATA
-        __objc_class_name_MPMediaPickerController CONSTANT
+        $_OBJC_CLASS_MPMediaPickerController DATA
+        $_OBJC_REF_CLASS_MPMediaPickerController DATA
 
         ; MPMediaPlaylist.mm
         MPMediaPlaylistPropertyPersistentID DATA
         MPMediaPlaylistPropertyName DATA
         MPMediaPlaylistPropertyPlaylistAttributes DATA
         MPMediaPlaylistPropertySeedItems DATA
-        _OBJC_CLASS_MPMediaPlaylist DATA
-        __objc_class_name_MPMediaPlaylist CONSTANT
+        $_OBJC_CLASS_MPMediaPlaylist DATA
+        $_OBJC_REF_CLASS_MPMediaPlaylist DATA
 
         ; MPMediaPredicate.mm
-        _OBJC_CLASS_MPMediaPredicate DATA
-        __objc_class_name_MPMediaPredicate CONSTANT
+        $_OBJC_CLASS_MPMediaPredicate DATA
+        $_OBJC_REF_CLASS_MPMediaPredicate DATA
 
         ; MPMediaPropertyPredicate.mm
-        _OBJC_CLASS_MPMediaPropertyPredicate DATA
-        __objc_class_name_MPMediaPropertyPredicate CONSTANT
+        $_OBJC_CLASS_MPMediaPropertyPredicate DATA
+        $_OBJC_REF_CLASS_MPMediaPropertyPredicate DATA
 
         ; MPMediaQuery.mm
-        _OBJC_CLASS_MPMediaQuery DATA
-        __objc_class_name_MPMediaQuery CONSTANT
+        $_OBJC_CLASS_MPMediaQuery DATA
+        $_OBJC_REF_CLASS_MPMediaQuery DATA
 
         ; MPMediaQuerySection.mm
-        _OBJC_CLASS_MPMediaQuerySection DATA
-        __objc_class_name_MPMediaQuerySection CONSTANT
+        $_OBJC_CLASS_MPMediaQuerySection DATA
+        $_OBJC_REF_CLASS_MPMediaQuerySection DATA
 
         ; MPMovieAccessLog.mm
-        _OBJC_CLASS_MPMovieAccessLog DATA
-        __objc_class_name_MPMovieAccessLog CONSTANT
+        $_OBJC_CLASS_MPMovieAccessLog DATA
+        $_OBJC_REF_CLASS_MPMovieAccessLog DATA
 
         ; MPMovieAccessLogEvent.mm
-        _OBJC_CLASS_MPMovieAccessLogEvent DATA
-        __objc_class_name_MPMovieAccessLogEvent CONSTANT
+        $_OBJC_CLASS_MPMovieAccessLogEvent DATA
+        $_OBJC_REF_CLASS_MPMovieAccessLogEvent DATA
 
         ; MPMovieErrorLog.mm
-        _OBJC_CLASS_MPMovieErrorLog DATA
-        __objc_class_name_MPMovieErrorLog CONSTANT
+        $_OBJC_CLASS_MPMovieErrorLog DATA
+        $_OBJC_REF_CLASS_MPMovieErrorLog DATA
 
         ; MPMovieErrorLogEvent.mm
-        _OBJC_CLASS_MPMovieErrorLogEvent DATA
-        __objc_class_name_MPMovieErrorLogEvent CONSTANT
+        $_OBJC_CLASS_MPMovieErrorLogEvent DATA
+        $_OBJC_REF_CLASS_MPMovieErrorLogEvent DATA
 
         ; MPMoviePlayerController.mm
         MPMoviePlayerThumbnailImageKey DATA
@@ -138,16 +138,16 @@ LIBRARY MediaPlayer
         MPMoviePlayerPlaybackDidFinishNotification DATA
         MPMoviePlayerLoadStateDidChangeNotification DATA
 
-        _OBJC_CLASS_MPMoviePlayerController DATA
-        __objc_class_name_MPMoviePlayerController CONSTANT
+        $_OBJC_CLASS_MPMoviePlayerController DATA
+        $_OBJC_REF_CLASS_MPMoviePlayerController DATA
 
         ; MPMoviePlayerViewController.mm
-        _OBJC_CLASS_MPMoviePlayerViewController DATA
-        __objc_class_name_MPMoviePlayerViewController CONSTANT
+        $_OBJC_CLASS_MPMoviePlayerViewController DATA
+        $_OBJC_REF_CLASS_MPMoviePlayerViewController DATA
 
         ; MPMusicPlayerController.mm
-        _OBJC_CLASS_MPMusicPlayerController DATA
-        __objc_class_name_MPMusicPlayerController CONSTANT
+        $_OBJC_CLASS_MPMusicPlayerController DATA
+        $_OBJC_REF_CLASS_MPMusicPlayerController DATA
 
         ; MPNowPlayingInfoCenter.mm
         MPNowPlayingInfoPropertyElapsedPlaybackTime DATA
@@ -156,44 +156,44 @@ LIBRARY MediaPlayer
         MPNowPlayingInfoPropertyPlaybackQueueCount DATA
         MPNowPlayingInfoPropertyChapterNumber DATA
         MPNowPlayingInfoPropertyChapterCount DATA
-        _OBJC_CLASS_MPNowPlayingInfoCenter DATA
-        __objc_class_name_MPNowPlayingInfoCenter CONSTANT
+        $_OBJC_CLASS_MPNowPlayingInfoCenter DATA
+        $_OBJC_REF_CLASS_MPNowPlayingInfoCenter DATA
 
         ; MPPlayableContentManager.mm
-        _OBJC_CLASS_MPPlayableContentManager DATA
-        __objc_class_name_MPPlayableContentManager CONSTANT
+        $_OBJC_CLASS_MPPlayableContentManager DATA
+        $_OBJC_REF_CLASS_MPPlayableContentManager DATA
 
         ; MPRatingCommand.mm
-        _OBJC_CLASS_MPRatingCommand DATA
-        __objc_class_name_MPRatingCommand CONSTANT
+        $_OBJC_CLASS_MPRatingCommand DATA
+        $_OBJC_REF_CLASS_MPRatingCommand DATA
 
         ; MPRatingCommandEvent.mm
-        _OBJC_CLASS_MPRatingCommandEvent DATA
-        __objc_class_name_MPRatingCommandEvent CONSTANT
+        $_OBJC_CLASS_MPRatingCommandEvent DATA
+        $_OBJC_REF_CLASS_MPRatingCommandEvent DATA
 
         ; MPRemoteCommand.mm
-        _OBJC_CLASS_MPRemoteCommand DATA
-        __objc_class_name_MPRemoteCommand CONSTANT
+        $_OBJC_CLASS_MPRemoteCommand DATA
+        $_OBJC_REF_CLASS_MPRemoteCommand DATA
 
         ; MPRemoteCommandCenter.mm
-        _OBJC_CLASS_MPRemoteCommandCenter DATA
-        __objc_class_name_MPRemoteCommandCenter CONSTANT
+        $_OBJC_CLASS_MPRemoteCommandCenter DATA
+        $_OBJC_REF_CLASS_MPRemoteCommandCenter DATA
 
         ; MPRemoteCommandEvent.mm
-        _OBJC_CLASS_MPRemoteCommandEvent DATA
-        __objc_class_name_MPRemoteCommandEvent CONSTANT
+        $_OBJC_CLASS_MPRemoteCommandEvent DATA
+        $_OBJC_REF_CLASS_MPRemoteCommandEvent DATA
 
         ; MPSeekCommandEvent.mm
-        _OBJC_CLASS_MPSeekCommandEvent DATA
-        __objc_class_name_MPSeekCommandEvent CONSTANT
+        $_OBJC_CLASS_MPSeekCommandEvent DATA
+        $_OBJC_REF_CLASS_MPSeekCommandEvent DATA
 
         ; MPSkipIntervalCommand.mm
-        _OBJC_CLASS_MPSkipIntervalCommand DATA
-        __objc_class_name_MPSkipIntervalCommand CONSTANT
+        $_OBJC_CLASS_MPSkipIntervalCommand DATA
+        $_OBJC_REF_CLASS_MPSkipIntervalCommand DATA
 
         ; MPSkipIntervalCommandEvent.mm
-        _OBJC_CLASS_MPSkipIntervalCommandEvent DATA
-        __objc_class_name_MPSkipIntervalCommandEvent CONSTANT
+        $_OBJC_CLASS_MPSkipIntervalCommandEvent DATA
+        $_OBJC_REF_CLASS_MPSkipIntervalCommandEvent DATA
 
         ; MPTimedMetadata.mm
         MPMoviePlayerTimedMetadataKeyName DATA
@@ -201,11 +201,11 @@ LIBRARY MediaPlayer
         MPMoviePlayerTimedMetadataKeyMIMEType DATA
         MPMoviePlayerTimedMetadataKeyDataType DATA
         MPMoviePlayerTimedMetadataKeyLanguageCode DATA
-        _OBJC_CLASS_MPTimedMetadata DATA
-        __objc_class_name_MPTimedMetadata CONSTANT
+        $_OBJC_CLASS_MPTimedMetadata DATA
+        $_OBJC_REF_CLASS_MPTimedMetadata DATA
 
         ; MPVolumeView.mm
-        _OBJC_CLASS_MPVolumeView DATA
-        __objc_class_name_MPVolumeView CONSTANT
+        $_OBJC_CLASS_MPVolumeView DATA
+        $_OBJC_REF_CLASS_MPVolumeView DATA
 
         ; UIViewController.mm

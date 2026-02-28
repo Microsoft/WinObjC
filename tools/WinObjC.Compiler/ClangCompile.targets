@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="ClangCompile">
+      <Targets>_ClangCompile</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+
+  <UsingTask
+    TaskName="Clang"
+    AssemblyFile="ClangCompileTask.dll"/>
+
+  <PropertyGroup>
+    <ClangCompileDependsOn>_SelectedFiles;MakeDirsForClang;GenerateHeaderMaps;ComputeClangOptions</ClangCompileDependsOn>
+    <ClangCompileBeforeTargets>ClCompile;Link;Lib;ImpLib</ClangCompileBeforeTargets>
+    <ClangCompileAfterTargets></ClangCompileAfterTargets>
+    <BeforeClCompileTargets>_ClangCompile;$(BeforeClCompileTargets)</BeforeClCompileTargets>
+    <BuildCompileTargets>_ClangCompile;$(BuildCompileTargets)</BuildCompileTargets>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ClangCompileExtraInputs>$(MSBuildProjectFile)</ClangCompileExtraInputs>
+    <CombinedHMapFilename>$([System.IO.Path]::Combine('$(ProjectDir)', '$(IntDir)', '$(MSBuildProjectName)-combined'))</CombinedHMapFilename>
+    <ProjectHMapFilename>$([System.IO.Path]::Combine('$(ProjectDir)', '$(IntDir)', '$(MSBuildProjectName)-project'))</ProjectHMapFilename>
+    <CombinedHMapRequired>@(ClangCompile->AnyHaveMetadataValue('HeaderMap','Combined'))</CombinedHMapRequired>
+    <ProjectHMapRequired>@(ClangCompile->AnyHaveMetadataValue('HeaderMap','Project'))</ProjectHMapRequired>
+    <HMapAddFrameworkEntries>@(ClangCompile->AnyHaveMetadataValue('HeaderMapAddFrameworkEntries','true'))</HMapAddFrameworkEntries>
+    <DummyClangFile>$(IntDir)DummyNoCompile.mm</DummyClangFile>
+  </PropertyGroup>
+  
+  <Target Name="ComputeStarboardCRT">
+    <!-- Inject a dummy ClangCompile file to gain access to autocomplete arguments for the project.
+         If the project doesn't contain any explicit ClangCompile files, this also helps with the
+         computation of the StarboardCRT. -->
+    <ItemGroup>
+      <ClangCompile Include="$(DummyClangFile)">
+        <ExcludedFromBuild>true</ExcludedFromBuild>
+      </ClangCompile>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <!-- Choose a CRT to use -->
+      <ClangCompileCRTs>@(ClangCompile->Metadata('RuntimeLibrary')->Distinct()->ClearMetadata())</ClangCompileCRTs>
+      <ClangCompilePreprocessorDefinitions>@(ClangCompile->Metadata('PreprocessorDefinitions')->Distinct()->ClearMetadata())</ClangCompilePreprocessorDefinitions>
+      <StarboardCRT>MultiThreadedDLL</StarboardCRT>
+      <StarboardCRT Condition="$(ClangCompileCRTs.Contains('MultiThreadedDebugDLL'))">MultiThreadedDebugDLL</StarboardCRT>
+      <!-- Choose configuration that corresponds to the CRT -->
+      <StarboardCRTConfig>Release</StarboardCRTConfig>
+      <StarboardCRTConfig Condition="'$(StarboardCRT)' == 'MultiThreadedDebugDLL'">Debug</StarboardCRTConfig>
+    </PropertyGroup>
+  </Target>
+
+  <Target
+    Name="_ClangCompile"
+    BeforeTargets="$(ClangCompileBeforeTargets)"
+    AfterTargets="$(ClangCompileAfterTargets)"
+    Condition="'@(ClangCompile)' != ''"
+    DependsOnTargets="$(ClangCompileDependsOn)">
+    <!-- Handle building of selected files -->
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <ClangCompile Remove="@(ClangCompile)" Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+
+    <Message
+      Condition="'@(ClangCompile)' != '' and '%(ClangCompile.MaxClangProcesses)' != '1' and '%(ClangCompile.ObjectiveCModules)' == 'true'"
+      Importance="High"
+      Text="Note: Setting MaxClangProcesses to 1 because Modules are enabled." />
+
+    <ItemGroup>
+      <ClangCompile>
+        <MaxClangProcesses Condition="'@(ClangCompile)' != '' and '%(ClangCompile.MaxClangProcesses)' != '1' and '%(ClangCompile.ObjectiveCModules)' == 'true'">1</MaxClangProcesses>
+      </ClangCompile>
+    </ItemGroup>
+
+    <Error Condition="'@(ClangCompile)' != '' and ('%(ClangCompile.MaxClangProcesses)' &lt; '-1' or '%(ClangCompile.MaxClangProcesses)' == '0')"
+      Text="%(ClangCompile.MaxClangProcesses) is an invalid value for MaxClangProcesses. MaxClangProcesses must be -1, or a postive integer." />
+
+    <!-- Call Clang, passing AdditionalOptions as the LAST argument -->
+    <Clang
+      Condition="'@(ClangCompile)' != '' and '%(ClangCompile.ExcludedFromBuild)' != 'true'"
+      InternalCompilerFlags="%(ClangCompile.InternalCompilerFlags)"
+      InternalSystemIncludePaths="%(ClangCompile.InternalSystemIncludePaths)"
+      InternalIncludePaths="%(ClangCompile.InternalIncludePaths)"
+      InternalForceIncludes="%(ClangCompile.InternalForceIncludes)"
+      ExcludedSearchPathSubdirectories="%(ClangCompile.ExcludedSearchPathSubdirectories)"
+      Autocomplete="$(ClangAutocomplete)"
+      AutocompleteCommandLineTemplate="%(ClangCompile.AutocompleteCommandLineTemplate)"
+      CommandLineTemplate="%(ClangCompile.CommandLineTemplate)"
+      CommandTLogFile="%(ClangCompile.CommandTLogFile)"
+      CompileAs="%(ClangCompile.CompileAs)"
+      DebugInformation="%(ClangCompile.DebugInformation)"
+      DependencyFile="%(ClangCompile.DependencyFile)"
+      ExceptionHandling="%(ClangCompile.ExceptionHandling)"
+      HeaderMapInclude="%(ClangCompile.HeaderMapInclude)"
+      IncludePaths="%(ClangCompile.IncludePaths)"
+      Input="@(ClangCompile)"
+      LLVMDirectory="$(StarboardLLVMDirectory)"
+      ObjectiveCARC="%(ClangCompile.ObjectiveCARC)"
+      ObjectiveCModules="%(ClangCompile.ObjectiveCModules)"
+      ObjectiveCModulesCachePath="%(ClangCompile.ObjectiveCModulesCachePath)"
+      ObjectFileName="%(ClangCompile.ObjectFileName)"
+      OptimizationLevel="%(ClangCompile.OptimizationLevel)"
+      PrefixHeader="%(ClangCompile.PrefixHeader)"
+      PreprocessorDefinitions="%(ClangCompile.PreprocessorDefinitions)"
+      ProjectFile="$(MSBuildProjectFullPath)"
+      RuntimeLibrary="%(ClangCompile.RuntimeLibrary)"
+      SystemHeaderDeps="%(ClangCompile.SystemHeaderDeps)"
+      UserIncludePaths="%(ClangCompile.UserIncludePaths)"
+      ReadTLogFile="%(ClangCompile.ReadTLogFile)"
+      MaxClangProcesses="%(ClangCompile.MaxClangProcesses)"
+      CLanguageStandard="%(ClangCompile.CLanguageStandard)"
+      CppLanguageStandard="%(ClangCompile.CppLanguageStandard)"
+      AdditionalOptions="%(ClangCompile.OtherFlags) %(ClangCompile.AdditionalOptions)">
+      <Output TaskParameter="Outputs" ItemName="ClangOutputs" />
+    </Clang>
+  </Target>
+
+  <Target
+    Name="GenerateHeaderMaps"
+    DependsOnTargets="GenerateCombinedHMap;GenerateProjectHMap;WriteHeaderMaps" />
+
+  <Target
+    Name="ComputeCombinedHMap">
+
+    <ItemGroup>
+      <HeaderMapEntry Include="%(ClangCompile.RootDir)%(ClangCompile.Directory)*.h" />
+      <HeaderMapEntry Include="%(ClangCompile.RootDir)%(ClangCompile.Directory)*.hh" />
+      <HeaderMapEntry Include="%(ClangCompile.RootDir)%(ClangCompile.Directory)*.hpp" />
+      <HeaderMapEntry Include="%(ClangCompile.RootDir)%(ClangCompile.Directory)*.pch" />
+      <HeaderMapEntry Include="%(ClInclude.FullPath)" />
+      <HeaderMapEntry Condition="'$(HMapAddFrameworkEntries)' == 'true'" Include="%(ClInclude.FullPath)&#x9;$(TargetName)/%(ClInclude.Filename)%(ClInclude.Extension)" />
+      <HeaderMap Include="$(CombinedHMapFilename)" />
+    </ItemGroup>
+  </Target>
+
+  <Target
+    Name="GenerateCombinedHMap"
+    DependsOnTargets="ComputeCombinedHMap"
+    Condition="'$(CombinedHMapRequired)' == 'true'"
+    Inputs="@(HeaderMapEntry)"
+    Outputs="$(CombinedHMapFilename).txt">
+
+    <!-- Only support ASCII paths for now -->
+    <WriteLinesToFile
+      File="$(CombinedHMapFilename).txt"
+      Lines="@(HeaderMapEntry)"
+      Overwrite="true"
+      Encoding="ASCII" />
+
+    <ItemGroup>
+      <HeaderMapEntry Remove="@(HeaderMapEntry)" />
+    </ItemGroup>
+  </Target>
+
+  <Target
+    Name="ComputeProjectHMap">
+
+    <ItemGroup>
+      <HeaderMapEntry Include="%(ClInclude.FullPath)" />
+      <HeaderMapEntry Condition="'$(HMapAddFrameworkEntries)' == 'true'" Include="%(ClInclude.FullPath)&#x9;$(TargetName)/%(ClInclude.Filename)%(ClInclude.Extension)" />
+      <HeaderMap Include="$(ProjectHMapFilename)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="@(HeaderMapEntry) == ''">
+      <HeaderMapEntry Include="Empty" />
+    </ItemGroup>
+  </Target>
+
+  <Target
+    Name="GenerateProjectHMap"
+    DependsOnTargets="ComputeProjectHMap"
+    Condition="'$(ProjectHMapRequired)' == 'true'"
+    Inputs="@(HeaderMapEntry)"
+    Outputs="$(ProjectHMapFilename).txt">
+
+    <!-- Only support ASCII paths for now -->
+    <WriteLinesToFile
+      File="$(ProjectHMapFilename).txt"
+      Lines="@(HeaderMapEntry)"
+      Overwrite="true"
+      Encoding="ASCII" />
+
+    <ItemGroup>
+      <HeaderMapEntry Remove="@(HeaderMapEntry)" />
+    </ItemGroup>
+  </Target>
+
+  <Target
+    Name="WriteHeaderMaps"
+    Condition="'@(HeaderMap)' != ''"
+    Inputs="@(HeaderMap->'%(Identity).txt')"
+    Outputs="@(HeaderMap->'%(Identity).hmap')">
+
+    <Exec
+      Command="&quot;$(MSBuildThisFileDirectory)bin\hmapmaker.exe&quot; &quot;%(HeaderMap.Identity).txt&quot; &quot;%(HeaderMap.Identity).hmap&quot;" />
+  </Target>
+
+  <!-- Create parent directories for all object files -->
+  <Target Name="MakeDirsForClang" Condition="'@(ClangCompile)' != ''" DependsOnTargets="ComputeClangOptions">
+    <MakeDir Directories="@(ClangCompile->Metadata('ObjectFileName')->DirectoryName()->Distinct()->ClearMetadata())" />
+  </Target>
+  
+  <Target
+    Name="ComputeClangOptions"
+    DependsOnTargets="ComputeStarboardCRT">
+
+    <!-- Figure out what to compile each file as -->
+    <ItemGroup>
+      <ClangCompile Condition="'%(ClangCompile.CompileAs)' == 'Default' or '%(ClangCompile.CompileAs)' == ''">
+        <CompileAs Condition="'%(Extension)'=='.c'">CompileAsC</CompileAs>
+        <CompileAs Condition="'%(Extension)'=='.m'">CompileAsObjC</CompileAs>
+        <CompileAs Condition="'%(Extension)'=='.cpp' or '%(Extension)'=='.cc' or '%(Extension)'=='.cxx'">CompileAsCpp</CompileAs>
+        <CompileAs Condition="'%(Extension)'=='.mm' or '%(Extension)'=='.mxx'">CompileAsObjCpp</CompileAs>
+      </ClangCompile>
+    </ItemGroup>
+
+    <!-- Figure out language-specific flags -->
+    <ItemGroup>
+      <ClangCompile>
+        <OtherFlags Condition="'%(ClangCompile.CompileAs)' == 'CompileAsC' or
+                               '%(ClangCompile.CompileAs)' == 'CompileAsObjC'">%(ClangCompile.OtherCFlags)</OtherFlags>
+        <OtherFlags Condition="'%(ClangCompile.CompileAs)' == 'CompileAsCpp' or
+                               '%(ClangCompile.CompileAs)' == 'CompileAsObjCpp'">%(ClangCompile.OtherCPlusPlusFlags)</OtherFlags>
+
+        <!-- Clear the language standard for the language we're _not_ compiling -->
+        <CLanguageStandard Condition="'%(ClangCompile.CompileAs)' != 'CompileAsC' and
+                                      '%(ClangCompile.CompileAs)' != 'CompileAsObjC'"></CLanguageStandard>
+        <CppLanguageStandard Condition="'%(ClangCompile.CompileAs)' != 'CompileAsCpp' and
+                                        '%(ClangCompile.CompileAs)' != 'CompileAsObjCpp'"></CppLanguageStandard>
+      </ClangCompile>
+    </ItemGroup>
+
+    <!-- Figure out which header map to use -->
+    <ItemGroup>
+      <ClangCompile>
+        <HeaderMapInclude Condition="'%(ClangCompile.HeaderMap)' == 'Project'">-I"$(ProjectHMapFilename).hmap"</HeaderMapInclude>
+        <HeaderMapInclude Condition="'%(ClangCompile.HeaderMap)' == 'Combined'">-I"$(CombinedHMapFilename).hmap"</HeaderMapInclude>
+      </ClangCompile>
+    </ItemGroup>
+
+    <!-- Add in the ClCompile additional include directories to clang. -->
+    <PropertyGroup>
+      <_ShouldMakeTmpClCompile Condition="'@(ClCompile)' == ''">true</_ShouldMakeTmpClCompile>
+    </PropertyGroup>
+    <ItemGroup>
+      <ClCompile Include="_tmp" Condition="'$(_ShouldMakeTmpClCompile)' == 'true'"/>
+      <ClangCompile Condition="'%(ClangCompile.Identity)' != ''">
+          <IncludePaths>@(ClCompile->Metadata('AdditionalIncludeDirectories')->Distinct()->ClearMetadata());%(ClangCompile.IncludePaths);</IncludePaths>
+      </ClangCompile>
+      <ClCompile Remove="_tmp" Condition="'$(_ShouldMakeTmpClCompile)' == 'true'"/>
+    </ItemGroup>
+  </Target>
+
+  <!-- Ensure Link/Lib/ImpLib pick up the object files -->
+  <ItemDefinitionGroup>
+    <ClangOutputs>
+      <LinkCompiled>$(LinkCompiled)</LinkCompiled>
+      <LibCompiled>$(LibCompiled)</LibCompiled>
+      <ImpLibCompiled>$(ImpLibCompiled)</ImpLibCompiled>
+    </ClangOutputs>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>$(ComputeLinkInputsTargets);ComputeClangLinkInputs;</ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>$(ComputeLibInputsTargets);ComputeClangLibInputs;</ComputeLibInputsTargets>
+    <ComputeImpLibInputsTargets>$(ComputeImpLibInputsTargets);ComputeClangImpLibInputs;</ComputeImpLibInputsTargets>
+  </PropertyGroup>
+
+
+  <Target Name="ComputeClangLinkInputs" DependsOnTargets="_ClangCompile">
+    <ItemGroup>
+      <Link Condition="'%(ClangOutputs.LinkCompiled)' == 'true'" Include="%(ClangOutputs.ObjectFileName)" />
+    </ItemGroup>
+  </Target>
+  <Target Name="ComputeClangLibInputs" DependsOnTargets="ComputeClangOptions;_ClangCompile">
+    <ItemGroup>
+      <Lib Condition="'%(ClangOutputs.LibCompiled)' == 'true'" Include="%(ClangOutputs.ObjectFileName)" />
+    </ItemGroup>
+  </Target>
+  <Target Name="ComputeClangImpLibInputs" DependsOnTargets="ComputeClangOptions;_ClangCompile">
+    <ItemGroup>
+      <ImpLib Condition="'%(ClangOutputs.ImpLibCompiled)' == 'true'" Include="%(ClangOutputs.ObjectFileName)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Clean generated files -->
+  <PropertyGroup>
+    <CleanDependsOn>$(CleanDependsOn);CleanClang;</CleanDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CleanClang" Condition="'@(ClangCompile)' != ''" DependsOnTargets="ComputeClangOptions">
+    <!-- Delete header maps -->
+    <Delete Files="$(CombinedHMapFilename).txt;$(CombinedHMapFilename).hmap;$(ProjectHMapFilename).txt;$(ProjectHMapFilename).hmap" />
+    <RemoveDir Directories="@(ClangCompile->Metadata('ObjectiveCModulesCachePath')->Distinct()->ClearMetadata())" />
+  </Target>
+
+</Project>
